@@ -16,7 +16,7 @@ router.get(
     failureRedirect: "/",
   }),
   (req, res) => {
-    res.redirect("http://localhost:3000/dashboard");
+    res.redirect(`${process.env.REACT_APP_URL}/dashboard`);
   }
 );
 

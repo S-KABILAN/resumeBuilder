@@ -12,7 +12,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // React frontend
+    origin: process.env.REACT_APP_URL, // React frontend
     methods: ["GET", "POST"],
     credentials: true, // Allow cookies and authentication info
   })
