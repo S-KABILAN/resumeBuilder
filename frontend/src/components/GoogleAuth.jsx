@@ -3,8 +3,7 @@ import React from "react";
 const GoogleAuth = () => {
   const handleGoogleLogin = () => {
     // Default to localhost if the environment variable is missing
-    const baseUrl =
-      process.env.REACT_APP_API_BASE_URL;
+    const baseUrl = "http://localhost:5000";
     window.location.href = `${baseUrl}/auth/google`;
   };
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GoogleAuth from "./components/GoogleAuth";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./components/Dashborad";
 
 const App = () => {
   return (
