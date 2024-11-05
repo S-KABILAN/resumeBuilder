@@ -1,16 +1,15 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GoogleAuth from "./components/GoogleAuth";
-import Dashboard from "./components/Dashborad";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<GoogleAuth />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <GoogleOAuthProvider clientId="427914236244-vqjda24o5f814gf3aaj0vcpgl5pcb51q.apps.googleusercontent.com">
+      <div className="App">
+        <h1>Google Authentication with MERN</h1>
+        <GoogleAuth />
+      </div>
+    </GoogleOAuthProvider>
   );
 };
 

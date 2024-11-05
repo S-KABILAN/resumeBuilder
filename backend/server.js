@@ -1,51 +1,37 @@
 const express = require("express");
-const cors = require("cors");
-const passport = require("passport");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const session = require("express-session");
-const app = express();
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const authRoutes = require("./routes/auth");
 
 dotenv.config();
 
+const app = express();
 
-
+// Middleware
 app.use(
   cors({
-    origin: process.env.REACT_APP_URL, // React frontend
-    methods: ["GET", "POST"],
-    credentials: true, // Allow cookies and authentication info
+    origin: "http://localhost:5173", // Adjust this based on your frontend
+    credentials: true,
   })
 );
-app.use(express.json());
-app.use(
-  session({
-    secret: process.env.JWT_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+app.use(bodyParser.json());
 
-// MongoDB connection
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
-
-// Passport Google OAuth
-require("./config/passport");
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // Routes
-app.use("/auth", require("./routes/authRoutes")); // Ensure your route is mounted properly
-app.use("/resume", require("./routes/resumeRoutes"));
+app.use("/auth", authRoutes);
 
-// Start server
+// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome</h1>");
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
