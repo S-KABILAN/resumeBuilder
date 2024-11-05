@@ -6,7 +6,7 @@ const GoogleAuth = () => {
     console.log("Login Success:", credentialResponse);
     // Redirect or process login
     window.location.href =
-      "https://resume-builder-client1.vercel.app/auth/google/callback";
+      "https://resume-builder-ashy-two.vercel.app/auth/google/callback";
   };
 
   const handleGoogleLoginError = () => {
