@@ -9,7 +9,7 @@ const GoogleAuth = () => {
     try {
       // Send the credential to the backend for verification
       const response = await axios.post(
-        "http://localhost:5000/auth/google/login", // Your backend endpoint
+        "https://resume-builder-client1.vercel.app/auth/google/callback", // Your backend endpoint
         { idToken: credentialResponse.credential } // Send the idToken
       );
 
