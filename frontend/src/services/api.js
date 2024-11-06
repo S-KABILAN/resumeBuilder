@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "/api",
+  baseURL: "http://localhost:5000/api",
 });
 
 export const googleLogin = async (token) => {
