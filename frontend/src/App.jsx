@@ -1,4 +1,3 @@
-import React from "react";
 import GoogleAuth from "./components/GoogleAuth";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 

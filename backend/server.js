@@ -12,7 +12,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // Adjust this based on your frontend
+    origin: process.env.REACT_APP_URL, // Adjust this based on your frontend
     credentials: true,
   })
 );
