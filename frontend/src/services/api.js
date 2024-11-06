@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "resume-builder-ashy-two.vercel.app/api",
+  baseURL: "/api",
 });
 
 export const googleLogin = async (token) => {
