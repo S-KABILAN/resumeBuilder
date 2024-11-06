@@ -1,15 +1,12 @@
 import GoogleAuth from "./components/GoogleAuth";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
-const App = () => {
+function App() {
   return (
-    <GoogleOAuthProvider clientId="427914236244-vqjda24o5f814gf3aaj0vcpgl5pcb51q.apps.googleusercontent.com">
-      <div className="App">
-        <h1>Google Authentication with MERN</h1>
-        <GoogleAuth />
-      </div>
-    </GoogleOAuthProvider>
+    <div className="App">
+      <h1>Login with Google</h1>
+      <GoogleAuth />
+    </div>
   );
-};
+}
 
 export default App;

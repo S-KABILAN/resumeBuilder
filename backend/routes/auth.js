@@ -2,37 +2,33 @@ const express = require("express");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const router = express.Router();
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Your Google Client ID
 
-router.post("/google/login", async (req, res) => {
-  const { idToken } = req.body;
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+router.post("/google", async (req, res) => {
+  const { credential } = req.body;
 
   try {
-    // Verify the token
     const ticket = await client.verifyIdToken({
-      idToken,
+      idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-
     const payload = ticket.getPayload();
-    const user = await User.findOne({ email: payload.email });
+
+    let user = await User.findOne({ googleId: payload.sub });
 
     if (!user) {
-      const newUser = new User({
+      user = await User.create({
         name: payload.name,
         email: payload.email,
-        picture: payload.picture,
+        googleId: payload.sub,
+        avatar: payload.picture,
       });
-      await newUser.save();
     }
 
-    // Respond with user information
-    res
-      .status(200)
-      .json({ user: { name: payload.name, email: payload.email } });
+    res.json({ user });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Invalid token" });
+    res.status(500).json({ message: "Authentication failed" });
   }
 });
 
