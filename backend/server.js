@@ -6,11 +6,28 @@ const authRoutes = require("./routes/auth");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration to allow your frontend origin
+const corsOptions = {
+  origin: process.env.REACT_APP_URL, // Replace with your frontend URL
+  credentials: true, // Allow credentials if needed
+};
+app.use(cors(corsOptions));
+
+// Middleware to handle JSON payloads
 app.use(express.json());
 
+// Set Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  next();
+});
+
+// Route setup
 app.use("/api/auth", authRoutes);
 
+// Database connection
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -19,10 +36,11 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
+// Server port configuration
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-
-app.get("/",(req,res) => {
-  res.send("welcome");
-})
+// Root route
+app.get("/", (req, res) => {
+  res.send("Welcome to the API");
+});
