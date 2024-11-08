@@ -6,48 +6,38 @@ const router = express.Router();
 
 // Create or update resume
 router.post("/", authenticateToken, async (req, res) => {
-  const {
-    objective,
-    education,
-    experience,
-    skills,
-    projects,
-    certifications,
-    contactInfo,
-  } = req.body;
-
   try {
-    let resume = await Resume.findOne({ user: req.user.id });
+    const {
+      title,
+      fullName,
+      email,
+      phone,
+      summary,
+      education,
+      experience,
+      skills,
+      projects,
+    } = req.body;
 
-    if (resume) {
-      // Update existing resume
-      resume = Object.assign(resume, {
-        objective,
-        education,
-        experience,
-        skills,
-        projects,
-        certifications,
-        contactInfo,
-      });
-      await resume.save();
-    } else {
-      // Create new resume
-      resume = new Resume({
-        user: req.user.id,
-        objective,
-        education,
-        experience,
-        skills,
-        projects,
-        certifications,
-        contactInfo,
-      });
-      await resume.save();
-    }
+    // Create a new resume linked to the authenticated user
+    const resume = new Resume({
+      userId: req.user.id, // Attach user ID from token
+      title,
+      fullName,
+      email,
+      phone,
+      summary,
+      education,
+      experience,
+      skills,
+      projects,
+    });
 
-    res.status(200).json({ success: true, data: resume });
-  } catch (error) {
+    await resume.save();
+
+    res.status(201).json({ success: true, data: resume });
+  } catch (err) {
+    console.error("Error saving resume:", err); // Log the error
     res
       .status(500)
       .json({ success: false, message: "Resume operation failed" });

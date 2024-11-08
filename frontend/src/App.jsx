@@ -1,10 +1,15 @@
-import GoogleAuth from "./components/GoogleAuth";
+import './app.css'
+import {BrowserRouter as Router,Routes,Route} from 'react-router-dom'
+import Login from './pages/Login'
 
 function App() {
   return (
-    <div className="App">
-      <h1>Login with Google</h1>
-      <GoogleAuth />
+    <div>
+      <Router>
+        <Routes>
+          <Route path='/' Component={Login}></Route>
+        </Routes>
+      </Router>
     </div>
   );
 }
