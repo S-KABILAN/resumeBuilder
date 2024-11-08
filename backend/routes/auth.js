@@ -1,6 +1,7 @@
 // server/routes/auth.js
 const express = require("express");
 const { OAuth2Client } = require("google-auth-library");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const router = express.Router();
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -30,7 +31,14 @@ router.post("/google", async (req, res) => {
       await user.save();
     }
 
-    res.status(200).json({ success: true, data: { user } });
+    // Generate a JWT token
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET, // Store this secret securely in .env
+      { expiresIn: "1h" } // Token expires in 1 hour
+    );
+
+    res.status(200).json({ success: true, token: jwtToken, data: { user } });
   } catch (error) {
     res.status(500).json({ success: false, message: "Authentication failed" });
   }
