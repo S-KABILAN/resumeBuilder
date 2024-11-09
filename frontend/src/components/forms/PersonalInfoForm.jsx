@@ -14,16 +14,6 @@ const PersonalInfoForm = ({ formData, onFormChange }) => {
           />
         </div>
         <div>
-          <label className="block text-sm">Title</label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => onFormChange("title", e.target.value)}
-            placeholder="Enter your job title"
-            className="mt-2 w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
-        <div>
           <label className="block text-sm">Email</label>
           <input
             type="email"
@@ -78,5 +68,4 @@ const PersonalInfoForm = ({ formData, onFormChange }) => {
   );
 };
 
-
-export default PersonalInfoForm
+export default PersonalInfoForm;

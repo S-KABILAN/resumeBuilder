@@ -6,12 +6,21 @@ import ExperienceForm from "../components/forms/ExperienceForm";
 import SkillsForm from "../components/forms/SkillsForm";
 import ProjectsForm from "../components/forms/ProjectsForm";
 import CertificationsForm from "../components/forms/CertificationsForm";
+import PersonalInfoForm from "../components/forms/PersonalInfoForm";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
   const [activeSection, setActiveSection] = useState("Education");
 
   const [formData, setFormData] = useState({
+    personal: {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      linkedin: "",
+      github: "",
+    },
     education: [{ degree: "", institution: "", graduationYear: "" }],
     experience: [
       {
@@ -23,12 +32,14 @@ const Page = () => {
     ],
     skills: [{ skill: "", skillLevel: "" }],
     projects: [{ title: "", description: "", technologies: "" }],
-    certifications: [{
-      certificationName: "",
-      issuingOrganization: "",
-      dateObtained: "",
-      certificationId: "",
-    }],
+    certifications: [
+      {
+        certificationName: "",
+        issuingOrganization: "",
+        dateObtained: "",
+        certificationId: "",
+      },
+    ],
   });
 
   const handleMenuClick = (item) => {
@@ -40,7 +51,13 @@ const Page = () => {
   };
 
 const handleFormChange = (section, field, value, index = null) => {
-  if (section === "education" && index !== null) {
+  if (section === "personal") {
+      setFormData({
+        ...formData,
+        personal: { ...formData.personal, [field]: value },
+      });
+    }
+  else if (section === "education" && index !== null) {
     const updatedEducation = [...formData.education];
     updatedEducation[index] = { ...updatedEducation[index], [field]: value };
     setFormData({ ...formData, education: updatedEducation });
@@ -193,6 +210,15 @@ const removeCertification = (index) => {
 
   const renderResumeSectionForm = (section) => {
     switch (section) {
+      case "PersonalInfo":
+        return (
+          <PersonalInfoForm
+            formData={formData.personal}
+            onFormChange={(field, value) =>
+              handleFormChange("personal", field, value)
+            }
+          />
+        );
       case "Education":
         return (
           <EducationForm
@@ -251,7 +277,7 @@ const removeCertification = (index) => {
             {formData.personal?.name || "John Doe"}
           </h1>
           <p className="text-lg text-gray-600">
-            {formData.personal?.email || "johndoe@example.com"}
+            {formData.personal.email || "johndoe@example.com"}
           </p>
           <p className="text-lg text-gray-600">
             {formData.personal?.phone || "(123) 456-7890"}
@@ -259,6 +285,16 @@ const removeCertification = (index) => {
           <p className="text-lg text-gray-600">
             {formData.personal?.location || "City, Country"}
           </p>
+          <div className="flex">
+            <p className="text-lg text-gray-600">
+              {formData.personal?.github || "GitHub"}
+            </p> 
+            <p>|</p>
+            <p className="text-lg text-gray-600">
+              {formData.personal?.linkedin || "LinkedIn"}
+            </p>
+            
+          </div>
         </div>
 
         <div className="mt-6">
@@ -332,7 +368,10 @@ const removeCertification = (index) => {
               <p>{certification.certificationName || "Certification Name"}</p>
               <p>{certification.certificationId || "Certification Id"}</p>
               <p>{certification.dateObtained || "Certification Date"}</p>
-              <p>{certification.issuingOrganization || "Certification Organization"}</p>
+              <p>
+                {certification.issuingOrganization ||
+                  "Certification Organization"}
+              </p>
             </div>
           ))}
         </div>
