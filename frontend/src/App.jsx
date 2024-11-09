@@ -1,15 +1,40 @@
-import {BrowserRouter as Router,Routes,Route} from 'react-router-dom'
-import Login from './pages/Login'
+// src/App.jsx
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
+  const token = localStorage.getItem("token");
+
   return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path='/' Component={Login}></Route>
-        </Routes>
-      </Router>
-    </div>
+    <Router>
+      <Routes>
+        {/* Base route: Redirects based on authentication status */}
+        <Route
+          path="/"
+          element={<Navigate to={token ? "/dashboard" : "/login"} />}
+        />
+
+        {/* Login route */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Dashboard route */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
 
