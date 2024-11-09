@@ -8,6 +8,7 @@ import {
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
+import Page from "./pages/Page";
 
 function App() {
   const token = localStorage.getItem("token");
@@ -33,6 +34,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/page" element={<Page/>}/>
       </Routes>
     </Router>
   );
