@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+//import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import Page from "./pages/Page";
 
@@ -30,11 +30,11 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <Page />
             </PrivateRoute>
           }
         />
-        <Route path="/page" element={<Page/>}/>
+        <Route path="/page" element={<Page />} />
       </Routes>
     </Router>
   );
