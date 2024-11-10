@@ -271,41 +271,50 @@ const removeCertification = (index) => {
 
   const renderResumePreview = () => {
     return (
-      <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="flex flex-col items-center">
+      <div className="max-w-3xl mx-auto p-8 bg-white rounded-lg shadow-lg border border-gray-200">
+        {/* Header */}
+        <div className="flex flex-col items-center text-center">
           <h1 className="text-4xl font-bold text-gray-900">
             {formData.personal?.name || "John Doe"}
           </h1>
-          <p className="text-lg text-gray-600">
-            {formData.personal.email || "johndoe@example.com"}
-          </p>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-500">
+            {formData.personal?.email || "johndoe@example.com"} |{" "}
             {formData.personal?.phone || "(123) 456-7890"}
           </p>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-500">
             {formData.personal?.location || "City, Country"}
           </p>
-          <div className="flex">
-            <p className="text-lg text-gray-600">
+          <div className="flex space-x-4 mt-2">
+            <a
+              href={formData.personal?.github}
+              className="text-blue-500 hover:underline"
+            >
               {formData.personal?.github || "GitHub"}
-            </p> 
-            <p>|</p>
-            <p className="text-lg text-gray-600">
+            </a>
+            <span>|</span>
+            <a
+              href={formData.personal?.linkedin}
+              className="text-blue-500 hover:underline"
+            >
               {formData.personal?.linkedin || "LinkedIn"}
-            </p>
-            
+            </a>
           </div>
         </div>
 
-        <div className="mt-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Education</h2>
+        {/* Education Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
+            Education
+          </h2>
           {formData.education.map((edu, index) => (
             <div key={index} className="mt-4">
-              <p className="text-lg font-semibold">{edu.degree || "Degree"}</p>
+              <p className="text-lg font-semibold text-gray-700">
+                {edu.degree || "Degree"}
+              </p>
               <p className="text-md text-gray-600">
                 {edu.institution || "Institution"}
               </p>
-              <p className="text-md text-gray-600">
+              <p className="text-md text-gray-500">
                 {edu.graduationYear || "Graduation Year"}
               </p>
             </div>
@@ -313,20 +322,22 @@ const removeCertification = (index) => {
         </div>
 
         {/* Experience Section */}
-        <div className="mt-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Experience</h2>
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
+            Experience
+          </h2>
           {formData.experience.map((exp, index) => (
             <div key={index} className="mt-4">
-              <p className="text-lg font-semibold">
+              <p className="text-lg font-semibold text-gray-700">
                 {exp.jobTitle || "Job Title"}
               </p>
               <p className="text-md text-gray-600">
                 {exp.companyName || "Company"}
               </p>
-              <p className="text-md text-gray-600">
+              <p className="text-md text-gray-500">
                 {exp.yearsOfExperience || "Years of Experience"}
               </p>
-              <p className="text-md text-gray-600">
+              <p className="text-md text-gray-500">
                 {exp.description || "Job description and responsibilities."}
               </p>
             </div>
@@ -334,41 +345,61 @@ const removeCertification = (index) => {
         </div>
 
         {/* Skills Section */}
-        <div className="mt-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Skills</h2>
-          {formData.skills.map((skill, index) => (
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
+            Skills
+          </h2>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            {formData.skills.map((skill, index) => (
+              <div key={index}>
+                <p className="text-lg font-semibold text-gray-700">
+                  {skill.skill || "Skill"}
+                </p>
+                <p className="text-md text-gray-500">
+                  {skill.skillLevel || "Skill Level"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Projects Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
+            Projects
+          </h2>
+          {formData.projects.map((project, index) => (
             <div key={index} className="mt-4">
-              <p className="text-lg font-semibold">{skill.skill || "Skill"}</p>
-              <p className="text-md text-gray-600">
-                {skill.skillLevel || "Skill Level"}
+              <p className="text-lg font-semibold text-gray-700">
+                {project.title || "Project Title"}
+              </p>
+              <p className="text-md text-gray-500">
+                {project.description || "Project Description"}
+              </p>
+              <p className="text-md text-gray-500">
+                {project.technologies || "Technologies Used"}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Projects Section */}
-        <div className="mt-6">
-          <h2 className="text-2xl font-semibold text-gray-800">Projects</h2>
-          {formData.projects.map((project, index) => (
-            <div key={index} className="mt-4">
-              <p>{project.title || "Project Title"}</p>
-              <p>{project.description || "Project Description"}</p>
-              <p>{project.technologies || "Technologies Used"}</p>
-            </div>
-          ))}
-        </div>
-
         {/* Certifications Section */}
-        <div className="mt-6">
-          <h2 className="text-2xl font-semibold text-gray-800">
+        <div className="mt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
             Certifications
           </h2>
           {formData.certifications.map((certification, index) => (
             <div key={index} className="mt-4">
-              <p>{certification.certificationName || "Certification Name"}</p>
-              <p>{certification.certificationId || "Certification Id"}</p>
-              <p>{certification.dateObtained || "Certification Date"}</p>
-              <p>
+              <p className="text-lg font-semibold text-gray-700">
+                {certification.certificationName || "Certification Name"}
+              </p>
+              <p className="text-md text-gray-500">
+                {certification.certificationId || "Certification Id"}
+              </p>
+              <p className="text-md text-gray-500">
+                {certification.dateObtained || "Certification Date"}
+              </p>
+              <p className="text-md text-gray-500">
                 {certification.issuingOrganization ||
                   "Certification Organization"}
               </p>

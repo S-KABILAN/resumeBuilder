@@ -1,6 +1,8 @@
 // controllers/resumeController.js
 const Resume = require("../models/Resume");
 const Personal = require("../models/Personal")
+const Education = require("../models/Education")
+
 
 // Create or update resume
 exports.createOrUpdateResume = async (req, res) => {
@@ -82,6 +84,8 @@ exports.getResume = async (req, res) => {
   }
 };
 
+
+//Create personal detail
 exports.createOrUpdatePersonal = async (req,res) => {
     try {
         const {name, email, phone, location, github, linkedIn} = req.body
@@ -134,9 +138,7 @@ exports.createOrUpdatePersonal = async (req,res) => {
 }
 
 
-
 //personal detail get
-
 exports.getPersonal = async (req,res) => {
     try {
         const personal = await Personal.findOne({userId: req.user.id})
@@ -163,3 +165,40 @@ exports.getPersonal = async (req,res) => {
          });
     }
 }
+
+
+//Create Education detail
+exports.addOrUpdateEducation = async (req, res) => {
+  try {
+    const { degree, institution, graduationYear, percentage } = req.body;
+
+    // Validate input
+    if (!degree || !institution || !graduationYear || !percentage) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    // Find the resume by user ID and update education details
+    const education = await Education.findOneAndUpdate(
+      { userId: req.user.id },
+      {
+        $push: {
+          education: { degree, institution, graduationYear, percentage },
+        },
+      },
+      { new: true, upsert: true } // Create a new resume if none exists
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Education added successfully",
+      data: education,
+    });
+  } catch (error) {
+    console.error("Error adding education:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to add education" });
+  }
+};
