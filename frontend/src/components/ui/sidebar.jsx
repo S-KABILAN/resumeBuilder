@@ -1,4 +1,5 @@
-const Sidebar = ({ onMenuClick }) => {
+// sidebar.js
+const Sidebar = ({ onMenuClick, onLayoutSelect }) => {
   return (
     <aside className="w-64 shrink-0 border-r border-gray-200 bg-gray-50 h-screen flex flex-col">
       <div className="px-4 py-6">
@@ -26,6 +27,12 @@ const Sidebar = ({ onMenuClick }) => {
             className="text-gray-700 hover:bg-gray-200 rounded-lg px-3 py-2 cursor-pointer"
           >
             My Resumes
+          </li>
+          <li
+            onClick={() => onMenuClick("Resume Templates")}
+            className="text-gray-700 hover:bg-gray-200 rounded-lg px-3 py-2 cursor-pointer"
+          >
+            Resume Templates
           </li>
           <li
             onClick={() => onMenuClick("Settings")}

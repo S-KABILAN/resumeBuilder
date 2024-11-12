@@ -1,5 +1,6 @@
 
 const ResumeTemplate = ({ data }) => (
+  
   <div className="max-w-[800px] mx-auto p-8 bg-white">
     {/* Header */}
     <header className="text-center mb-8">
