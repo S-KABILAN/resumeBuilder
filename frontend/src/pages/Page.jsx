@@ -13,6 +13,7 @@ import ResumePreviewLayout1 from "../components/ResumePreviewLayout1";
 import ResumePreviewLayout2 from "../components/ResumePreviewLayout2";
 import ResumeTemplates from "../components/ResumeTemplates";
 
+import { PersonalInfoSubmit } from "../services/api";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
@@ -184,8 +185,16 @@ const removeCertification = (index) => {
   setFormData({ ...formData, certifications: updatedCertifications });
 };
 
-const handleSubmitPersonalInfo = () => {
-  console.log("Personal Info Submitted", formData.personal);
+const handleSubmitPersonalInfo = async() => {
+
+  try {
+    await PersonalInfoSubmit(formData);
+    console.log("Personal Info Submitted", formData.personal);
+  } catch (error) {
+    console.log(error.message || "Failed to submit Form A.");
+  }
+  
+  
   // Add logic to handle personal info submission (e.g., API call)
 };
 
