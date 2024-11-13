@@ -4,26 +4,13 @@ exports.createExperience = async (req, res) => {
   try {
     const { jobtitle, companyname, yearsofexperience, description } = req.body;
 
-    // Log the values for debugging
-    console.log("Request body:", req.body);
-
-    // Ensure all fields are provided and valid
-    
-
-    // Parse yearsofexperience to ensure it's a valid number
-    
-
-    // Check if userId is available
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({
+    if (!jobtitle || !companyname || !yearsofexperience || !description) {
+      return res.status(400).json({
         success: false,
-        message: "User not authenticated",
+        message: "All fields are required",
       });
     }
 
-    console.log("Authenticated user ID:", req.user.id); // Log user ID for debugging
-
-    // Add experience to the user's experience array
     const experience = await Experience.findOneAndUpdate(
       { userId: req.user.id },
       {
@@ -31,7 +18,7 @@ exports.createExperience = async (req, res) => {
           experience: {
             jobtitle,
             companyname,
-            //yearsofexperience: yearsofexperienceParsed, // Use parsed value
+            yearsofexperience,
             description,
           },
         },
@@ -45,12 +32,10 @@ exports.createExperience = async (req, res) => {
       data: experience,
     });
   } catch (error) {
-    console.error("Error adding experience:", error); // Log full error
+    console.error("Error adding experience:", error);
     res.status(500).json({
       success: false,
       message: "Failed to add experience",
-      error: error.message, // Include error message for debugging
-      errorDetails: error, // Include full error object for better insight
     });
   }
 };

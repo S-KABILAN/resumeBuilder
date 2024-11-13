@@ -14,7 +14,13 @@ export const googleLogin = async (token) => {
 
 export const PersonalInfoSubmit = async (formData) => {
   try {
-    const response = await axiosInstance.post("/resume/personal", formData);
+    const response = await axiosInstance.post("/resume/personal", formData, {
+      headers: {
+        "Content-Type": "application/json",
+        // Include authentication token if needed
+        // 'Authorization': `Bearer ${token}`,
+      },
+    });
     return response;
   } catch (error) {
     throw error || { message: "Personal submission failed" };

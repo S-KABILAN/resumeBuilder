@@ -3,7 +3,6 @@ const ProjectsForm = ({
   onFormChange,
   addProject,
   removeProject,
-  onSubmit,
 }) => {
   return (
     <div>
@@ -64,16 +63,8 @@ const ProjectsForm = ({
       >
         Add Another Project
       </button>
-
-      <button
-        type="button"
-        onClick={onSubmit} // Trigger onSubmit when clicked
-        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
-      >
-        Submit Projects
-      </button>
     </div>
   );
 };
 
-export default ProjectsForm;
+export default ProjectsForm

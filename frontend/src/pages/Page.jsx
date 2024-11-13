@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
+
 import EducationForm from "../components/forms/EducationForm";
 import ExperienceForm from "../components/forms/ExperienceForm";
 import SkillsForm from "../components/forms/SkillsForm";
@@ -13,151 +14,219 @@ import ResumePreviewLayout2 from "../components/ResumePreviewLayout2";
 import ResumeTemplates from "../components/ResumeTemplates";
 
 import { PersonalInfoSubmit } from "../services/routes/personal";
-import { educationCreate } from "../services/routes/education";
-import { experienceCreate } from "../services/routes/experience";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
   const [activeSection, setActiveSection] = useState("PersonalInfo");
   const [selectedLayout, setSelectedLayout] = useState("Layout2");
 
-  // Separate states for each form section
-  const [personalInfo, setPersonalInfo] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    location: "",
-    linkedin: "",
-    github: "",
-  });
-
-  const [education, setEducation] = useState([
-    { degree: "", institution: "", graduationYear: "" },
-  ]);
-  const [experience, setExperience] = useState([
-    { jobtitle: "", companyname: "", yearsofexperience: 0, description: "" },
-  ]);
-  const [skills, setSkills] = useState([{ skill: "", skillLevel: "" }]);
-  const [projects, setProjects] = useState([
-    { title: "", description: "", technologies: "" },
-  ]);
-  const [certifications, setCertifications] = useState([
-    {
-      certificationName: "",
-      issuingOrganization: "",
-      dateObtained: "",
-      certificationId: "",
+  const [formData, setFormData] = useState({
+    personal: {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      linkedin: "",
+      github: "",
     },
-  ]);
-
-  const handleMenuClick = (item) => setSelectedItem(item);
-  const handleSectionChange = (section) => setActiveSection(section);
-
-  const handlePersonalInfoChange = (field, value) =>
-    setPersonalInfo({ ...personalInfo, [field]: value });
-
-const handleEducationChange = (section, field, value, index) => {
-  setEducation((prevData) =>
-    prevData.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
-    )
-  );
-};
-
-  const handleExperienceChange = (index, field, value) => {
-    const updatedExperience = [...experience];
-    updatedExperience[index] = { ...updatedExperience[index], [field]: value };
-    setExperience(updatedExperience);
-  };
-
-  const handleSkillsChange = (index, field, value) => {
-    const updatedSkills = [...skills];
-    updatedSkills[index] = { ...updatedSkills[index], [field]: value };
-    setSkills(updatedSkills);
-  };
-
-  const handleProjectsChange = (index, field, value) => {
-    const updatedProjects = [...projects];
-    updatedProjects[index] = { ...updatedProjects[index], [field]: value };
-    setProjects(updatedProjects);
-  };
-
-  const handleCertificationsChange = (index, field, value) => {
-    const updatedCertifications = [...certifications];
-    updatedCertifications[index] = {
-      ...updatedCertifications[index],
-      [field]: value,
-    };
-    setCertifications(updatedCertifications);
-  };
-
-  const addEducation = () =>
-    setEducation([
-      ...education,
-      { degree: "", institution: "", graduationYear: "" },
-    ]);
-  const removeEducation = (index) =>
-    setEducation(education.filter((_, i) => i !== index));
-    console.log(education)
-
-  const addExperience = () =>
-    setExperience([
-      ...experience,
-      { jobtitle: "", companyname: "", yearsofexperience: "", description: "" },
-    ]);
-  const removeExperience = (index) =>
-    setExperience(experience.filter((_, i) => i !== index));
-
-  const addSkill = () => setSkills([...skills, { skill: "", skillLevel: "" }]);
-  const removeSkill = (index) =>
-    setSkills(skills.filter((_, i) => i !== index));
-
-  const addProject = () =>
-    setProjects([
-      ...projects,
-      { title: "", description: "", technologies: "" },
-    ]);
-  const removeProject = (index) =>
-    setProjects(projects.filter((_, i) => i !== index));
-
-  const addCertification = () =>
-    setCertifications([
-      ...certifications,
+    education: [{ degree: "", institution: "", graduationYear: "" }],
+    experience: [
+      {
+        jobTitle: "",
+        companyName: "",
+        yearsOfExperience: "",
+        description: "",
+      },
+    ],
+    skills: [{ skill: "", skillLevel: "" }],
+    projects: [{ title: "", description: "", technologies: "" }],
+    certifications: [
       {
         certificationName: "",
         issuingOrganization: "",
         dateObtained: "",
         certificationId: "",
       },
-    ]);
-  const removeCertification = (index) =>
-    setCertifications(certifications.filter((_, i) => i !== index));
+    ],
+  });
 
-  const handleSubmitPersonalInfo = async () => {
-    try {
-      await PersonalInfoSubmit(personalInfo);
-      console.log("Personal Info Submitted", personalInfo);
-    } catch (error) {
-      console.error(error.message || "Failed to submit personal info.");
+  const handleMenuClick = (item) => {
+    setSelectedItem(item);
+  };
+
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+  };
+
+  const handleFormChange = (section, field, value, index = null) => {
+    if (section === "personal") {
+      setFormData({
+        ...formData,
+        personal: { ...formData.personal, [field]: value },
+      });
+    } else if (section === "education" && index !== null) {
+      const updatedEducation = [...formData.education];
+      updatedEducation[index] = { ...updatedEducation[index], [field]: value };
+      setFormData({ ...formData, education: updatedEducation });
+    } else if (section === "experience" && index !== null) {
+      const updatedExperience = [...formData.experience];
+      updatedExperience[index] = {
+        ...updatedExperience[index],
+        [field]: value,
+      };
+      setFormData({ ...formData, experience: updatedExperience });
+    } else if (section === "skills" && index !== null) {
+      const updatedSkills = [...formData.skills];
+      updatedSkills[index] = { ...updatedSkills[index], [field]: value };
+      setFormData({ ...formData, skills: updatedSkills });
+    } else if (section === "projects" && index !== null) {
+      const updatedProjects = [...formData.projects];
+      updatedProjects[index] = { ...updatedProjects[index], [field]: value };
+      setFormData({ ...formData, projects: updatedProjects });
+    } else if (section === "certifications" && index !== null) {
+      const updatedCertifications = [...formData.certifications];
+      updatedCertifications[index] = {
+        ...updatedCertifications[index],
+        [field]: value,
+      };
+      setFormData({ ...formData, certifications: updatedCertifications });
+    } else {
+      setFormData({
+        ...formData,
+        [section]: { ...formData[section], [field]: value },
+      });
     }
   };
 
-  const handleSubmitEducation = async () => {
-    try {
-      await educationCreate(education);
-      console.log("Education Submitted", education);
-    } catch (error) {
-      console.error(error.message || "Failed to submit education.");
-    }
+  const addEducation = () => {
+    setFormData({
+      ...formData,
+      education: [
+        ...formData.education,
+        { degree: "", institution: "", graduationYear: "" },
+      ],
+    });
   };
 
-  const handleSubmitExperience = async () => {
-    try {
-      await experienceCreate(experience);
-    } catch (error) {
-      console.error(error.message || "Failed to submit experience")
+  const removeEducation = (index) => {
+    const updatedEducation = formData.education.filter((_, i) => i !== index);
+    setFormData({ ...formData, education: updatedEducation });
+  };
+
+  const addExperience = () => {
+    setFormData({
+      ...formData,
+      experience: [
+        ...formData.experience,
+        {
+          jobTitle: "",
+          companyName: "",
+          yearsOfExperience: "",
+          description: "",
+        },
+      ],
+    });
+  };
+
+  const removeExperience = (index) => {
+    const updatedExperience = formData.experience.filter((_, i) => i !== index);
+    setFormData({ ...formData, experience: updatedExperience });
+  };
+
+  const addSkill = () => {
+    setFormData({
+      ...formData,
+      skills: [...formData.skills, { skill: "", skillLevel: "" }],
+    });
+  };
+
+  const removeSkill = (index) => {
+    const updatedSkills = formData.skills.filter((_, i) => i !== index);
+    setFormData({ ...formData, skills: updatedSkills });
+  };
+
+  const addProject = () => {
+    setFormData({
+      ...formData,
+      projects: [
+        ...formData.projects,
+        { title: "", description: "", technologies: "" },
+      ],
+    });
+  };
+
+  const removeProject = (index) => {
+    const updatedProjects = formData.projects.filter((_, i) => i !== index);
+    setFormData({ ...formData, projects: updatedProjects });
+  };
+
+  const addCertification = () => {
+    setFormData({
+      ...formData,
+      certifications: [
+        ...formData.certifications,
+        {
+          certificationName: "",
+          issuingOrganization: "",
+          dateObtained: "",
+          certificationId: "",
+        },
+      ],
+    });
+  };
+
+  const removeCertification = (index) => {
+    const updatedCertifications = formData.certifications.filter(
+      (_, i) => i !== index
+    );
+    setFormData({ ...formData, certifications: updatedCertifications });
+  };
+
+const handleSubmitPersonalInfo = async () => {
+  try {
+    const response = await PersonalInfoSubmit(formData.personal); // Ensure `formData.personal` has the correct fields
+
+    if (response.success) {
+      // Check for a success response if `PersonalInfoSubmit` returns it
+      console.log("Personal Info Submitted", formData.personal);
+    } else {
+      console.error(response.message || "Submission did not succeed.");
     }
+  } catch (error) {
+    console.error(error.message || "Failed to submit personal information.");
   }
+};
+
+
+  const handleSubmitEducation = () => {
+    console.log("Education Submitted", formData.education);
+    // Add logic to handle education submission
+  };
+
+  const handleSubmitExperience = () => {
+    console.log("Experience Submitted", formData.experience);
+    // Add logic to handle experience submission
+  };
+
+  const handleSubmitSkills = () => {
+    console.log("Skills Submitted", formData.skills);
+    // Add logic to handle skills submission
+  };
+
+  const handleSubmitProjects = () => {
+    console.log("Projects Submitted", formData.projects);
+    // Add logic to handle projects submission
+  };
+
+  const handleSubmitCertifications = () => {
+    console.log("Certifications Submitted", formData.certifications);
+    // Add logic to handle certifications submission
+  };
+
+  const handleLayoutSelect = (layout) => {
+    setSelectedLayout(layout);
+    setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
+  };
 
   const renderContent = () => {
     switch (selectedItem) {
@@ -181,7 +250,13 @@ const handleEducationChange = (section, field, value, index) => {
           </div>
         );
       case "Resume Templates":
-        return <ResumeTemplates onSelectTemplate={setSelectedLayout} />;
+        return (
+          <ResumeTemplates
+            onSelectTemplate={handleLayoutSelect}
+            formData={formData}
+          />
+        );
+
       case "My Resumes":
         return <div>View your saved resumes</div>;
       case "Settings":
@@ -196,16 +271,18 @@ const handleEducationChange = (section, field, value, index) => {
       case "PersonalInfo":
         return (
           <PersonalInfoForm
-            formData={personalInfo}
-            onFormChange={handlePersonalInfoChange}
+            formData={formData.personal}
+            onFormChange={(field, value) =>
+              handleFormChange("personal", field, value)
+            }
             onSubmit={handleSubmitPersonalInfo}
           />
         );
       case "Education":
         return (
           <EducationForm
-            formData={education}
-            onFormChange={handleEducationChange}
+            formData={formData.education}
+            onFormChange={handleFormChange}
             addEducation={addEducation}
             removeEducation={removeEducation}
             onSubmit={handleSubmitEducation}
@@ -214,43 +291,57 @@ const handleEducationChange = (section, field, value, index) => {
       case "Experience":
         return (
           <ExperienceForm
-            formData={experience}
-            onFormChange={handleExperienceChange}
+            formData={formData.experience}
+            onFormChange={handleFormChange}
             addExperience={addExperience}
             removeExperience={removeExperience}
             onSubmit={handleSubmitExperience}
           />
         );
-      // Repeat similarly for Experience, Skills, Projects, and Certifications
+      case "Skills":
+        return (
+          <SkillsForm
+            formData={formData.skills}
+            onFormChange={handleFormChange}
+            addSkill={addSkill}
+            removeSkill={removeSkill}
+            onSubmit={handleSubmitSkills}
+          />
+        );
+      case "Projects":
+        return (
+          <ProjectsForm
+            formData={formData.projects}
+            onFormChange={handleFormChange}
+            addProject={addProject}
+            removeProject={removeProject}
+            onSubmit={handleSubmitProjects}
+          />
+        );
+      case "Certifications":
+        return (
+          <CertificationsForm
+            formData={formData.certifications}
+            onFormChange={handleFormChange}
+            addCertification={addCertification}
+            removeCertification={removeCertification}
+            onSubmit={handleSubmitCertifications}
+          />
+        );
       default:
         return null;
     }
   };
 
   const renderResumePreview = () => {
-    return selectedLayout === "Layout2" ? (
-      <ResumePreviewLayout2
-        formData={{
-          personalInfo,
-          education,
-          experience,
-          skills,
-          projects,
-          certifications,
-        }}
-      />
-    ) : (
-      <ResumePreviewLayout1
-        formData={{
-          personalInfo,
-          education,
-          experience,
-          skills,
-          projects,
-          certifications,
-        }}
-      />
-    );
+    switch (selectedLayout) {
+      case "Layout1":
+        return <ResumePreviewLayout1 formData={formData} />;
+      case "Layout2":
+        return <ResumePreviewLayout2 formData={formData} />;
+      default:
+        return <ResumePreviewLayout1 formData={formData} />;
+    }
   };
 
   return (

@@ -23,7 +23,7 @@ const PersonalSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    linkedIn: {
+    linkedin: {
         type: String,
         required: true
     },
