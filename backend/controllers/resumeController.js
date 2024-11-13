@@ -170,10 +170,10 @@ exports.getPersonal = async (req,res) => {
 //Create Education detail
 exports.addOrUpdateEducation = async (req, res) => {
   try {
-    const { degree, institution, graduationYear, percentage } = req.body;
+    const { degree, institution, graduationYear} = req.body;
 
     // Validate input
-    if (!degree || !institution || !graduationYear || !percentage) {
+    if (!degree || !institution || !graduationYear) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });

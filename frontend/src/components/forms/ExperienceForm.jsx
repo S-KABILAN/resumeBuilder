@@ -15,9 +15,7 @@ const ExperienceForm = ({
             <input
               type="text"
               value={experience.jobTitle}
-              onChange={(e) =>
-                onFormChange("experience", "jobTitle", e.target.value, index)
-              }
+              onChange={(e) => onFormChange(index, "jobTitle", e.target.value)}
               placeholder="Enter your job title"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
             />
@@ -28,7 +26,7 @@ const ExperienceForm = ({
               type="text"
               value={experience.companyName}
               onChange={(e) =>
-                onFormChange("experience", "companyName", e.target.value, index)
+                onFormChange(index, "companyName", e.target.value)
               }
               placeholder="Enter your company name"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
@@ -40,12 +38,7 @@ const ExperienceForm = ({
               type="number"
               value={experience.yearsOfExperience}
               onChange={(e) =>
-                onFormChange(
-                  "experience",
-                  "yearsOfExperience",
-                  e.target.value,
-                  index
-                )
+                onFormChange(index, "yearsOfExperience", e.target.value)
               }
               placeholder="Enter number of years"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
@@ -56,7 +49,7 @@ const ExperienceForm = ({
             <textarea
               value={experience.description}
               onChange={(e) =>
-                onFormChange("experience", "description", e.target.value, index)
+                onFormChange(index, "description", e.target.value)
               }
               placeholder="Describe your role and responsibilities"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
@@ -84,10 +77,10 @@ const ExperienceForm = ({
 
       <button
         type="button"
-        onClick={onSubmit} // Trigger onSubmit when clicked
+        onClick={onSubmit}
         className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
       >
-        Submit Experiences
+        Submit Experience
       </button>
     </div>
   );

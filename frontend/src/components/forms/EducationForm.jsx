@@ -11,8 +11,11 @@ const EducationForm = ({
       {formData.map((education, index) => (
         <div key={index} className="space-y-4 mt-4 border-b pb-4">
           <div>
-            <label className="block text-sm">Degree</label>
+            <label htmlFor={`degree-${index}`} className="block text-sm">
+              Degree
+            </label>
             <input
+              id={`degree-${index}`}
               type="text"
               value={education.degree}
               onChange={(e) =>
@@ -23,8 +26,11 @@ const EducationForm = ({
             />
           </div>
           <div>
-            <label className="block text-sm">Institution</label>
+            <label htmlFor={`institution-${index}`} className="block text-sm">
+              Institution
+            </label>
             <input
+              id={`institution-${index}`}
               type="text"
               value={education.institution}
               onChange={(e) =>
@@ -35,8 +41,14 @@ const EducationForm = ({
             />
           </div>
           <div>
-            <label className="block text-sm">Graduation Year</label>
+            <label
+              htmlFor={`graduationYear-${index}`}
+              className="block text-sm"
+            >
+              Graduation Year
+            </label>
             <input
+              id={`graduationYear-${index}`}
               type="number"
               value={education.graduationYear}
               onChange={(e) =>
@@ -55,7 +67,7 @@ const EducationForm = ({
             <button
               type="button"
               onClick={() => removeEducation(index)}
-              className="text-red-500 mt-2"
+              className="text-red-500 mt-2 hover:text-red-700"
             >
               Remove
             </button>
@@ -65,14 +77,14 @@ const EducationForm = ({
       <button
         type="button"
         onClick={addEducation}
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         Add Another Education
       </button>
       <button
         type="button"
-        onClick={onSubmit} // Trigger onSubmit when clicked
-        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+        onClick={onSubmit}
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-700"
       >
         Submit Educations
       </button>
