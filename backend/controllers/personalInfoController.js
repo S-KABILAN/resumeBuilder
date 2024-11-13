@@ -5,7 +5,7 @@ const createPersonal = async (req, res) => {
   try {
     const { name, email, phone, location, linkedin, github } = req.body;
 
-    if (!name || !email || !phone || !linkedin || github) {
+    if (!name || !email || !phone || !linkedin || !github) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
 
