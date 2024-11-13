@@ -13,7 +13,7 @@ import ResumePreviewLayout1 from "../components/ResumePreviewLayout1";
 import ResumePreviewLayout2 from "../components/ResumePreviewLayout2";
 import ResumeTemplates from "../components/ResumeTemplates";
 
-import { PersonalInfoSubmit } from "../services/api";
+import { PersonalInfoSubmit } from "../services/routes/personal";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");

@@ -1,4 +1,3 @@
-// src/App.jsx
 import {
   BrowserRouter as Router,
   Route,
@@ -6,12 +5,22 @@ import {
   Navigate,
 } from "react-router-dom";
 import Login from "./pages/Login";
-//import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import Page from "./pages/Page";
+import { useEffect, useState } from "react";
 
 function App() {
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(localStorage.getItem("jwtToken"));
+
+  // Update token state if it changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setToken(localStorage.getItem("jwtToken"));
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   return (
     <Router>
@@ -29,12 +38,11 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+            <PrivateRoute token={token}>
               <Page />
             </PrivateRoute>
           }
         />
-        <Route path="/page" element={<Page />} />
       </Routes>
     </Router>
   );

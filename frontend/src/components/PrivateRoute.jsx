@@ -1,15 +1,15 @@
-// src/components/PrivateRoute.jsx
 import { Navigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+const PrivateRoute = ({ children, token }) => {
+  const isAuthenticated = token || localStorage.getItem("jwtToken"); // Fallback to localStorage
 
-  return token ? children : <Navigate to="/login" />;
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 PrivateRoute.propTypes = {
   children: PropTypes.node.isRequired,
+  token: PropTypes.string, // optional token prop
 };
 
 export default PrivateRoute;
