@@ -1,4 +1,10 @@
-const SkillsForm = ({ formData, onFormChange, addSkill, removeSkill }) => {
+const SkillsForm = ({
+  formData,
+  onFormChange,
+  addSkill,
+  removeSkill,
+  onSubmit,
+}) => {
   return (
     <div>
       <h2 className="text-xl font-bold">Skills</h2>
@@ -46,6 +52,14 @@ const SkillsForm = ({ formData, onFormChange, addSkill, removeSkill }) => {
         className="mt-6 px-4 py-2 text-white bg-blue-500 rounded-md"
       >
         Add Another Skill
+      </button>
+
+      <button
+        type="button"
+        onClick={onSubmit} // Trigger onSubmit when clicked
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Skills
       </button>
     </div>
   );

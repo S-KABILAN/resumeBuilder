@@ -3,6 +3,7 @@ const ProjectsForm = ({
   onFormChange,
   addProject,
   removeProject,
+  onSubmit,
 }) => {
   return (
     <div>
@@ -62,6 +63,14 @@ const ProjectsForm = ({
         className="mt-6 px-4 py-2 text-white bg-blue-500 rounded-md"
       >
         Add Another Project
+      </button>
+
+      <button
+        type="button"
+        onClick={onSubmit} // Trigger onSubmit when clicked
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Projects
       </button>
     </div>
   );

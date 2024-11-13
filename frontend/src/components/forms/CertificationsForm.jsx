@@ -3,6 +3,7 @@ const CertificationsForm = ({
   onFormChange,
   addCertification,
   removeCertification,
+  onSubmit,
 }) => {
   return (
     <div>
@@ -95,6 +96,13 @@ const CertificationsForm = ({
         className="mt-6 px-4 py-2 text-white bg-blue-500 rounded-md"
       >
         Add Another Certification
+      </button>
+      <button
+        type="button"
+        onClick={onSubmit} // Trigger onSubmit when clicked
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Certifications
       </button>
     </div>
   );

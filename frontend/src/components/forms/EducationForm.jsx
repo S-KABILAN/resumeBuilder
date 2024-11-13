@@ -3,6 +3,7 @@ const EducationForm = ({
   onFormChange,
   addEducation,
   removeEducation,
+  onSubmit,
 }) => {
   return (
     <div>
@@ -67,6 +68,13 @@ const EducationForm = ({
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
       >
         Add Another Education
+      </button>
+      <button
+        type="button"
+        onClick={onSubmit} // Trigger onSubmit when clicked
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Educations
       </button>
     </div>
   );

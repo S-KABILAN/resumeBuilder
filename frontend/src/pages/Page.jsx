@@ -16,7 +16,7 @@ import ResumeTemplates from "../components/ResumeTemplates";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
-  const [activeSection, setActiveSection] = useState("Education");
+  const [activeSection, setActiveSection] = useState("PersonalInfo");
   const [selectedLayout, setSelectedLayout] = useState("Layout2");
 
   const [formData, setFormData] = useState({
@@ -184,6 +184,37 @@ const removeCertification = (index) => {
   setFormData({ ...formData, certifications: updatedCertifications });
 };
 
+const handleSubmitPersonalInfo = () => {
+  console.log("Personal Info Submitted", formData.personal);
+  // Add logic to handle personal info submission (e.g., API call)
+};
+
+const handleSubmitEducation = () => {
+  console.log("Education Submitted", formData.education);
+  // Add logic to handle education submission
+};
+
+const handleSubmitExperience = () => {
+  console.log("Experience Submitted", formData.experience);
+  // Add logic to handle experience submission
+};
+
+const handleSubmitSkills = () => {
+  console.log("Skills Submitted", formData.skills);
+  // Add logic to handle skills submission
+};
+
+const handleSubmitProjects = () => {
+  console.log("Projects Submitted", formData.projects);
+  // Add logic to handle projects submission
+};
+
+const handleSubmitCertifications = () => {
+  console.log("Certifications Submitted", formData.certifications);
+  // Add logic to handle certifications submission
+};
+
+
   const handleLayoutSelect = (layout) => {
     setSelectedLayout(layout);
     setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
@@ -228,66 +259,72 @@ const removeCertification = (index) => {
     }
   };
 
-  const renderResumeSectionForm = (section) => {
-    switch (section) {
-      case "PersonalInfo":
-        return (
-          <PersonalInfoForm
-            formData={formData.personal}
-            onFormChange={(field, value) =>
-              handleFormChange("personal", field, value)
-            }
-          />
-        );
-      case "Education":
-        return (
-          <EducationForm
-            formData={formData.education}
-            onFormChange={handleFormChange}
-            addEducation={addEducation}
-            removeEducation={removeEducation}
-          />
-        );
-      case "Experience":
-        return (
-          <ExperienceForm
-            formData={formData.experience}
-            onFormChange={handleFormChange}
-            addExperience={addExperience}
-            removeExperience={removeExperience}
-          />
-        );
-      case "Skills":
-        return (
-          <SkillsForm
-            formData={formData.skills}
-            onFormChange={handleFormChange}
-            addSkill={addSkill}
-            removeSkill={removeSkill}
-          />
-        );
-      case "Projects":
-        return (
-          <ProjectsForm
-            formData={formData.projects}
-            onFormChange={handleFormChange}
-            addProject={addProject}
-            removeProject={removeProject}
-          />
-        );
-      case "Certifications":
-        return (
-          <CertificationsForm
-            formData={formData.certifications}
-            onFormChange={handleFormChange}
-            addCertification={addCertification}
-            removeCertification={removeCertification}
-          />
-        );
-      default:
-        return null;
-    }
-  };
+const renderResumeSectionForm = (section) => {
+  switch (section) {
+    case "PersonalInfo":
+      return (
+        <PersonalInfoForm
+          formData={formData.personal}
+          onFormChange={(field, value) =>
+            handleFormChange("personal", field, value)
+          }
+          onSubmit={handleSubmitPersonalInfo}
+        />
+      );
+    case "Education":
+      return (
+        <EducationForm
+          formData={formData.education}
+          onFormChange={handleFormChange}
+          addEducation={addEducation}
+          removeEducation={removeEducation}
+          onSubmit={handleSubmitEducation}
+        />
+      );
+    case "Experience":
+      return (
+        <ExperienceForm
+          formData={formData.experience}
+          onFormChange={handleFormChange}
+          addExperience={addExperience}
+          removeExperience={removeExperience}
+          onSubmit={handleSubmitExperience}
+        />
+      );
+    case "Skills":
+      return (
+        <SkillsForm
+          formData={formData.skills}
+          onFormChange={handleFormChange}
+          addSkill={addSkill}
+          removeSkill={removeSkill}
+          onSubmit={handleSubmitSkills}
+        />
+      );
+    case "Projects":
+      return (
+        <ProjectsForm
+          formData={formData.projects}
+          onFormChange={handleFormChange}
+          addProject={addProject}
+          removeProject={removeProject}
+          onSubmit={handleSubmitProjects}
+        />
+      );
+    case "Certifications":
+      return (
+        <CertificationsForm
+          formData={formData.certifications}
+          onFormChange={handleFormChange}
+          addCertification={addCertification}
+          removeCertification={removeCertification}
+          onSubmit={handleSubmitCertifications}
+        />
+      );
+    default:
+      return null;
+  }
+};
 
   const renderResumePreview = () => {
   

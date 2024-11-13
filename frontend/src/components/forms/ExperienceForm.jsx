@@ -3,6 +3,7 @@ const ExperienceForm = ({
   onFormChange,
   addExperience,
   removeExperience,
+  onSubmit,
 }) => {
   return (
     <div>
@@ -79,6 +80,14 @@ const ExperienceForm = ({
         className="mt-6 px-4 py-2 text-white bg-blue-500 rounded-md"
       >
         Add Another Experience
+      </button>
+
+      <button
+        type="button"
+        onClick={onSubmit} // Trigger onSubmit when clicked
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Experiences
       </button>
     </div>
   );
