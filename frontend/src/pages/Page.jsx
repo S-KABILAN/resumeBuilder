@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid"; // to generate unique IDs
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
 
@@ -55,6 +56,89 @@ const Page = () => {
     ],
   });
 
+
+  const [savedResumes, setSavedResumes] = useState([]);
+  const [editingResumeId, setEditingResumeId] = useState(null);
+
+  const resetFormData = () => {
+    setFormData({
+      personal: {
+        name: "",
+        email: "",
+        phone: "",
+        location: "",
+        linkedin: "",
+        github: "",
+      },
+      education: [{ degree: "", institution: "", graduationYear: "" }],
+      experience: [
+        {
+          jobTitle: "",
+          companyName: "",
+          yearsOfExperience: "",
+          description: "",
+        },
+      ],
+      skills: [{ skillType: "", skillName: "" }],
+      projects: [{ title: "", description: "", technologiesUsed: "" }],
+      certifications: [
+        {
+          certificationName: "",
+          issuingOrganization: "",
+          dateObtained: "",
+          certificationId: "",
+        },
+      ],
+    });
+    setEditingResumeId(null); // Clear editing state
+    setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
+  };
+
+
+
+  // Save a new resume or update an existing one
+const saveResume = () => {
+  const defaultName =
+    formData.personal.name ||
+    `Resume - ${new Date().toLocaleDateString()} - ${uuidv4().slice(0, 4)}`;
+
+  if (editingResumeId) {
+    // Update existing resume
+    setSavedResumes(
+      savedResumes.map((resume) =>
+        resume.id === editingResumeId
+          ? { ...resume, formData, layout: selectedLayout }
+          : resume
+      )
+    );
+    setEditingResumeId(null); // reset editing state
+  } else {
+    // Save new resume
+    setSavedResumes([
+      ...savedResumes,
+      {
+        id: uuidv4(),
+        formData,
+        layout: selectedLayout,
+        name: defaultName,
+      },
+    ]);
+  }
+  setSelectedItem("My Resumes");
+};
+
+
+  // Load a resume into the form for editing
+  const loadResumeForEditing = (resumeId) => {
+    const resume = savedResumes.find((resume) => resume.id === resumeId);
+    if (resume) {
+      setFormData(resume.formData);
+      setSelectedLayout(resume.layout);
+      setEditingResumeId(resumeId);
+      setSelectedItem("Create Resume");
+    }
+  };
+
   const handleMenuClick = (item) => {
     setSelectedItem(item);
   };
@@ -102,6 +186,8 @@ const Page = () => {
       });
     }
   };
+
+  
 
   const addEducation = () => {
     setFormData({
@@ -187,45 +273,39 @@ const Page = () => {
     setFormData({ ...formData, certifications: updatedCertifications });
   };
 
-const handleSubmitPersonalInfo = async () => {
-  try {
-    const response = await PersonalInfoSubmit(formData.personal); // Ensure `formData.personal` has the correct fields
+  const handleSubmitPersonalInfo = async () => {
+    try {
+      const response = await PersonalInfoSubmit(formData.personal); // Ensure `formData.personal` has the correct fields
 
-    if (response.success) {
-      // Check for a success response if `PersonalInfoSubmit` returns it
-      console.log("Personal Info Submitted", formData.personal);
-    } else {
-      console.error(response.message || "Submission did not succeed.");
+      if (response.success) {
+        // Check for a success response if `PersonalInfoSubmit` returns it
+        console.log("Personal Info Submitted", formData.personal);
+      } else {
+        console.error(response.message || "Submission did not succeed.");
+      }
+    } catch (error) {
+      console.error(error.message || "Failed to submit personal information.");
     }
-  } catch (error) {
-    console.error(error.message || "Failed to submit personal information.");
-  }
-};
-
+  };
 
   const handleSubmitEducation = async () => {
-
     try {
       const response = await educationCreate(formData.education);
-      if(response.success){
-          console.log("Education Info Submitted", formData.education);
+      if (response.success) {
+        console.log("Education Info Submitted", formData.education);
       }
-
     } catch (error) {
-          console.error(
-            error.message || "Failed to submit education information."
-          );
+      console.error(error.message || "Failed to submit education information.");
     }
 
     // Add logic to handle education submission
   };
 
   const handleSubmitExperience = async () => {
-
     try {
       const response = await experienceCreate(formData.experience);
-      if(response.success){
-        console.log("Experience info submitted",formData.experience)
+      if (response.success) {
+        console.log("Experience info submitted", formData.experience);
       }
     } catch (error) {
       console.log(error.message || "Failed to submit experience information");
@@ -234,13 +314,12 @@ const handleSubmitPersonalInfo = async () => {
     // Add logic to handle experience submission
   };
 
-  const handleSubmitSkills = async() => {
+  const handleSubmitSkills = async () => {
     try {
-      const response = await skillCreate(formData.skills)
-      if(response.success){
+      const response = await skillCreate(formData.skills);
+      if (response.success) {
         console.log("Skills info submitted", formData.skills);
       }
-
     } catch (error) {
       console.log(error.message || "Failed to submit skills information");
     }
@@ -249,9 +328,9 @@ const handleSubmitPersonalInfo = async () => {
 
   const handleSubmitProjects = async () => {
     try {
-      const response = await projectCreate(formData.projects)
-      if(response.success){ 
-        console.log("Project info submitted",formData.projects)
+      const response = await projectCreate(formData.projects);
+      if (response.success) {
+        console.log("Project info submitted", formData.projects);
       }
     } catch (error) {
       console.log(error.message || "Failed to sumbit project information");
@@ -259,15 +338,16 @@ const handleSubmitPersonalInfo = async () => {
     // Add logic to handle projects submission
   };
 
-  const handleSubmitCertifications = async() => {
-
+  const handleSubmitCertifications = async () => {
     try {
       const response = await certificateCreate(formData.certifications);
-      if(response.success){
+      if (response.success) {
         console.log("Certificate info submitted", formData.certifications);
       }
     } catch (error) {
-      console.log(error.message || "Failed to submit certification information")
+      console.log(
+        error.message || "Failed to submit certification information"
+      );
     }
 
     console.log("Certifications Submitted", formData.certifications);
@@ -285,16 +365,25 @@ const handleSubmitPersonalInfo = async () => {
         return <div>Welcome to the Home Page</div>;
       case "Create Resume":
         return (
-          <div>
+          <div className="h-full">
             <TopNav
               activeSection={activeSection}
               onSectionChange={setActiveSection}
             />
-            <div className="flex mt-4 h-[90vh]">
-              <div className="w-1/2 pr-6 overflow-y-auto h-full">
+            <div className="flex mt-4 h-[85vh]">
+              {/* Form Section */}
+              <div className="w-1/2 pr-4 overflow-y-auto h-full">
                 {renderResumeSectionForm(activeSection)}
+                <button
+                  onClick={saveResume}
+                  className="mt-4 bg-blue-500 text-white p-2 rounded"
+                >
+                  {editingResumeId ? "Update Resume" : "Save Resume"}
+                </button>
               </div>
-              <div className="w-1/2 pl-6 border-l border-gray-300 overflow-y-auto h-full">
+
+              {/* Preview Section */}
+              <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto">
                 {renderResumePreview()}
               </div>
             </div>
@@ -309,7 +398,33 @@ const handleSubmitPersonalInfo = async () => {
         );
 
       case "My Resumes":
-        return <div>View your saved resumes</div>;
+        return (
+          <div>
+            <h2>Your Saved Resumes</h2>
+            <button
+              onClick={resetFormData}
+              className="mt-4 px-4 py-2 bg-green-600 text-white"
+            >
+              New Resume
+            </button>
+            <ul>
+              {savedResumes.map((resume) => (
+                <li
+                  key={resume.id}
+                  className="flex justify-between items-center"
+                >
+                  <span>{resume.name}</span>
+                  <button
+                    onClick={() => loadResumeForEditing(resume.id)}
+                    className="px-2 py-1 bg-gray-300"
+                  >
+                    Edit
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
       case "Settings":
         return <div>Adjust your settings</div>;
       default:

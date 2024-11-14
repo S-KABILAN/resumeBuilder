@@ -9,6 +9,8 @@ const { createPersonal, updatePersonal, getAllPersonal, deletePersonal } = requi
 const { createEducation } = require("../controllers/educationController");
 const router = express.Router();
 
+
+
 // Route to create or update resume
 router.post("/personal", authenticateToken ,createPersonal)
 router.post("/education",authenticateToken,createEducation)
@@ -16,6 +18,7 @@ router.post("/skill",authenticateToken,createSkill)
 router.post("/experience",authenticateToken,createExperience)
 router.post("/project",authenticateToken,createProject)
 router.post("/certificate", authenticateToken, createCertification)
+router.post("/r")
 
 router.put("/personal",authenticateToken,updatePersonal)
 router.put("/skillupdate/:skillId", authenticateToken, updateSkills);

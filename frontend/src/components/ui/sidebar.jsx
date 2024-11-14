@@ -6,10 +6,14 @@ import {
   FaThLarge,
   FaCog,
   FaSignOutAlt,
+  FaUserCircle,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
-const Sidebar = ({ onMenuClick, onLayoutSelect }) => {
+const Sidebar = ({ onMenuClick }) => {
   const [activeItem, setActiveItem] = useState("Home");
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const menuItems = [
     { name: "Home", icon: FaHome },
@@ -24,51 +28,80 @@ const Sidebar = ({ onMenuClick, onLayoutSelect }) => {
     onMenuClick(itemName);
   };
 
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
-    <aside className="w-64 shrink-0 border-r border-gray-200 bg-white h-screen flex flex-col shadow-sm">
-      <div className="px-4 py-6 flex flex-col items-center">
-        <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
-          <img
-            src="/placeholder.svg?height=96&width=96"
-            alt="Profile"
-            className="w-full h-full object-cover"
-          />
+    <aside
+      className={`${
+        isExpanded ? "w-64" : "w-20"
+      } shrink-0 border-r border-gray-100 bg-white h-screen flex flex-col transition-all duration-300 ease-in-out relative`}
+    >
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-20 bg-white border border-gray-100 rounded-full p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+        aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+      >
+        {isExpanded ? (
+          <FaChevronLeft className="w-4 h-4" />
+        ) : (
+          <FaChevronRight className="w-4 h-4" />
+        )}
+      </button>
+      <div
+        className={`px-6 py-8 flex flex-col items-center bg-gradient-to-b from-blue-50 to-white ${
+          isExpanded ? "" : "px-2"
+        }`}
+      >
+        <div className="w-16 h-16 mb-4 text-blue-500">
+          <FaUserCircle className="w-full h-full" />
         </div>
-        <h1 className="text-2xl text-center font-bold text-gray-800">
-          Resume Builder
-        </h1>
-        <p className="text-gray-500 text-center mt-2 text-sm">Welcome, asdf</p>
+        {isExpanded && (
+          <>
+            <h1 className="text-xl font-semibold text-gray-800 text-center">
+              Resume Builder
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">Welcome, User</p>
+          </>
+        )}
       </div>
-      <nav className="flex-grow py-4">
-        <ul className="space-y-1 px-3">
+      <nav className="flex-grow py-6">
+        <ul className={`space-y-2 ${isExpanded ? "px-4" : "px-2"}`}>
           {menuItems.map((item) => (
             <li key={item.name}>
               <button
                 onClick={() => handleMenuClick(item.name)}
-                className={`w-full text-left flex items-center space-x-3 px-4 py-2 rounded-md transition duration-150 ease-in-out ${
+                className={`w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg transition duration-150 ease-in-out ${
                   activeItem === item.name
-                    ? "bg-blue-100 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                    ? "bg-blue-50 text-blue-600"
+                    : "text-gray-600 hover:bg-gray-50"
+                } ${isExpanded ? "" : "justify-center"}`}
+                title={item.name}
               >
                 <item.icon
                   className={`w-5 h-5 ${
-                    activeItem === item.name ? "text-blue-700" : "text-gray-500"
+                    activeItem === item.name ? "text-blue-600" : "text-gray-400"
                   }`}
                 />
-                <span>{item.name}</span>
+                {isExpanded && (
+                  <span className="text-sm font-medium">{item.name}</span>
+                )}
               </button>
             </li>
           ))}
         </ul>
       </nav>
-      <div className="px-4 py-4 border-t border-gray-200">
+      <div className={`px-4 py-6 ${isExpanded ? "" : "px-2"}`}>
         <button
           onClick={() => handleMenuClick("Logout")}
-          className="w-full bg-white text-red-500 border border-red-500 py-2 px-4 rounded-md hover:bg-red-50 transition duration-300 flex items-center justify-center space-x-2"
+          className={`w-full bg-white text-gray-600 border border-gray-200 py-2 px-4 rounded-lg hover:bg-gray-50 transition duration-300 flex items-center justify-center space-x-2 text-sm font-medium ${
+            isExpanded ? "" : "px-0"
+          }`}
+          title="Logout"
         >
-          <FaSignOutAlt className="w-5 h-5" />
-          <span>Logout</span>
+          <FaSignOutAlt className="w-4 h-4" />
+          {isExpanded && <span>Logout</span>}
         </button>
       </div>
     </aside>
