@@ -11,45 +11,67 @@ const ExperienceForm = ({
       {formData.map((experience, index) => (
         <div key={index} className="space-y-4 mt-4">
           <div>
-            <label className="block text-sm">Job Title</label>
+            <label htmlFor={`degree-${index}`} className="block text-sm">
+              Job Title
+            </label>
             <input
               type="text"
+              id={`jobTitle-${index}`}
               value={experience.jobTitle}
-              onChange={(e) => onFormChange(index, "jobTitle", e.target.value)}
+              onChange={(e) =>
+                onFormChange("experience", "jobTitle", e.target.value, index)
+              }
               placeholder="Enter your job title"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
-            <label className="block text-sm">Company Name</label>
+            <label htmlFor={`companyName-${index}`} className="block text-sm">
+              Company Name
+            </label>
             <input
               type="text"
+              id={`companyName-${index}`}
               value={experience.companyName}
               onChange={(e) =>
-                onFormChange(index, "companyName", e.target.value)
+                onFormChange("experience", "companyName", e.target.value, index)
               }
               placeholder="Enter your company name"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
-            <label className="block text-sm">Years of Experience</label>
+            <label
+              htmlFor={`yearsOfExperience-${index}`}
+              className="block text-sm"
+            >
+              Years of Experience
+            </label>
             <input
               type="number"
+              id={`yearsOfExperience-${index}`}
               value={experience.yearsOfExperience}
               onChange={(e) =>
-                onFormChange(index, "yearsOfExperience", e.target.value)
+                onFormChange(
+                  "experience",
+                  "yearsOfExperience",
+                  e.target.value,
+                  index
+                )
               }
               placeholder="Enter number of years"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
-            <label className="block text-sm">Description</label>
+            <label htmlFor={`description-${index}`} className="block text-sm">
+              Description
+            </label>
             <textarea
+              id={`description-${index}`}
               value={experience.description}
               onChange={(e) =>
-                onFormChange(index, "description", e.target.value)
+                onFormChange("experience", "description", e.target.value, index)
               }
               placeholder="Describe your role and responsibilities"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"

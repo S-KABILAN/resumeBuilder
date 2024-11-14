@@ -12,15 +12,15 @@ const ExperienceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: () => new mongoose.Types.ObjectId(),
       },
-      jobtitle: {
+      jobTitle: {
         type: String,
         required: true,
       },
-      companyname: {
+      companyName: {
         type: String,
         required: true,
       },
-      yearsofexperience: {
+      yearsOfExperience: {
         type: Number, // Changed to Number for efficiency
         required: true,
       },

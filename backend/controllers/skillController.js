@@ -2,9 +2,11 @@ const Skill = require("../models/Skill");
 
 exports.createSkill = async (req, res) => {
   try {
-    const { skilltype, skillname } = req.body;
-
-    if (!skilltype || !Array.isArray(skillname) || skillname.length === 0) {
+    const skills = Array.isArray(req.body) ? req.body : [req.body];
+    //console.log(skills);
+    const { skillType, skillName } = req.body;
+    
+    if (!skillType || !skillName) {
       return res.status(400).json({
         success: false,
         message: "Skill type and skill names are required",
@@ -15,7 +17,7 @@ exports.createSkill = async (req, res) => {
       { userId: req.user.id },
       {
         $push: {
-          skills: { skilltype, skillname, date: Date.now() },
+          skills: { skillType, skillName, date: Date.now() },
         },
       },
       { new: true, upsert: true }

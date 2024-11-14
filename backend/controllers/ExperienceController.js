@@ -2,34 +2,40 @@ const Experience = require("../models/Experience");
 
 exports.createExperience = async (req, res) => {
   try {
-    const { jobtitle, companyname, yearsofexperience, description } = req.body;
+    const experiences = Array.isArray(req.body) ? req.body : [req.body]; // Handle if it's an array
 
-    if (!jobtitle || !companyname || !yearsofexperience || !description) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+    for (const experience of experiences) {
+      const { jobTitle, companyName, yearsOfExperience, description } =
+        experience;
 
-    const experience = await Experience.findOneAndUpdate(
-      { userId: req.user.id },
-      {
-        $push: {
-          experience: {
-            jobtitle,
-            companyname,
-            yearsofexperience,
-            description,
+      if (!jobTitle || !companyName || !yearsOfExperience || !description) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+
+      await Experience.findOneAndUpdate(
+        { userId: req.user.id },
+        {
+          $push: {
+            experience: {
+              jobTitle,
+              companyName,
+              yearsOfExperience,
+              description,
+              userId: req.user.id,
+            },
           },
         },
-      },
-      { new: true, upsert: true }
-    );
+        { new: true, upsert: true }
+      );
+    }
 
     res.status(200).json({
       success: true,
       message: "Experience added successfully",
-      data: experience,
+      experiences
     });
   } catch (error) {
     console.error("Error adding experience:", error);
@@ -39,6 +45,7 @@ exports.createExperience = async (req, res) => {
     });
   }
 };
+
 
 //get all experience
 exports.getExperiences = async (req, res) => {

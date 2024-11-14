@@ -14,6 +14,9 @@ import ResumePreviewLayout2 from "../components/ResumePreviewLayout2";
 import ResumeTemplates from "../components/ResumeTemplates";
 
 import { PersonalInfoSubmit } from "../services/routes/personal";
+import { educationCreate } from "../services/routes/education";
+import { experienceCreate } from "../services/routes/experience";
+import { skillCreate } from "../services/routes/skill";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
@@ -38,7 +41,7 @@ const Page = () => {
         description: "",
       },
     ],
-    skills: [{ skill: "", skillLevel: "" }],
+    skills: [{ skillType: "", skillName: "" }],
     projects: [{ title: "", description: "", technologies: "" }],
     certifications: [
       {
@@ -198,18 +201,48 @@ const handleSubmitPersonalInfo = async () => {
 };
 
 
-  const handleSubmitEducation = () => {
-    console.log("Education Submitted", formData.education);
+  const handleSubmitEducation = async () => {
+
+    try {
+      const response = await educationCreate(formData.education);
+      if(response.success){
+          console.log("Education Info Submitted", formData.education);
+      }
+
+    } catch (error) {
+          console.error(
+            error.message || "Failed to submit education information."
+          );
+
+    }
+
     // Add logic to handle education submission
   };
 
-  const handleSubmitExperience = () => {
+  const handleSubmitExperience = async () => {
+
+    try {
+      const response = await experienceCreate(formData.experience);
+      if(response.success){
+        console.log("Experience info submitted",formData.experience)
+      }
+    } catch (error) {
+      console.log(error.message || "Failed to submit experience information");
+    }
     console.log("Experience Submitted", formData.experience);
     // Add logic to handle experience submission
   };
 
-  const handleSubmitSkills = () => {
-    console.log("Skills Submitted", formData.skills);
+  const handleSubmitSkills = async() => {
+    try {
+      const response = await skillCreate(formData.skills)
+      if(response.success){
+        console.log("Skills info submitted", formData.skills);
+      }
+
+    } catch (error) {
+      console.log(error.message || "Failed to submit skills information");
+    }
     // Add logic to handle skills submission
   };
 

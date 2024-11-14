@@ -3,9 +3,20 @@ const Education = require("../models/Education");
 // Create a new Education entry
 const createEducation = async (req, res) => {
   try {
-    const education = new Education(req.body);
-    await education.save();
-    res.status(201).json(education);
+    const {degree, institution, graduationYear} = req.body;
+    
+    const education = await Education.create({
+      degree,
+      institution,
+      graduationYear,
+      userId: req.user.id
+    });
+    res.status(201).json({
+      success: true,
+      message: "Education is created successfully",
+      education
+    });
+
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

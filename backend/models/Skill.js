@@ -13,8 +13,8 @@ const skillSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           default: mongoose.Types.ObjectId,
         }, // Unique ID for each skill
-        skilltype: { type: String, required: true },
-        skillname: { type: [String], required: true },
+        skillType: { type: String, required: true },
+        skillName: { type: [String], required: true },
         date: { type: Date, default: Date.now }, // Track date added/updated
       },
     ],
