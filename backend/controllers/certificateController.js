@@ -1,47 +1,55 @@
 const Certification = require("../models/Certificate");
 
 exports.createCertification = async (req, res) => {
+
+
   try {
-    const {
-      certificationName,
-      issuingOrganization,
-      dateObtained,
-      certificationId,
-    } = req.body;
 
-    // Validate input
-    if (
-      !certificationName ||
-      !issuingOrganization ||
-      !dateObtained ||
-      !certificationId
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+    const certificates = Array.isArray(req.body) ? req.body : [req.body];
 
-    // Add the certification to the user's certifications array
-    const userCertifications = await Certification.findOneAndUpdate(
-      { userId: req.user.id }, // Find the user by ID
-      {
-        $push: {
-          certifications: {
-            certificationName,
-            issuingOrganization,
-            dateObtained,
-            certificationId,
+    for(const certificate of certificates){
+      const {
+        certificationName,
+        issuingOrganization,
+        dateObtained,
+        certificationId,
+      } = certificate;
+
+      // Validate input
+      if (
+        !certificationName ||
+        !issuingOrganization ||
+        !dateObtained ||
+        !certificationId
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+
+      await Certification.findOneAndUpdate(
+        { userId: req.user.id }, // Find the user by ID
+        {
+          $push: {
+            certifications: {
+              certificationName,
+              issuingOrganization,
+              dateObtained,
+              certificationId,
+            },
           },
         },
-      },
-      { new: true, upsert: true } // Create a new entry if it doesn't exist
-    );
+        { new: true, upsert: true } // Create a new entry if it doesn't exist
+      );
 
+    }
+    // Add the certification to the user's certifications array
+    
     res.status(201).json({
       success: true,
       message: "Certification created successfully",
-      data: userCertifications,
+      data: certificates,
     });
   } catch (error) {
     console.error("Error creating certification:", error);

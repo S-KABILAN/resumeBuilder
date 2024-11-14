@@ -2,34 +2,38 @@ const Project = require("../models/Project");
 
 exports.createProject = async (req, res) => {
   try {
-    const { title, description, technologiesUsed } = req.body;
 
-    if (!title || !description || !technologiesUsed) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
+    const projects = Array.isArray(req.body) ? req.body : [req.body];
 
-    // Find the user and add the new project to the project array
-    const userProjects = await Project.findOneAndUpdate(
-      { userId: req.user.id }, // Ensure it belongs to the authenticated user
-      {
-        $push: {
-          project: {
-            title,
-            description,
-            technologiesUsed,
+    for(const project of projects){
+      const { title, description, technologiesUsed } = project;
+
+      if (!title || !description || !technologiesUsed) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+
+      // Find the user and add the new project to the project array
+      await Project.findOneAndUpdate(
+        { userId: req.user.id }, // Ensure it belongs to the authenticated user
+        {
+          $push: {
+            project: {
+              title,
+              description,
+              technologiesUsed,
+            },
           },
         },
-      },
-      { new: true, upsert: true }
-    );
-
+        { new: true, upsert: true }
+      );
+    }
     res.status(201).json({
       success: true,
       message: "Project created successfully",
-      data: userProjects,
+      data: projects,
     });
   } catch (error) {
     console.error("Error creating project:", error);

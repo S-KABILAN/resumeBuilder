@@ -3,6 +3,7 @@ const ProjectsForm = ({
   onFormChange,
   addProject,
   removeProject,
+  onSubmit
 }) => {
   return (
     <div>
@@ -38,7 +39,7 @@ const ProjectsForm = ({
               type="text"
               value={projectEntry.technologies}
               onChange={(e) =>
-                onFormChange("projects", "technologies", e.target.value, index)
+                onFormChange("projects", "technologiesUsed", e.target.value, index)
               }
               placeholder="Enter technologies used"
               className="mt-2 w-full p-2 border border-gray-300 rounded-md"
@@ -62,6 +63,13 @@ const ProjectsForm = ({
         className="mt-6 px-4 py-2 text-white bg-blue-500 rounded-md"
       >
         Add Another Project
+      </button>
+      <button
+        type="button"
+        onClick={onSubmit}
+        className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md"
+      >
+        Submit Projects
       </button>
     </div>
   );

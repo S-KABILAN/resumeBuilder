@@ -17,6 +17,8 @@ import { PersonalInfoSubmit } from "../services/routes/personal";
 import { educationCreate } from "../services/routes/education";
 import { experienceCreate } from "../services/routes/experience";
 import { skillCreate } from "../services/routes/skill";
+import { projectCreate } from "../services/routes/project";
+import { certificateCreate } from "../services/routes/certificate";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
@@ -42,7 +44,7 @@ const Page = () => {
       },
     ],
     skills: [{ skillType: "", skillName: "" }],
-    projects: [{ title: "", description: "", technologies: "" }],
+    projects: [{ title: "", description: "", technologiesUsed: "" }],
     certifications: [
       {
         certificationName: "",
@@ -213,7 +215,6 @@ const handleSubmitPersonalInfo = async () => {
           console.error(
             error.message || "Failed to submit education information."
           );
-
     }
 
     // Add logic to handle education submission
@@ -246,12 +247,29 @@ const handleSubmitPersonalInfo = async () => {
     // Add logic to handle skills submission
   };
 
-  const handleSubmitProjects = () => {
-    console.log("Projects Submitted", formData.projects);
+  const handleSubmitProjects = async () => {
+    try {
+      const response = await projectCreate(formData.projects)
+      if(response.success){ 
+        console.log("Project info submitted",formData.projects)
+      }
+    } catch (error) {
+      console.log(error.message || "Failed to sumbit project information");
+    }
     // Add logic to handle projects submission
   };
 
-  const handleSubmitCertifications = () => {
+  const handleSubmitCertifications = async() => {
+
+    try {
+      const response = await certificateCreate(formData.certifications);
+      if(response.success){
+        console.log("Certificate info submitted", formData.certifications);
+      }
+    } catch (error) {
+      console.log(error.message || "Failed to submit certification information")
+    }
+
     console.log("Certifications Submitted", formData.certifications);
     // Add logic to handle certifications submission
   };

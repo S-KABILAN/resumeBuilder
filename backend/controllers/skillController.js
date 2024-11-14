@@ -4,29 +4,32 @@ exports.createSkill = async (req, res) => {
   try {
     const skills = Array.isArray(req.body) ? req.body : [req.body];
     //console.log(skills);
-    const { skillType, skillName } = req.body;
+   
     
-    if (!skillType || !skillName) {
-      return res.status(400).json({
-        success: false,
-        message: "Skill type and skill names are required",
-      });
+    for (const skill of skills){
+       const { skillType, skillName } = skill;
+
+       if (!skillType || !skillName) {
+         return res.status(400).json({
+           success: false,
+           message: "Skill type and skill names are required",
+         });
+       }
+      
+           await Skill.findOneAndUpdate(
+             { userId: req.user.id },
+             {
+               $push: {
+                 skills: { skillType, skillName, date: Date.now() },
+               },
+             },
+             { new: true, upsert: true }
+           );
     }
-
-    const skill = await Skill.findOneAndUpdate(
-      { userId: req.user.id },
-      {
-        $push: {
-          skills: { skillType, skillName, date: Date.now() },
-        },
-      },
-      { new: true, upsert: true }
-    );
-
     res.status(201).json({
       success: true,
       message: "Skill added successfully",
-      data: skill,
+      data: skills,
     });
   } catch (error) {
     console.error("Error adding skills:", error);
