@@ -36,16 +36,25 @@ exports.getAllResumes = async (req, res) => {
 
 // Controller to update a resume
 exports.updateResume = async (req, res) => {
-  try {
-    const resume = await Resume.findOneAndUpdate(
-      { _id: req.params.id }, // Using `_id` instead of `id`
-      req.body,
-      { new: true }
-    );
-    res.send({ success: true, data: resume });
-  } catch (err) {
-    res.status(400).send({ success: false, error: err.message });
-  }
+  
+
+      const { id } = req.params;
+      const resumeData = req.body;
+
+   try {
+     const updatedResume = await Resume.findByIdAndUpdate(id, resumeData, {
+       new: true,
+     });
+     if (!updatedResume) {
+       return res.status(404).json({ message: "Resume not found" });
+     }
+     res.json({ message: "Resume updated successfully", data: updatedResume });
+   } catch (error) {
+     console.error(error);
+     res
+       .status(500)
+       .json({ message: "Error updating resume", error: error.message });
+   }
 };
 
 // Controller to delete a resume
