@@ -15,15 +15,30 @@ export const updateResume = async (resumeId, resumeData) => {
 
 
 
-// Function to get all resumes
-export const getAllResumes = async () => {
+// src/services/routes/resume.js
+export const getAllResumes = async (userId) => {
   try {
-    const response = await axiosInstance.get("/resume/r"); // Adjust the URL as needed
-    return response.data; // Return the response data containing all resumes
+    const response = await axiosInstance.get(`/resume/r/?userId=${userId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+      },
+    });
+
+    // Log the response for debugging
+    console.log("Response status:", response.status);
+    console.log("Response data:", response.data);
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch resumes");
+    }
+
+    return response.data; // Assuming resumes are in response.data
   } catch (error) {
-    // Handle error appropriately
-    throw error.response
-      ? error.response.data
-      : { message: "Error fetching resumes" };
+    console.error(
+      "Error fetching resumes:",
+      error.response ? error.response.data : error.message
+    );
+    throw new Error("Failed to fetch resumes");
   }
 };

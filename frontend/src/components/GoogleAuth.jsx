@@ -1,14 +1,9 @@
 // src/components/GoogleAuth.jsx
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { googleLogin } from "../services/routes/personal";
-import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
 const GoogleAuth = ({ onAuthSuccess }) => {
-  const navigate = useNavigate();
-
-  // src/components/GoogleAuth.jsx
-
   const handleSuccess = async (credentialResponse) => {
     try {
       const { credential } = credentialResponse;
@@ -19,9 +14,8 @@ const GoogleAuth = ({ onAuthSuccess }) => {
         // Save token and user details to local storage
         localStorage.setItem("jwtToken", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user details
-        // Redirect to dashboard
-        onAuthSuccess();
-        navigate("/dashboard");
+        // Call the success handler
+        onAuthSuccess(); // This could be used for any additional UI updates if needed
       }
     } catch (error) {
       console.error("Login failed:", error.message);
@@ -42,6 +36,5 @@ const GoogleAuth = ({ onAuthSuccess }) => {
 GoogleAuth.propTypes = {
   onAuthSuccess: PropTypes.func.isRequired,
 };
-
 
 export default GoogleAuth;

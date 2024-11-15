@@ -26,7 +26,8 @@ exports.createResume = async (req, res) => {
 // Controller to fetch all resumes
 exports.getAllResumes = async (req, res) => {
   try {
-    const resumes = await Resume.find();
+    const userId = req.query.userId;
+    const resumes = await Resume.find({ userId: userId });
     res.send({ success: true, data: resumes });
   } catch (err) {
     res.status(500).send({ success: false, error: err.message });

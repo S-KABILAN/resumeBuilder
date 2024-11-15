@@ -30,7 +30,7 @@ router.put("/certificate/:certificationId",authenticateToken, updateCertificatio
 // Route to get resume
 //router.get("/", authenticateToken, getResume);
 
-router.get("/r",authenticateToken,getAllResumes)
+router.get("/r", authenticateToken, getAllResumes);
 
 router.get("/personal", authenticateToken, getAllPersonal);
 router.get("/get-skills",authenticateToken, getSkills);

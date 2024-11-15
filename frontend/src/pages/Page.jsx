@@ -20,7 +20,11 @@ import { experienceCreate } from "../services/routes/experience";
 import { skillCreate } from "../services/routes/skill";
 import { projectCreate } from "../services/routes/project";
 import { certificateCreate } from "../services/routes/certificate";
-import { getAllResumes, resumeCreate, updateResume } from "../services/routes/resume";
+import {
+  getAllResumes,
+  resumeCreate,
+  updateResume,
+} from "../services/routes/resume";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
@@ -97,18 +101,36 @@ const Page = () => {
   };
 
   // Function to fetch all resumes
-  const fetchAllResumes = async () => {
+const fetchAllResumes = async () => {
     setLoadingResumes(true); // Set loading state to true
     setErrorLoadingResumes(null); // Reset error state
-    try {
-      const resumes = await getAllResumes(); // Fetch resumes
-      setSavedResumes(resumes.data); // Assuming resumes are in `data`
-    } catch (error) {
-      setErrorLoadingResumes(error.message || "Failed to fetch resumes");
-    } finally {
-      setLoadingResumes(false); // Set loading state to false
+
+    // Retrieve user data from local storage
+    const storedUserData = localStorage.getItem("user"); 
+    let userId = null; // Initialize userId
+
+    if (storedUserData) {
+        const userData = JSON.parse(storedUserData); // Parse the JSON string back into an object
+        userId = userData._id; // Get the user ID
+    } else {
+        console.error("No user data found in local storage.");
+        setErrorLoadingResumes("User  data not found. Please log in again.");
+        setLoadingResumes(false); // Set loading state to false
+        return; // Exit the function early
     }
-  };
+
+    console.log("User  ID:", userId); // Log the user ID for debugging
+
+    try {
+        const resumes = await getAllResumes(userId); // Pass user ID to the API call
+        setSavedResumes(resumes.data); // Assuming resumes are in `data`
+    } catch (error) {
+        console.error("Error fetching resumes:", error); // Log the error for debugging
+        setErrorLoadingResumes(error.message || "Failed to fetch resumes");
+    } finally {
+        setLoadingResumes(false); // Set loading state to false
+    }
+};
 
   // useEffect to fetch resumes when "My Resumes" is selected
   useEffect(() => {
@@ -118,47 +140,47 @@ const Page = () => {
   }, [selectedItem]);
 
   // Save a new resume or update an existing one
-  const saveResume = async () => {
-    const defaultName =
-      formData.personal.name ||
-      `Resume - ${new Date().toLocaleDateString()} - ${uuidv4().slice(0, 4)}`;
+const saveResume = async () => {
+  const defaultName =
+    formData.personal.name ||
+    `Resume - ${new Date().toLocaleDateString()} - ${uuidv4().slice(0, 4)}`;
 
-    const resumeData = {
-      name: defaultName,
-      personal: formData.personal,
-      education: formData.education,
-      experience: formData.experience,
-      skills: formData.skills,
-      projects: formData.projects,
-      certifications: formData.certifications,
-      layout: selectedLayout,
-    };
-
-    try {
-      let response;
-      if (editingResumeId) {
-        response = await updateResume(editingResumeId, resumeData);
-        // Update the existing resume in the savedResumes state
-        setSavedResumes((prevResumes) =>
-          prevResumes.map((resume) =>
-            resume.id === editingResumeId
-              ? { ...resume, ...resumeData }
-              : resume
-          )
-        );
-      } else {
-        response = await resumeCreate(resumeData);
-        // Add the new resume to the savedResumes state
-        setSavedResumes((prevResumes) => [
-          ...prevResumes,
-          { id: response.data.id, ...resumeData }, // Assuming the response contains an id for the new resume
-        ]);
-      }
-      setSelectedItem("My Resumes");
-    } catch (error) {
-      console.error("Error saving resume:", error.message || error);
-    }
+  const resumeData = {
+    name: defaultName,
+    personal: formData.personal,
+    education: formData.education,
+    experience: formData.experience,
+    skills: formData.skills,
+    projects: formData.projects,
+    certifications: formData.certifications,
+    layout: selectedLayout,
   };
+
+  try {
+    let response;
+    if (editingResumeId) {
+      // Update existing resume
+      response = await updateResume(editingResumeId, resumeData);
+      // Update the existing resume in the savedResumes state
+      setSavedResumes((prevResumes) =>
+        prevResumes.map((resume) =>
+          resume._id === editingResumeId ? { ...resume, ...resumeData } : resume
+        )
+      );
+    } else {
+      // Create a new resume
+      response = await resumeCreate(resumeData);
+      // Add the new resume to the savedResumes state
+      setSavedResumes((prevResumes) => [
+        ...prevResumes,
+        { _id: response.data._id, ...resumeData }, // Assuming the response contains an id for the new resume
+      ]);
+    }
+    setSelectedItem("My Resumes");
+  } catch (error) {
+    console.error("Error saving resume:", error.message || error);
+  }
+};
 
   const handleResumeCreate = async () => {
     try {
@@ -171,15 +193,22 @@ const Page = () => {
     }
   };
   // Load a resume into the form for editing
-  const loadResumeForEditing = (resumeId) => {
-    const resume = savedResumes.find((resume) => resume.id === resumeId);
-    if (resume) {
-      setFormData(resume.formData);
-      setSelectedLayout(resume.layout);
-      setEditingResumeId(resumeId);
-      setSelectedItem("Create Resume");
-    }
-  };
+const loadResumeForEditing = (resumeId) => {
+  const resume = savedResumes.find((resume) => resume._id === resumeId); // Use _id for matching
+  if (resume) {
+    setFormData({
+      personal: resume.personal,
+      education: resume.education,
+      experience: resume.experience,
+      skills: resume.skills,
+      projects: resume.projects,
+      certifications: resume.certifications,
+    });
+    setSelectedLayout(resume.layout);
+    setEditingResumeId(resumeId);
+    setSelectedItem("Create Resume");
+  }
+};
 
   const handleMenuClick = (item) => {
     setSelectedItem(item);
