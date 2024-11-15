@@ -7,6 +7,7 @@ const { getAllProjects, createProject, updateProject, deleteProject } = require(
 const { createCertification, updateCertification, getAllCertifications, deleteCertification } = require("../controllers/certificateController");
 const { createPersonal, updatePersonal, getAllPersonal, deletePersonal } = require("../controllers/personalInfoController");
 const { createEducation } = require("../controllers/educationController");
+const { createResume, getAllResumes } = require("../controllers/resumeController");
 const router = express.Router();
 
 
@@ -18,7 +19,7 @@ router.post("/skill",authenticateToken,createSkill)
 router.post("/experience",authenticateToken,createExperience)
 router.post("/project",authenticateToken,createProject)
 router.post("/certificate", authenticateToken, createCertification)
-router.post("/r")
+router.post("/r",authenticateToken,createResume)
 
 router.put("/personal",authenticateToken,updatePersonal)
 router.put("/skillupdate/:skillId", authenticateToken, updateSkills);
@@ -28,6 +29,9 @@ router.put("/certificate/:certificationId",authenticateToken, updateCertificatio
 
 // Route to get resume
 //router.get("/", authenticateToken, getResume);
+
+router.get("/r",authenticateToken,getAllResumes)
+
 router.get("/personal", authenticateToken, getAllPersonal);
 router.get("/get-skills",authenticateToken, getSkills);
 router.get("/experience", authenticateToken,getExperiences);

@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
-const resumeSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Link resume to a user
-  name: { type: String, required: true }, // Name or label for the resume
-  formData: {
+const resumeSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User ",
+      required: true,
+    }, // Reference to User
+    name: { type: String, required: true },
     personal: {
       name: String,
       email: String,
@@ -48,9 +52,10 @@ const resumeSchema = new mongoose.Schema({
         certificationId: String,
       },
     ],
+    layout: { type: String, required: true },
   },
-  layout: { type: String, default: "Layout1" }, // Selected layout
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
-module.exports = mongoose.model("Resume", resumeSchema);
+const Resume = mongoose.model("Resume", resumeSchema);
+module.exports = Resume;

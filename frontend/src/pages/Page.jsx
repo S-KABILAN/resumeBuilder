@@ -2,7 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid"; // to generate unique IDs
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
-
+import { useEffect } from "react";
 import EducationForm from "../components/forms/EducationForm";
 import ExperienceForm from "../components/forms/ExperienceForm";
 import SkillsForm from "../components/forms/SkillsForm";
@@ -20,6 +20,7 @@ import { experienceCreate } from "../services/routes/experience";
 import { skillCreate } from "../services/routes/skill";
 import { projectCreate } from "../services/routes/project";
 import { certificateCreate } from "../services/routes/certificate";
+import { getAllResumes, resumeCreate, updateResume } from "../services/routes/resume";
 
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
@@ -56,9 +57,10 @@ const Page = () => {
     ],
   });
 
-
   const [savedResumes, setSavedResumes] = useState([]);
   const [editingResumeId, setEditingResumeId] = useState(null);
+  const [loadingResumes, setLoadingResumes] = useState(true); // New state for loading resumes
+  const [errorLoadingResumes, setErrorLoadingResumes] = useState(null); // State for error handling
 
   const resetFormData = () => {
     setFormData({
@@ -94,40 +96,80 @@ const Page = () => {
     setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
   };
 
+  // Function to fetch all resumes
+  const fetchAllResumes = async () => {
+    setLoadingResumes(true); // Set loading state to true
+    setErrorLoadingResumes(null); // Reset error state
+    try {
+      const resumes = await getAllResumes(); // Fetch resumes
+      setSavedResumes(resumes.data); // Assuming resumes are in `data`
+    } catch (error) {
+      setErrorLoadingResumes(error.message || "Failed to fetch resumes");
+    } finally {
+      setLoadingResumes(false); // Set loading state to false
+    }
+  };
 
+  // useEffect to fetch resumes when "My Resumes" is selected
+  useEffect(() => {
+    if (selectedItem === "My Resumes") {
+      fetchAllResumes();
+    }
+  }, [selectedItem]);
 
   // Save a new resume or update an existing one
-const saveResume = () => {
-  const defaultName =
-    formData.personal.name ||
-    `Resume - ${new Date().toLocaleDateString()} - ${uuidv4().slice(0, 4)}`;
+  const saveResume = async () => {
+    const defaultName =
+      formData.personal.name ||
+      `Resume - ${new Date().toLocaleDateString()} - ${uuidv4().slice(0, 4)}`;
 
-  if (editingResumeId) {
-    // Update existing resume
-    setSavedResumes(
-      savedResumes.map((resume) =>
-        resume.id === editingResumeId
-          ? { ...resume, formData, layout: selectedLayout }
-          : resume
-      )
-    );
-    setEditingResumeId(null); // reset editing state
-  } else {
-    // Save new resume
-    setSavedResumes([
-      ...savedResumes,
-      {
-        id: uuidv4(),
-        formData,
-        layout: selectedLayout,
-        name: defaultName,
-      },
-    ]);
-  }
-  setSelectedItem("My Resumes");
-};
+    const resumeData = {
+      name: defaultName,
+      personal: formData.personal,
+      education: formData.education,
+      experience: formData.experience,
+      skills: formData.skills,
+      projects: formData.projects,
+      certifications: formData.certifications,
+      layout: selectedLayout,
+    };
 
+    try {
+      let response;
+      if (editingResumeId) {
+        response = await updateResume(editingResumeId, resumeData);
+        // Update the existing resume in the savedResumes state
+        setSavedResumes((prevResumes) =>
+          prevResumes.map((resume) =>
+            resume.id === editingResumeId
+              ? { ...resume, ...resumeData }
+              : resume
+          )
+        );
+      } else {
+        response = await resumeCreate(resumeData);
+        // Add the new resume to the savedResumes state
+        setSavedResumes((prevResumes) => [
+          ...prevResumes,
+          { id: response.data.id, ...resumeData }, // Assuming the response contains an id for the new resume
+        ]);
+      }
+      setSelectedItem("My Resumes");
+    } catch (error) {
+      console.error("Error saving resume:", error.message || error);
+    }
+  };
 
+  const handleResumeCreate = async () => {
+    try {
+      const response = await resumeCreate(formData);
+      console.log("Resume created successfully:", response.data);
+      // You can update state or UI here after success
+    } catch (error) {
+      console.error("Error creating resume:", error.message || error);
+      // Show error message to the user
+    }
+  };
   // Load a resume into the form for editing
   const loadResumeForEditing = (resumeId) => {
     const resume = savedResumes.find((resume) => resume.id === resumeId);
@@ -186,8 +228,6 @@ const saveResume = () => {
       });
     }
   };
-
-  
 
   const addEducation = () => {
     setFormData({
@@ -407,22 +447,28 @@ const saveResume = () => {
             >
               New Resume
             </button>
-            <ul>
-              {savedResumes.map((resume) => (
-                <li
-                  key={resume.id}
-                  className="flex justify-between items-center"
-                >
-                  <span>{resume.name}</span>
-                  <button
-                    onClick={() => loadResumeForEditing(resume.id)}
-                    className="px-2 py-1 bg-gray-300"
+            {loadingResumes ? ( // Show loading state
+              <p>Loading resumes...</p>
+            ) : errorLoadingResumes ? ( // Show error message if any
+              <p>Error: {errorLoadingResumes}</p>
+            ) : (
+              <ul>
+                {savedResumes.map((resume) => (
+                  <li
+                    key={resume._id} // Use _id for the key
+                    className="flex justify-between items-center"
                   >
-                    Edit
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    <span>{resume.name}</span>
+                    <button
+                      onClick={() => loadResumeForEditing(resume._id)} // Use _id for editing
+                      className="px-2 py-1 bg-gray-300"
+                    >
+                      Edit
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         );
       case "Settings":
