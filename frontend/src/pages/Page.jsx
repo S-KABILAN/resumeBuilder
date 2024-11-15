@@ -486,42 +486,76 @@ const Page = () => {
 
       case "My Resumes":
         return (
-          <div>
-            <h2>Your Saved Resumes</h2>
-            <button
-              onClick={resetFormData}
-              className="mt-4 px-4 py-2 bg-green-600 text-white"
-            >
-              New Resume
-            </button>
-            {loadingResumes ? ( // Show loading state
-              <p>Loading resumes...</p>
-            ) : errorLoadingResumes ? ( // Show error message if any
-              <p>Error: {errorLoadingResumes}</p>
-            ) : (
-              <ul>
-                {savedResumes.map((resume) => (
-                  <li
-                    key={resume._id} // Use _id for the key
-                    className="flex justify-between items-center"
+          <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Your Saved Resumes
+                </h2>
+                <button
+                  onClick={resetFormData}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    <span>{resume.name}</span>
-                    <button
-                      onClick={() => loadResumeForEditing(resume._id)} // Use _id for editing
-                      className="px-2 py-1 bg-gray-300"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteResume(resume._id)}
-                      className="px-2 py-1 bg-red-500 text-white"
-                    >
-                      Delete
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  New Resume
+                </button>
+              </div>
+
+              {loadingResumes ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <div
+                      key={index}
+                      className="h-12 bg-gray-200 rounded animate-pulse"
+                    ></div>
+                  ))}
+                </div>
+              ) : errorLoadingResumes ? (
+                <div className="text-center py-4 text-red-500">
+                  <p>Error: {errorLoadingResumes}</p>
+                </div>
+              ) : (
+                <div className="overflow-y-auto max-h-[300px] pr-2">
+                  <ul className="space-y-3">
+                    {savedResumes.map((resume) => (
+                      <li
+                        key={resume._id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        <span className="font-medium text-gray-700">
+                          {resume.name}
+                        </span>
+                        <div className="space-x-2">
+                          <button
+                            onClick={() => loadResumeForEditing(resume._id)}
+                            className="px-3 py-1 text-sm bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition-colors duration-200"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteResume(resume._id)}
+                            className="px-3 py-1 text-sm bg-white border border-red-500 text-red-500 rounded hover:bg-red-50 transition-colors duration-200"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         );
       case "Settings":

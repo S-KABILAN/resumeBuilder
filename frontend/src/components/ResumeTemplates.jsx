@@ -5,42 +5,46 @@ const ResumeTemplates = ({ onSelectTemplate, formData }) => {
   const previewWidth = 210; // width in pixels to approximate A4 proportions
   const previewHeight = 297; // height in pixels to approximate A4 proportions
 
+  const templates = [
+    { id: "Layout1", name: "Modern Clean", component: ResumePreviewLayout1 },
+    {
+      id: "Layout2",
+      name: "Professional Classic",
+      component: ResumePreviewLayout2,
+    },
+  ];
+
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Choose a Resume Template</h2>
-      <div className="flex space-x-4">
-        <div
-          className="border p-4 cursor-pointer"
-          onClick={() => onSelectTemplate("Layout1")}
-        >
-          <h3 className="text-lg font-bold mb-2">Template 1</h3>
-          {/* Render ResumePreviewLayout1 with fixed dimensions */}
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-semibold mb-6">Choose a Resume Template</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {templates.map((template) => (
           <div
-            className="overflow-hidden border"
-            style={{
-              width: `${previewWidth}px`,
-              height: `${previewHeight}px`,
-            }}
+            key={template.id}
+            className="bg-white rounded-lg shadow-md overflow-hidden"
           >
-            <ResumePreviewLayout1 formData={formData} />
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-4">{template.name}</h3>
+              <div
+                className="border rounded-md overflow-hidden mb-4 mx-auto"
+                style={{
+                  width: `${previewWidth}px`,
+                  height: `${previewHeight}px`,
+                  transform: "scale(0.9)",
+                  transformOrigin: "top center",
+                }}
+              >
+                <template.component formData={formData} />
+              </div>
+              <button
+                onClick={() => onSelectTemplate(template.id)}
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
+              >
+                Select Template
+              </button>
+            </div>
           </div>
-        </div>
-        <div
-          className="border p-4 cursor-pointer"
-          onClick={() => onSelectTemplate("Layout2")}
-        >
-          <h3 className="text-lg font-bold mb-2">Template 2</h3>
-          {/* Render ResumePreviewLayout2 with fixed dimensions */}
-          <div
-            className="overflow-hidden border"
-            style={{
-              width: `${previewWidth}px`,
-              height: `${previewHeight}px`,
-            }}
-          >
-            <ResumePreviewLayout2 formData={formData} />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

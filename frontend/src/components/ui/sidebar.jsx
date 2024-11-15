@@ -95,7 +95,7 @@ const Sidebar = ({ onMenuClick, userName, onLogout }) => {
       <div className={`px-4 py-6 ${isExpanded ? "" : "px-2"}`}>
         <button
           onClick={onLogout}
-          className={`w-full bg-white text-gray-600 border border-gray-200 py-2 px-4 rounded-lg hover:bg-gray-50 transition duration-300 flex items-center justify-center space-x-2 text-sm font-medium ${
+          className={`w-full bg-white text-gray-600 border border-red-500 py-2 px-4 rounded-lg hover:bg-red-200 transition duration-300 flex items-center justify-center space-x-2 text-sm font-medium ${
             isExpanded ? "" : "px-0"
           }`}
           title="Logout"
