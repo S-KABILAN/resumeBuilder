@@ -59,10 +59,19 @@ exports.updateResume = async (req, res) => {
 
 // Controller to delete a resume
 exports.deleteResume = async (req, res) => {
-  try {
-    await Resume.deleteOne({ _id: req.params.id }); // Using `_id` instead of `id`
-    res.send({ success: true, message: "Resume deleted successfully" });
-  } catch (err) {
-    res.status(500).send({ success: false, error: err.message });
-  }
+  const {id} = req.params;
+
+    try {
+      const deletedResume = await Resume.findByIdAndDelete(id);
+      if (!deletedResume) {
+        return res.status(404).json({ message: "Resume not found" });
+      }
+      res.json({ message: "Resume deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: "Error deleting resume", error: error.message });
+    }
+
 };

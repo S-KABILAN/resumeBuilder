@@ -24,6 +24,7 @@ import {
   getAllResumes,
   resumeCreate,
   updateResume,
+  deleteResume
 } from "../services/routes/resume";
 
 const Page = () => {
@@ -428,6 +429,17 @@ const loadResumeForEditing = (resumeId) => {
     setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
   };
 
+  const handleDeleteResume = async (resumeId) => {
+    try {
+      await deleteResume(resumeId); // Call the delete function from services
+      setSavedResumes((prevResumes) =>
+        prevResumes.filter((resume) => resume._id !== resumeId)
+      );
+    } catch (error) {
+      console.error("Error deleting resume:", error.message || error);
+    }
+  };
+
   const renderContent = () => {
     switch (selectedItem) {
       case "Home":
@@ -493,6 +505,12 @@ const loadResumeForEditing = (resumeId) => {
                       className="px-2 py-1 bg-gray-300"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteResume(resume._id)}
+                      className="px-2 py-1 bg-red-500 text-white"
+                    >
+                      Delete
                     </button>
                   </li>
                 ))}
