@@ -16,7 +16,7 @@ const LoginPage = () => {
     <div className="relative flex flex-col md:flex-row min-h-screen bg-gray-50">
       {/* Product Name */}
       <div className="absolute top-4 right-6 text-lg font-semibold text-indigo-600">
-        YourProductName
+        Resume Builder
       </div>
 
       {/* Left Image Section */}
