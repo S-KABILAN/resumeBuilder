@@ -23,13 +23,13 @@ const ResumePreviewLayout1 = ({ formData }) => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <button
+      {/* <button
         onClick={handleDownloadPDF}
         className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center w-full sm:w-auto"
       >
         <FaDownload className="mr-2" />
         Download as PDF
-      </button>
+      </button> */}
 
       <div
         ref={resumeRef}

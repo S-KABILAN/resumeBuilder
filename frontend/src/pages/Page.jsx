@@ -10,6 +10,10 @@ import ProjectsForm from "../components/forms/ProjectsForm";
 import CertificationsForm from "../components/forms/CertificationsForm";
 import PersonalInfoForm from "../components/forms/PersonalInfoForm";
 import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
+import html2canvas from "html2canvas";
+
+import { useRef } from "react"; // Import useRef
+import { jsPDF } from "jspdf"; // Import jsPDF
 
 
 import ResumePreviewLayout1 from "../components/ResumePreviewLayout1";
@@ -35,6 +39,7 @@ const Page = () => {
   const [selectedLayout, setSelectedLayout] = useState("Layout2");
 
   const navigate = useNavigate(); // Initialize useNavigate hook
+  const resumePreviewRef = useRef(); // Create a ref for the resume preview
 
   const [formData, setFormData] = useState({
     personal: {
@@ -434,6 +439,10 @@ const Page = () => {
     setSelectedLayout(layout);
     setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
   };
+  const handleLayoutTemplate = (layout) => {
+    setSelectedLayout(layout);
+    setSelectedItem("Resume Templates"); // Redirect to "Create Resume" page
+  };
 
   const handleDeleteResume = async (resumeId) => {
     try {
@@ -446,10 +455,57 @@ const Page = () => {
     }
   };
 
+const downloadResume = async () => {
+  const element = resumePreviewRef.current;
+
+  if (!element) {
+    console.error("No resume preview element found");
+    return;
+  }
+
+  // Use html2canvas to capture the content of the resume preview
+  const canvas = await html2canvas(element, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  // Create a new PDF document
+  const pdf = new jsPDF("p", "mm", "a4");
+  const imgWidth = 210; // A4 width in mm
+  const imgHeight = 297;
+  //const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+  pdf.save(`${formData.personal.name || "Resume"}.pdf`);
+};
+
   const renderContent = () => {
     switch (selectedItem) {
       case "Home":
-        return <div>Welcome to the Home Page</div>;
+        return (
+          <div className="font-sans flex flex-col items-center justify-center ">
+            <div className=" py-16 px-8 text-center">
+              <h1 className="text-4xl font-bold mb-4">
+                Build Your Perfect Resume
+              </h1>
+              <p className="text-lg mb-6">
+                Effortlessly craft professional resumes with our guided builder.
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => handleLayoutSelect()}
+                  className="bg-blue-500 text-white px-6 py-3 rounded"
+                >
+                  Get Started
+                </button>
+                <button
+                  onClick={() => handleLayoutTemplate()}
+                  className="bg-gray-200  px-6 py-3 rounded"
+                >
+                  Explore Templates
+                </button>
+              </div>
+            </div>
+          </div>
+        );
       case "Create Resume":
         return (
           <div className="h-full">
@@ -461,17 +517,31 @@ const Page = () => {
               {/* Form Section */}
               <div className="w-1/2 pr-4 overflow-y-auto h-full">
                 {renderResumeSectionForm(activeSection)}
-                <button
+                {/* <button
                   onClick={saveResume}
                   className="mt-4 bg-blue-500 text-white p-2 rounded"
                 >
                   {editingResumeId ? "Update Resume" : "Save Resume"}
-                </button>
+                </button> */}
               </div>
 
               {/* Preview Section */}
               <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto">
-                {renderResumePreview()}
+                <div className="flex justify-between mt-4">
+                  <button
+                    onClick={saveResume}
+                    className="bg-blue-500 text-white p-2 rounded"
+                  >
+                    {editingResumeId ? "Update Resume" : "Save Resume"}
+                  </button>
+                  <button
+                    onClick={downloadResume}
+                    className="bg-green-500 text-white p-2 rounded"
+                  >
+                    Download Resume
+                  </button>
+                </div>
+                <div ref={resumePreviewRef}>{renderResumePreview()}</div>
               </div>
             </div>
           </div>
@@ -650,10 +720,10 @@ const Page = () => {
     userName = userData.name; // Assuming the user object has a 'name' property
   }
 
-    const handleLogout = () => {
-      localStorage.removeItem("user"); // Clear user data
-      navigate("/login"); // Redirect to the login page
-    };
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Clear user data
+    navigate("/login"); // Redirect to the login page
+  };
 
   return (
     <div className="flex h-screen">
