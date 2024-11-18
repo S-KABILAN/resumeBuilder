@@ -37,9 +37,10 @@ const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
   const [activeSection, setActiveSection] = useState("PersonalInfo");
   const [selectedLayout, setSelectedLayout] = useState("Layout2");
-
+  
   const navigate = useNavigate(); // Initialize useNavigate hook
   const resumePreviewRef = useRef(); // Create a ref for the resume preview
+  const [activeItem, setActiveItem] = useState("Home");
 
   const [formData, setFormData] = useState({
     personal: {
@@ -224,6 +225,8 @@ const Page = () => {
 
   const handleMenuClick = (item) => {
     setSelectedItem(item);
+    setActiveItem(item);
+    
   };
 
   const handleSectionChange = (section) => {
@@ -722,6 +725,7 @@ const downloadResume = async () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user"); // Clear user data
+     localStorage.removeItem("jwtToken");
     navigate("/login"); // Redirect to the login page
   };
 
@@ -729,6 +733,7 @@ const downloadResume = async () => {
     <div className="flex h-screen">
       <Sidebar
         onMenuClick={handleMenuClick}
+        selectedItem={selectedItem}
         userName={userName}
         onLogout={handleLogout}
       />

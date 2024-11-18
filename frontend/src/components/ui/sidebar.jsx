@@ -11,8 +11,7 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 
-const Sidebar = ({ onMenuClick, userName, onLogout }) => {
-  const [activeItem, setActiveItem] = useState("Home");
+const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const menuItems = [
@@ -23,10 +22,9 @@ const Sidebar = ({ onMenuClick, userName, onLogout }) => {
     { name: "Settings", icon: FaCog },
   ];
 
-  const handleMenuClick = (itemName) => {
-    setActiveItem(itemName);
-    onMenuClick(itemName);
-  };
+const handleMenuClick = (itemName) => {
+  onMenuClick(itemName); // This will call the parent's menu click handler
+};
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
@@ -73,7 +71,7 @@ const Sidebar = ({ onMenuClick, userName, onLogout }) => {
               <button
                 onClick={() => handleMenuClick(item.name)}
                 className={`w-full text-left flex items-center space-x-3 px-4 py-2.5 rounded-lg transition duration-150 ease-in-out ${
-                  activeItem === item.name
+                  selectedItem === item.name
                     ? "bg-blue-50 text-blue-600"
                     : "text-gray-600 hover:bg-gray-50"
                 } ${isExpanded ? "" : "justify-center"}`}
@@ -81,7 +79,7 @@ const Sidebar = ({ onMenuClick, userName, onLogout }) => {
               >
                 <item.icon
                   className={`w-5 h-5 ${
-                    activeItem === item.name ? "text-blue-600" : "text-gray-400"
+                    selectedItem === item.name ? "text-blue-600" : "text-gray-400"
                   }`}
                 />
                 {isExpanded && (
