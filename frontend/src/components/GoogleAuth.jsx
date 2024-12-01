@@ -9,18 +9,24 @@ const GoogleAuth = ({ onAuthSuccess }) => {
       const { credential } = credentialResponse;
       const response = await googleLogin(credential);
 
+      // Log the response to check its structure
+      console.log("Google login response:", response);
+
       if (response.success) {
         console.log("Login successful:", response.data);
         // Save token and user details to local storage
         localStorage.setItem("jwtToken", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user details
-        // Call the success handler
-        onAuthSuccess(); // This could be used for any additional UI updates if needed
+        // Call the success handler to update the parent component's state
+        onAuthSuccess();
+      } else {
+        console.error("Login failed:", response.message);
       }
     } catch (error) {
       console.error("Login failed:", error.message);
     }
   };
+
 
   const handleError = () => {
     console.error("Google Login failed");

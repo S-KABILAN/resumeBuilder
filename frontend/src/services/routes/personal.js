@@ -4,22 +4,22 @@ export const googleLogin = async (token) => {
   try {
     const response = await axiosInstance.post("/auth/google", { token });
 
-    // Check if the response indicates success
+    // Log the entire response from the backend
+    console.log("Backend response:", response);
+
     if (response.data.success) {
       const {
         token: jwtToken,
         data: { user },
       } = response.data; // Destructure the response
 
-      // Store the JWT token in local storage
+      // Store the JWT token and user in localStorage
       localStorage.setItem("jwtToken", jwtToken);
-
-      // Store the user object in local storage
       localStorage.setItem("user", JSON.stringify(user));
 
-      console.log("User  data stored in local storage:", user);
+      console.log("User data stored in local storage:", user);
 
-      return { success: true, user }; // Return user data if needed
+      return { success: true, data: { token: jwtToken, user } }; // Return user data if needed
     } else {
       console.error("Login failed:", response.data.message);
       return { success: false, message: response.data.message };

@@ -22,7 +22,7 @@ const ResumePreviewLayout1 = ({ formData }) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className=" h-screen max-w-4xl mx-auto">
       {/* <button
         onClick={handleDownloadPDF}
         className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center w-full sm:w-auto"
@@ -33,7 +33,7 @@ const ResumePreviewLayout1 = ({ formData }) => {
 
       <div
         ref={resumeRef}
-        className="w-[210mm] h-[297mm] mx-auto bg-white shadow-lg overflow-hidden"
+        className="mx-auto bg-white shadow-lg overflow-hidden"
       >
         <div className="p-8">
           <header className="text-center mb-8">
