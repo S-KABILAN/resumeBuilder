@@ -484,8 +484,8 @@ const downloadResume = async () => {
     switch (selectedItem) {
       case "Home":
         return (
-          <div className="font-sans flex flex-col items-center justify-center ">
-            <div className=" py-16 px-8 text-center">
+          <div className="h-screen flex flex-col items-center justify-center font-sans">
+            <div className="py-16 px-8 text-center">
               <h1 className="text-4xl font-bold mb-4">
                 Build Your Perfect Resume
               </h1>
@@ -501,7 +501,7 @@ const downloadResume = async () => {
                 </button>
                 <button
                   onClick={() => handleLayoutTemplate()}
-                  className="bg-gray-200  px-6 py-3 rounded"
+                  className="bg-gray-200 px-6 py-3 rounded"
                 >
                   Explore Templates
                 </button>
@@ -559,7 +559,7 @@ const downloadResume = async () => {
 
       case "My Resumes":
         return (
-          <div className="max-w-2xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+          <div className=" mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -599,7 +599,7 @@ const downloadResume = async () => {
                   <p>Error: {errorLoadingResumes}</p>
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-[300px] pr-2">
+                <div className="overflow-y-auto max-h-[550px] pr-2">
                   <ul className="space-y-3">
                     {savedResumes.map((resume) => (
                       <li
