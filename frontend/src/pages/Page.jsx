@@ -529,8 +529,9 @@ const downloadResume = async () => {
               </div>
 
               {/* Preview Section */}
-              <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto">
-                <div className="flex justify-between mt-4">
+              <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto relative">
+                {/* Buttons Container */}
+                <div className="flex justify-between mt-4 sticky top-0 bg-white z-10 p-2">
                   <button
                     onClick={saveResume}
                     className="bg-blue-500 text-white p-2 rounded"
@@ -544,6 +545,8 @@ const downloadResume = async () => {
                     Download Resume
                   </button>
                 </div>
+
+                {/* Scrollable Content */}
                 <div ref={resumePreviewRef}>{renderResumePreview()}</div>
               </div>
             </div>

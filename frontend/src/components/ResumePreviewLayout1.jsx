@@ -1,25 +1,7 @@
-import React, { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { FaGithub, FaLinkedin, FaDownload } from "react-icons/fa";
 
 const ResumePreviewLayout1 = ({ formData }) => {
-  const resumeRef = useRef();
 
-  const handleDownloadPDF = async () => {
-    const input = resumeRef.current;
-    if (input) {
-      const canvas = await html2canvas(input, { scale: 2 });
-      const imgData = canvas.toDataURL("image/png");
 
-      // A4 size in mm: 210 x 297
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("Resume.pdf");
-    }
-  };
 
   return (
     <div className=" h-screen max-w-4xl mx-auto">
@@ -32,7 +14,6 @@ const ResumePreviewLayout1 = ({ formData }) => {
       </button> */}
 
       <div
-        ref={resumeRef}
         className="mx-auto bg-white shadow-lg overflow-hidden"
       >
         <div className="p-8">
