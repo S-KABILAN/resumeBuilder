@@ -1,32 +1,19 @@
-
-const ResumePreviewLayout1 = ({ formData }) => {
-
-
-
+const ResumePreviewLayout2 = ({ formData }) => {
   return (
-    <div className=" h-screen max-w-4xl mx-auto">
-      {/* <button
-        onClick={handleDownloadPDF}
-        className="mb-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center w-full sm:w-auto"
-      >
-        <FaDownload className="mr-2" />
-        Download as PDF
-      </button> */}
-
-      <div
-        className="mx-auto bg-white shadow-lg overflow-hidden"
-      >
+    <div className="h-screen max-w-4xl mx-auto bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="p-8">
+          {/* Header */}
           <header className="text-center mb-8">
-            <h1 className="text-3xl font-light mb-2 text-gray-800">
+            <h1 className="text-4xl font-semibold text-gray-800">
               {formData.personal?.name || "John Doe"}
             </h1>
-            <div className="text-sm text-gray-600 mb-2">
+            <div className="text-sm text-gray-600 mb-4">
               {formData.personal?.email || "johndoe@example.com"} |{" "}
               {formData.personal?.phone || "(123) 456-7890"} |{" "}
               {formData.personal?.location || "City, Country"}
             </div>
-            <div className="flex justify-center space-x-4">
+            <div className="flex justify-center space-x-6">
               {formData.personal?.github && (
                 <a
                   href={formData.personal.github}
@@ -52,30 +39,34 @@ const ResumePreviewLayout1 = ({ formData }) => {
             </div>
           </header>
 
-          <div className="grid grid-cols-3 gap-6">
-            <div className="col-span-1">
-              <section className="mb-6">
-                <h2 className="text-lg font-medium mb-3 text-gray-700 border-b border-gray-300 pb-1">
+          {/* Main Content */}
+          <div className="grid grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-8">
+              {/* Education Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                   Education
                 </h2>
                 {formData.education.slice(0, 3).map((edu, index) => (
-                  <div key={index} className="mb-3">
-                    <p className="font-semibold text-sm">
+                  <div key={index} className="mb-4">
+                    <p className="font-semibold text-gray-800">
                       {edu.degree || "Degree"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {edu.institution || "Institution"},{" "}
+                      {edu.institution || "Institution"} -{" "}
                       {edu.graduationYear || "Year"}
                     </p>
                   </div>
                 ))}
               </section>
 
-              <section className="mb-6">
-                <h2 className="text-lg font-medium mb-3 text-gray-700 border-b border-gray-300 pb-1">
+              {/* Skills Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                   Skills
                 </h2>
-                <ul className="list-disc ml-5 text-sm">
+                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
                   {formData.skills.slice(0, 5).map((skill, index) => (
                     <li key={index}>
                       {skill.skillType || "Skill"}: {skill.skillName || "Level"}
@@ -84,12 +75,13 @@ const ResumePreviewLayout1 = ({ formData }) => {
                 </ul>
               </section>
 
-              <section className="mb-6">
-                <h2 className="text-lg font-medium mb-3 text-gray-700 border-b border-gray-300 pb-1">
+              {/* Certifications Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                   Certifications
                 </h2>
                 {formData.certifications.slice(0, 3).map((cert, index) => (
-                  <div key={index} className="mb-2 text-sm">
+                  <div key={index} className="mb-4 text-sm">
                     <p className="font-semibold">
                       {cert.certificationName || "Certification"}
                     </p>
@@ -101,40 +93,43 @@ const ResumePreviewLayout1 = ({ formData }) => {
               </section>
             </div>
 
-            <div className="col-span-2">
-              <section className="mb-6">
-                <h2 className="text-lg font-medium mb-3 text-gray-700 border-b border-gray-300 pb-1">
+            {/* Right Column */}
+            <div className="space-y-8">
+              {/* Experience Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                   Experience
                 </h2>
                 {formData.experience.slice(0, 3).map((exp, index) => (
-                  <div key={index} className="mb-4">
-                    <p className="font-semibold text-sm">
+                  <div key={index} className="mb-6">
+                    <p className="font-semibold text-gray-800">
                       {exp.jobTitle || "Job Title"} -{" "}
                       {exp.companyName || "Company"}
                     </p>
                     <p className="text-sm text-gray-600">
                       {exp.yearsOfExperience || "Years"} years
                     </p>
-                    <p className="text-sm mt-1">
+                    <p className="text-sm text-gray-600 mt-2">
                       {exp.description || "Description"}
                     </p>
                   </div>
                 ))}
               </section>
 
-              <section className="mb-6">
-                <h2 className="text-lg font-medium mb-3 text-gray-700 border-b border-gray-300 pb-1">
+              {/* Projects Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
                   Projects
                 </h2>
                 {formData.projects.slice(0, 2).map((project, index) => (
-                  <div key={index} className="mb-4">
-                    <p className="font-semibold text-sm">
+                  <div key={index} className="mb-6">
+                    <p className="font-semibold text-gray-800">
                       {project.title || "Project Title"}
                     </p>
-                    <p className="text-sm mt-1">
+                    <p className="text-sm text-gray-600 mt-2">
                       {project.description || "Description"}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-500 mt-2">
                       Technologies: {project.technologiesUsed || "Technologies"}
                     </p>
                   </div>
@@ -148,4 +143,4 @@ const ResumePreviewLayout1 = ({ formData }) => {
   );
 };
 
-export default ResumePreviewLayout1;
+export default ResumePreviewLayout2;
