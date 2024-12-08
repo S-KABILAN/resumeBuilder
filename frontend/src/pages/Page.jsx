@@ -439,7 +439,7 @@ const Page = () => {
   };
 
   const handleLayoutSelect = (layout) => {
-    setSelectedLayout(layout);
+    setSelectedLayout(layout || "Layout1");
     setSelectedItem("Create Resume"); // Redirect to "Create Resume" page
   };
   const handleLayoutTemplate = (layout) => {
