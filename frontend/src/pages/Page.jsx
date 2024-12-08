@@ -36,7 +36,7 @@ import {
 const Page = () => {
   const [selectedItem, setSelectedItem] = useState("Home");
   const [activeSection, setActiveSection] = useState("PersonalInfo");
-  const [selectedLayout, setSelectedLayout] = useState("Layout2");
+  const [selectedLayout, setSelectedLayout] = useState("Layout1");
   
   const navigate = useNavigate(); // Initialize useNavigate hook
   const resumePreviewRef = useRef(); // Create a ref for the resume preview

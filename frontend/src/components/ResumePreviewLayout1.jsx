@@ -21,7 +21,6 @@ const ResumePreviewLayout2 = ({ formData }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <FaGithub className="inline mr-1" />
                   GitHub
                 </a>
               )}
@@ -32,7 +31,6 @@ const ResumePreviewLayout2 = ({ formData }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <FaLinkedin className="inline mr-1" />
                   LinkedIn
                 </a>
               )}
