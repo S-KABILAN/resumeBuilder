@@ -458,6 +458,7 @@ const Page = () => {
     }
   };
 
+
 const downloadResume = async () => {
   const element = resumePreviewRef.current;
 
@@ -466,18 +467,27 @@ const downloadResume = async () => {
     return;
   }
 
-  // Use html2canvas to capture the content of the resume preview
-  const canvas = await html2canvas(element, { scale: 2 });
-  const imgData = canvas.toDataURL("image/png");
+  try {
+    // Create a new jsPDF instance
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
 
-  // Create a new PDF document
-  const pdf = new jsPDF("p", "mm", "a4");
-  const imgWidth = 210; // A4 width in mm
-  const imgHeight = 297;
-  //const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-  pdf.save(`${formData.personal.name || "Resume"}.pdf`);
+    // Use the html method to convert the HTML content to PDF
+    await doc.html(element, {
+      callback: (doc) => {
+        doc.save("resume.pdf");
+      },
+      x: 0,
+      y: 0,
+      width: 190, // Adjust width as needed
+      windowWidth: 650, // Adjust window width as needed
+    });
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+  }
 };
 
   const renderContent = () => {
@@ -719,6 +729,7 @@ const downloadResume = async () => {
     }
   };
 
+  
   const storedUserData = localStorage.getItem("user");
   let userName = "User "; // Default name
   if (storedUserData) {
