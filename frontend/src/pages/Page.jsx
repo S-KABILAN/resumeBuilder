@@ -11,6 +11,7 @@ import CertificationsForm from "../components/forms/CertificationsForm";
 import PersonalInfoForm from "../components/forms/PersonalInfoForm";
 import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import html2canvas from "html2canvas";
+import Footer from "../components/ui/footer";
 
 import { useRef } from "react"; // Import useRef
 import { jsPDF } from "jspdf"; // Import jsPDF
@@ -729,7 +730,7 @@ const downloadResume = async () => {
     }
   };
 
-  
+
   const storedUserData = localStorage.getItem("user");
   let userName = "User "; // Default name
   if (storedUserData) {
@@ -744,14 +745,17 @@ const downloadResume = async () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <Sidebar
-        onMenuClick={handleMenuClick}
-        selectedItem={selectedItem}
-        userName={userName}
-        onLogout={handleLogout}
-      />
-      <main className="flex-grow p-6">{renderContent()}</main>
+    <div className="flex flex-col h-screen">
+      <div className="flex flex-grow">
+        <Sidebar
+          onMenuClick={handleMenuClick}
+          selectedItem={selectedItem}
+          userName={userName}
+          onLogout={handleLogout}
+        />
+        <main className="flex-grow p-6 overflow-hidden">{renderContent()}</main>
+      </div>
+      <Footer />
     </div>
   );
 };

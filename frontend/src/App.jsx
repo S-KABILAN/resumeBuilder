@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import Page from "./pages/Page";
 import { useEffect, useState } from "react";
+import Footer from "./components/ui/footer";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
@@ -32,7 +33,10 @@ function App() {
         />
 
         {/* Login route */}
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={token ? <Navigate to="/dashboard" replace /> : <Login />}
+        />
 
         {/* Protected Dashboard route */}
         <Route
