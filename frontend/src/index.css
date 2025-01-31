@@ -2,3 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@media screen and (max-width: 1024px) {
+  body {
+    transform: scale(0.7);
+    transform-origin: 0 0;
+    width: 142.85714286%; /* 100% / 0.7 */
+    height: 142.85714286%; /* 100% / 0.7 */
+    overflow-x: hidden;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    transform: scale(0.5);
+    width: 200%; /* 100% / 0.5 */
+    height: 200%; /* 100% / 0.5 */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    transform: scale(0.35);
+    width: 285.71428571%; /* 100% / 0.35 */
+    height: 285.71428571%; /* 100% / 0.35 */
+  }
+}
+
