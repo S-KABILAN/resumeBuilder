@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Layout1Preview from "../assets/resume1.png"; // Example image paths
-import Layout2Preview from "../assets/resume1.png";
+import Layout2Preview from "../assets/resume2.png";
 
 const ResumeTemplates = ({ onSelectTemplate, formData }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
