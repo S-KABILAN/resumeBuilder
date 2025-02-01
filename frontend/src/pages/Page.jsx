@@ -9,6 +9,7 @@ import SkillsForm from "../components/forms/SkillsForm";
 import ProjectsForm from "../components/forms/ProjectsForm";
 import CertificationsForm from "../components/forms/CertificationsForm";
 import PersonalInfoForm from "../components/forms/PersonalInfoForm";
+import AchievementsForm from "../components/forms/AchievementsForm";
 import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 import html2canvas from "html2canvas";
 import Footer from "../components/ui/footer";
@@ -62,6 +63,7 @@ const Page = () => {
       },
     ],
     skills: [{ skillType: "", skillName: "" }],
+    achievements: [{ description: "" }],
     projects: [{ title: "", description: "", technologiesUsed: "" }],
     certifications: [
       {
@@ -98,6 +100,7 @@ const Page = () => {
         },
       ],
       skills: [{ skillType: "", skillName: "" }],
+      achievements: [{ description: "" }],
       projects: [{ title: "", description: "", technologiesUsed: "" }],
       certifications: [
         {
@@ -163,6 +166,7 @@ const Page = () => {
       education: formData.education,
       experience: formData.experience,
       skills: formData.skills,
+      achievements: formData.achievements,
       projects: formData.projects,
       certifications: formData.certifications,
       layout: selectedLayout,
@@ -266,6 +270,13 @@ const Page = () => {
         [field]: value,
       };
       setFormData({ ...formData, certifications: updatedCertifications });
+    } else if (section === "achievements" && index !== null) {
+      const updatedachievemets = [...formData.achievements];
+      updatedachievemets[index] = {
+        ...updatedachievemets[index],
+        [field]: value,
+      };
+      setFormData({ ...formData, achievements: updatedachievemets });
     } else {
       setFormData({
         ...formData,
@@ -320,6 +331,20 @@ const Page = () => {
     const updatedSkills = formData.skills.filter((_, i) => i !== index);
     setFormData({ ...formData, skills: updatedSkills });
   };
+
+  const addAchievement = () => {
+    setFormData({
+      ...formData,
+      achievements: [...formData.achievements, { description: "" }],
+    });
+  };
+
+const removeAchievement = (index) => {
+  const updatedachievemets = formData.achievements.filter(
+    (_, i) => i !== index
+  );
+  setFormData({ ...formData, achievements: updatedachievemets });
+};
 
   const addProject = () => {
     setFormData({
@@ -404,6 +429,18 @@ const Page = () => {
       const response = await skillCreate(formData.skills);
       if (response.success) {
         console.log("Skills info submitted", formData.skills);
+      }
+    } catch (error) {
+      console.log(error.message || "Failed to submit skills information");
+    }
+    // Add logic to handle skills submission
+  };
+
+  const handleSubmitAchievements = async () => {
+    try {
+      const response = await achievementsCreate(formData.achievements);
+      if (response.success) {
+        console.log("Skills info submitted", formData.achievements);
       }
     } catch (error) {
       console.log(error.message || "Failed to submit skills information");
@@ -691,6 +728,16 @@ const downloadResume = async () => {
             onFormChange={handleFormChange}
             addSkill={addSkill}
             removeSkill={removeSkill}
+            onSubmit={handleSubmitSkills}
+          />
+        );
+      case "Achievements":
+        return (
+          <AchievementsForm
+            formData={formData.achievements}
+            onFormChange={handleFormChange}
+            addAchievement={addAchievement}
+            removeAchievement={removeAchievement}
             onSubmit={handleSubmitSkills}
           />
         );

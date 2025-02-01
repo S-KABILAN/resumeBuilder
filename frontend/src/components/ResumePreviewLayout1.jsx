@@ -73,6 +73,23 @@ const ResumePreviewLayout2 = ({ formData }) => {
                 </ul>
               </section>
 
+              {/* Achivements Section */}
+              <section>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+                  Achievement
+                </h2>
+                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
+                  {formData.achievements
+                    .slice(0, 5)
+                    .map((achievement, index) => (
+                      <li key={index}>
+                        {achievement.description || "Description"}{" "}
+                        
+                      </li>
+                    ))}
+                </ul>
+              </section>
+
               {/* Certifications Section */}
               <section>
                 <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">

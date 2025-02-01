@@ -14,6 +14,7 @@ const TopNav = ({ activeSection, onSectionChange }) => {
     { id: "Education", label: "Education", icon: FaGraduationCap },
     { id: "Experience", label: "Experience", icon: FaBriefcase },
     { id: "Skills", label: "Skills", icon: FaCogs },
+    { id: "Achievements", label: "Achievements", icon: FaCogs },
     { id: "Projects", label: "Projects", icon: FaProjectDiagram },
     { id: "Certifications", label: "Certifications", icon: FaCertificate },
   ];
