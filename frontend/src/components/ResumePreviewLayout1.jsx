@@ -6,12 +6,12 @@ const ResumePreviewLayout2 = ({ formData }) => {
           {/* Header */}
           <header className="text-center mb-8">
             <h1 className="text-4xl font-semibold text-gray-800">
-              {formData.personal?.name || "John Doe"}
+              {formData.personal?.name || "Kabilan S"}
             </h1>
             <div className="text-sm text-gray-600 mb-4">
-              {formData.personal?.email || "johndoe@example.com"} |{" "}
-              {formData.personal?.phone || "(123) 456-7890"} |{" "}
-              {formData.personal?.location || "City, Country"}
+              {formData.personal?.email || "kabilanselvakumar313@gmail.com"} |{" "}
+              {formData.personal?.phone || "(+91 6383438049"} |{" "}
+              {formData.personal?.location || "TN, India"}
             </div>
             <div className="flex justify-center space-x-6">
               {formData.personal?.github && (
@@ -49,11 +49,11 @@ const ResumePreviewLayout2 = ({ formData }) => {
                 {formData.education.slice(0, 3).map((edu, index) => (
                   <div key={index} className="mb-4">
                     <p className="font-semibold text-gray-800">
-                      {edu.degree || "Degree"}
+                      {edu.degree || "B-tech,IT"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {edu.institution || "Institution"} -{" "}
-                      {edu.graduationYear || "Year"}
+                      {edu.institution || "Saranathan college of engineering"} -{" "}
+                      {edu.graduationYear || "2025"}
                     </p>
                   </div>
                 ))}
@@ -101,14 +101,15 @@ const ResumePreviewLayout2 = ({ formData }) => {
                 {formData.experience.slice(0, 3).map((exp, index) => (
                   <div key={index} className="mb-6">
                     <p className="font-semibold text-gray-800">
-                      {exp.jobTitle || "Job Title"} -{" "}
-                      {exp.companyName || "Company"}
+                      {exp.jobTitle || "Front-End Developer Intern"} -{" "}
+                      {exp.companyName || "UTILIZED"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      {exp.yearsOfExperience || "Years"} years
+                      {exp.yearsOfExperience || "3"} years
                     </p>
                     <p className="text-sm text-gray-600 mt-2">
-                      {exp.description || "Description"}
+                      {exp.description ||
+                        "Developed and optimized website components, including frontend design for student and admin interfaces, ensuring efficient and responsive performance with low latency. "}
                     </p>
                   </div>
                 ))}
@@ -122,13 +123,16 @@ const ResumePreviewLayout2 = ({ formData }) => {
                 {formData.projects.slice(0, 2).map((project, index) => (
                   <div key={index} className="mb-6">
                     <p className="font-semibold text-gray-800">
-                      {project.title || "Project Title"}
+                      {project.title || "Resume Builder"}
                     </p>
                     <p className="text-sm text-gray-600 mt-2">
-                      {project.description || "Description"}
+                      {project.description ||
+                        "A resume builder app designed to generate your resume by filling out the required form details, ensuring compliance with industry standards."}
                     </p>
                     <p className="text-sm text-gray-500 mt-2">
-                      Technologies: {project.technologiesUsed || "Technologies"}
+                      Technologies:{" "}
+                      {project.technologiesUsed ||
+                        " React.js, Node.js,Express.js, MongoDB"}
                     </p>
                   </div>
                 ))}
