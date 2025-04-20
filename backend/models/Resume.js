@@ -52,7 +52,53 @@ const resumeSchema = new mongoose.Schema(
         certificationId: String,
       },
     ],
+    // Custom sections added by user
+    customSections: [
+      {
+        id: String,
+        title: String,
+        content: String,
+      },
+    ],
+    // Section visibility and order configuration
+    sectionConfig: [
+      {
+        id: String,
+        type: { type: String }, // standard or custom
+        label: String,
+        enabled: { type: Boolean, default: true },
+      },
+    ],
     layout: { type: String, required: true },
+    // New template customization fields
+    templateSettings: {
+      colors: {
+        primary: { type: String, default: "#2563eb" },
+        secondary: { type: String, default: "#1e40af" },
+        accent: { type: String, default: "#3b82f6" },
+        text: { type: String, default: "#1f2937" },
+        background: { type: String, default: "#ffffff" },
+      },
+      font: {
+        type: String,
+        default: "ui-sans-serif, system-ui, sans-serif",
+      },
+      spacing: {
+        type: String,
+        enum: ["tight", "normal", "relaxed"],
+        default: "normal",
+      },
+      sectionOrder: {
+        type: [String],
+        default: [
+          "education",
+          "experience",
+          "skills",
+          "projects",
+          "certifications",
+        ],
+      },
+    },
   },
   { timestamps: true }
 );

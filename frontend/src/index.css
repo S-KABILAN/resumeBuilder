@@ -2,3 +2,222 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom font settings */
+@layer base {
+  html {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    @apply antialiased text-gray-800 bg-slate-50;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+/* Custom component classes */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium 
+      transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 
+      hover:to-purple-700 shadow-md hover:shadow-lg focus-visible:ring-indigo-500;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 
+      focus-visible:ring-gray-500;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden;
+  }
+
+  .input-field {
+    @apply border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none 
+      focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all;
+  }
+
+  .section-title {
+    @apply text-xl font-bold mb-4 text-gray-800;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Blob animation for landing page */
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  /* Animation delays */
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+}
+
+/* Print-specific styles to improve PDF output */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  .print-exact {
+    width: 210mm;
+    height: 297mm;
+    overflow: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Hide UI elements when printing */
+  button,
+  header:not(.resume-header),
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Adjust font sizes for print */
+  h1 {
+    font-size: 24pt !important;
+    margin-bottom: 10pt !important;
+  }
+
+  h2 {
+    font-size: 16pt !important;
+    margin-bottom: 8pt !important;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+    margin-bottom: 6pt !important;
+  }
+
+  p,
+  div,
+  span,
+  li {
+    font-size: 10pt !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Add higher quality text rendering */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure proper layout */
+  .grid {
+    display: grid !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Fix borders and colors to ensure they appear in print */
+  .border,
+  .border-t,
+  .border-b,
+  .border-l,
+  .border-r {
+    border-color: currentColor !important;
+    border-width: 1px !important;
+  }
+
+  /* Make links visible without underlines */
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* Ensure white background for PDF */
+  .bg-white {
+    background-color: white !important;
+  }
+
+  /* Optimize padding and margins */
+  .p-8 {
+    padding: 0.5cm !important;
+  }
+
+  .mb-4 {
+    margin-bottom: 0.25cm !important;
+  }
+
+  .mb-8 {
+    margin-bottom: 0.5cm !important;
+  }
+}

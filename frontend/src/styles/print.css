@@ -1,0 +1,130 @@
+/* Print styles for resume */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  * {
+    box-sizing: border-box !important;
+    position: relative;
+  }
+
+  /* Hide UI elements when printing */
+  header,
+  nav,
+  footer,
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Resume container */
+  .resume-container {
+    width: 210mm;
+    min-height: 297mm;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0;
+    padding: 10mm;
+    background-color: white;
+    position: relative;
+  }
+
+  /* Better page break control */
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h1 + *,
+  h2 + *,
+  h3 + *,
+  h4 + * {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  li,
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Each section should try to avoid breaks inside if possible */
+  section,
+  .resume-section {
+    page-break-inside: avoid;
+    break-inside: avoid-page;
+  }
+
+  /* Allow content to flow to multiple pages as needed */
+  .resume-content {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Ensure text styles are preserved */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  span,
+  div {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    overflow: visible !important;
+  }
+
+  /* Ensure proper line height for text */
+  p,
+  li {
+    line-height: 1.5;
+    overflow: visible !important;
+  }
+
+  /* Fix for images and icons */
+  img,
+  svg {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* Preserve flex and grid layouts when printing */
+  .grid {
+    display: grid !important;
+  }
+
+  .flex {
+    display: flex !important;
+  }
+
+  /* Ensure borders are visible */
+  [class*="border"] {
+    border-color: currentColor !important;
+  }
+
+  /* Ensure backgrounds print correctly */
+  [class*="bg-"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

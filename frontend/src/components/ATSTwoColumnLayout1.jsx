@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 
-const ResumePreviewLayout2 = ({
+const ATSTwoColumnLayout1 = ({
   formData,
   templateSettings,
   sectionConfig = [],
@@ -48,12 +48,13 @@ const ResumePreviewLayout2 = ({
   // Destructure template settings or use defaults
   const {
     colors = {
-      primary: "#4a6cf7",
-      secondary: "#e0e0e0",
+      primary: "#333333", // Dark color for ATS compatibility
+      secondary: "#555555",
       background: "#ffffff",
       text: "#333333",
     },
-    font = "Arial, sans-serif",
+    font = "Arial, sans-serif", // Standard font for ATS compatibility
+    spacing = "normal",
     sectionConfigFromSettings = [
       "profile-summary",
       "experience",
@@ -65,7 +66,32 @@ const ResumePreviewLayout2 = ({
     ],
   } = templateSettings || {};
 
-  // Function to get sections for left sidebar
+  // Function to get spacing class based on template settings
+  const getSpacingClass = () => {
+    switch (spacing) {
+      case "compact":
+        return "mb-2";
+      case "comfortable":
+        return "mb-4";
+      default:
+        return "mb-3";
+    }
+  };
+
+  // Function to get clean, ATS-friendly headings
+  const getSectionHeadingClass = () => {
+    return "text-lg font-bold uppercase mb-2 pb-1 border-b";
+  };
+
+  // Function to safely render text with fallbacks
+  const renderText = (value, defaultText = "Not specified") => {
+    if (!value) return defaultText;
+    if (typeof value === "string" && /^(.)\1{5,}$/.test(value))
+      return defaultText;
+    return value;
+  };
+
+  // Function to get sections for left sidebar - Typically Skills, Education
   const getLeftSideSections = () => {
     // Use the provided sectionConfig prop if available, otherwise use default from settings
     const enabledSections =
@@ -126,7 +152,7 @@ const ResumePreviewLayout2 = ({
     return null;
   };
 
-  // Function to get sections for main content
+  // Function to get sections for main content - Experience, Projects, etc.
   const getMainSections = () => {
     // Use the provided sectionConfig prop if available, otherwise use default from settings
     const enabledSections =
@@ -150,14 +176,14 @@ const ResumePreviewLayout2 = ({
             return profileSummary
               ? {
                   id: "profile-summary",
-                  title: profileSummary.title,
+                  title: "Professional Summary",
                   render: () => renderProfileSummary(),
                 }
               : null;
           case "experience":
             return {
               id: "experience",
-              title: "Experience",
+              title: "Work Experience",
               render: () => renderExperience(),
             };
           case "projects":
@@ -179,7 +205,7 @@ const ResumePreviewLayout2 = ({
       .filter(Boolean);
   };
 
-  // Get the sections for left sidebar and main content
+  // Get sections for layout
   const leftSideSections = getLeftSideSections();
   const mainSections = getMainSections();
 
@@ -187,56 +213,43 @@ const ResumePreviewLayout2 = ({
     if (!profileSummary) return null;
 
     return (
-      <div className="mb-4">
-        <p style={{ lineHeight: "1.5" }}>{profileSummary.content}</p>
+      <div className={getSpacingClass()}>
+        <div className="whitespace-pre-line" style={{ lineHeight: "1.5" }}>
+          {profileSummary.content}
+        </div>
       </div>
     );
   };
 
   const renderPersonalInfo = () => {
     return (
-      <div className="text-center mb-4">
+      <div className="text-center mb-4 pb-3 border-b border-gray-300">
         <h1 className="text-2xl font-bold" style={{ color: colors.text }}>
-          {personal?.name || "Your Name"}
+          {renderText(personal?.name, "YOUR NAME")}
         </h1>
-        <div className="flex justify-center flex-wrap gap-2 mt-2">
-          {personal?.email && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>Email: </span>
-              {personal.email}
-            </span>
-          )}
-          {personal?.phone && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>Phone: </span>
-              {personal.phone}
-            </span>
-          )}
+        {personal?.title && (
+          <p
+            className="text-base font-medium mt-1"
+            style={{ color: colors.secondary }}
+          >
+            {personal.title}
+          </p>
+        )}
+
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 mt-2">
+          {personal?.email && <span className="text-sm">{personal.email}</span>}
+          {personal?.phone && <span className="text-sm">{personal.phone}</span>}
           {personal?.location && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>Location: </span>
-              {personal.location}
-            </span>
+            <span className="text-sm">{personal.location}</span>
           )}
-        </div>
-        <div className="flex justify-center flex-wrap gap-2 mt-1">
           {personal?.linkedin && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>LinkedIn: </span>
-              {personal.linkedin}
-            </span>
+            <span className="text-sm">{personal.linkedin}</span>
           )}
           {personal?.github && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>GitHub: </span>
-              {personal.github}
-            </span>
+            <span className="text-sm">{personal.github}</span>
           )}
           {personal?.website && (
-            <span className="text-sm">
-              <span style={{ color: colors.primary }}>Website: </span>
-              {personal.website}
-            </span>
+            <span className="text-sm">{personal.website}</span>
           )}
         </div>
       </div>
@@ -247,37 +260,29 @@ const ResumePreviewLayout2 = ({
     if (educationData.length === 0) return null;
 
     return (
-      <div>
+      <div className={getSpacingClass()}>
         {educationData.map((edu, index) => (
-          <div key={index} className="mb-2">
-            <div className="font-semibold" style={{ color: colors.primary }}>
-              {edu.degree || "Degree"}
-              {edu.fieldOfStudy && (
-                <div className="font-semibold">{edu.fieldOfStudy}</div>
-              )}
+          <div key={index} className="mb-3">
+            <div className="font-bold break-words">
+              {renderText(edu.institution, "Institution")}
             </div>
-            <div className="text-sm">{edu.institution || "Institution"}</div>
-            <div className="text-xs">
+            <div className="font-semibold break-words">
+              {renderText(edu.degree, "Degree")}
+              {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
+            </div>
+            <div className="text-sm font-medium break-words">
               {edu.useYearOnly
-                ? edu.graduationYear
-                : (edu.startDate && edu.endDate
-                    ? `${
-                        edu.startDate.includes("-")
-                          ? edu.startDate.split("-")[0]
-                          : edu.startDate
-                      }-${
-                        edu.endDate.includes("-")
-                          ? edu.endDate.split("-")[0]
-                          : edu.endDate
-                      }`
-                    : edu.graduationYear) || "Year"}
-              {edu.gpa && ` | ${edu.gpa}`}
+                ? renderText(edu.graduationYear, "Year")
+                : edu.startDate && edu.endDate
+                ? `${edu.startDate} - ${edu.endDate}`
+                : renderText(edu.graduationYear, "Year")}
+              {edu.gpa && ` | GPA: ${edu.gpa}`}
             </div>
-
-            {edu.location && <div className="text-xs">{edu.location}</div>}
-            {edu.gpa && <div className="text-xs">GPA: {edu.gpa}</div>}
+            {edu.location && (
+              <div className="text-sm break-words">{edu.location}</div>
+            )}
             {edu.description && (
-              <div className="text-xs mt-1 whitespace-pre-line">
+              <div className="text-sm mt-1 whitespace-pre-line break-words">
                 {edu.description}
               </div>
             )}
@@ -291,24 +296,29 @@ const ResumePreviewLayout2 = ({
     if (experienceData.length === 0) return null;
 
     return (
-      <div>
+      <div className={getSpacingClass()}>
         {experienceData.map((exp, index) => (
-          <div key={index} className="mb-3">
-            <div className="font-semibold" style={{ color: colors.primary }}>
-              {exp.position || exp.jobTitle || "Position"}
+          <div key={index} className="mb-4">
+            <div className="font-bold break-words">
+              {renderText(exp.position || exp.jobTitle, "Position")}
             </div>
-            <div className="text-sm">
-              {exp.company || exp.companyName || "Company"} |{" "}
+            <div className="font-semibold break-words">
+              {renderText(exp.company || exp.companyName, "Company")}
+            </div>
+            <div className="text-sm font-medium break-words">
               {exp.yearsOfExperience ||
                 (exp.startDate && exp.endDate
                   ? `${exp.startDate} - ${exp.endDate}`
                   : exp.startDate
                   ? `${exp.startDate} - Present`
                   : "Duration")}
+              {exp.location && ` | ${exp.location}`}
             </div>
-            {exp.location && <div className="text-xs">{exp.location}</div>}
-            <div className="text-xs mt-1 whitespace-pre-line">
-              {exp.description || "Description"}
+            <div
+              className="mt-2 whitespace-pre-line break-words"
+              style={{ lineHeight: "1.5" }}
+            >
+              {renderText(exp.description, "Description")}
             </div>
           </div>
         ))}
@@ -319,18 +329,26 @@ const ResumePreviewLayout2 = ({
   const renderSkills = () => {
     if (skillsData.length === 0) return null;
 
+    // Group skills by category for ATS readability
+    const groupedSkills = skillsData.reduce((acc, skill) => {
+      const category = skill.skillType || "Other";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(skill.skillName || "");
+      return acc;
+    }, {});
+
     return (
-      <div>
-        {skillsData.map((skill, index) => (
-          <div key={index} className="mb-2">
-            <div className="font-semibold" style={{ color: colors.primary }}>
-              {skill.skillType || "Skill"}:
+      <div className={getSpacingClass()}>
+        <div className="space-y-2">
+          {Object.entries(groupedSkills).map(([category, skills]) => (
+            <div key={category} className="break-words">
+              <span className="font-semibold">{category}: </span>
+              <span>{skills.filter(Boolean).join(", ")}</span>
             </div>
-            <div className="text-sm">
-              {skill.skillName || "Skill Description"}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     );
   };
@@ -339,16 +357,19 @@ const ResumePreviewLayout2 = ({
     if (achievementsData.length === 0) return null;
 
     return (
-      <div>
-        <ul className="list-disc pl-4">
+      <div className={getSpacingClass()}>
+        <div className="space-y-2">
           {achievementsData.map((achievement, index) => (
-            <li key={index} className="mb-1">
-              <div className="text-sm">
-                {achievement.description || "Achievement"}
+            <div key={index} className="break-words">
+              <div
+                className="whitespace-pre-line"
+                style={{ lineHeight: "1.5" }}
+              >
+                • {renderText(achievement.description, "Achievement")}
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     );
   };
@@ -357,17 +378,23 @@ const ResumePreviewLayout2 = ({
     if (projectsData.length === 0) return null;
 
     return (
-      <div>
+      <div className={getSpacingClass()}>
         {projectsData.map((project, index) => (
           <div key={index} className="mb-3">
-            <div className="font-semibold" style={{ color: colors.primary }}>
-              {project.title || "Project"}
+            <div className="font-bold break-words">
+              {renderText(project.title, "Project Title")}
             </div>
-            <div className="text-xs italic">
-              {project.technologiesUsed || "Technologies"}
-            </div>
-            <div className="text-sm mt-1">
-              {project.description || "Description"}
+            {project.technologiesUsed && (
+              <div className="text-sm font-medium break-words">
+                <span className="font-medium">Technologies: </span>
+                {project.technologiesUsed}
+              </div>
+            )}
+            <div
+              className="mt-1 whitespace-pre-line break-words"
+              style={{ lineHeight: "1.5" }}
+            >
+              {renderText(project.description, "Project description")}
             </div>
           </div>
         ))}
@@ -379,18 +406,18 @@ const ResumePreviewLayout2 = ({
     if (certificationsData.length === 0) return null;
 
     return (
-      <div>
+      <div className={getSpacingClass()}>
         {certificationsData.map((cert, index) => (
-          <div key={index} className="mb-2">
-            <div className="font-semibold" style={{ color: colors.primary }}>
-              {cert.certificationName || "Certification"}
+          <div key={index} className="mb-3">
+            <div className="font-bold break-words">
+              {renderText(cert.certificationName, "Certification")}
             </div>
-            <div className="text-sm">
-              {cert.issuingOrganization || "Organization"}
+            <div className="text-sm break-words">
+              {renderText(cert.issuingOrganization, "Organization")}
             </div>
-            <div className="text-xs">
-              {cert.dateObtained || "Date"}{" "}
-              {cert.certificationId && `| ID: ${cert.certificationId}`}
+            <div className="text-sm font-medium">
+              {renderText(cert.dateObtained, "Date")}
+              {cert.certificationId && ` | ID: ${cert.certificationId}`}
             </div>
           </div>
         ))}
@@ -400,32 +427,27 @@ const ResumePreviewLayout2 = ({
 
   return (
     <div
-      className="resume-container p-3 print:p-0"
+      className="w-full mx-auto print:p-0"
       style={{
         fontFamily: font,
-        backgroundColor: colors.background,
         color: colors.text,
+        backgroundColor: colors.background,
+        lineHeight: "1.3",
         maxWidth: "100%",
         height: "100%",
+        padding: "8mm",
         boxSizing: "border-box",
       }}
     >
-      {/* Header with personal info */}
-      <div className="resume-section">{renderPersonalInfo()}</div>
+      {renderPersonalInfo()}
 
-      {/* Main content in two columns */}
-      <div className="resume-content flex flex-row">
-        {/* Left sidebar */}
-        <div
-          className="w-1/3 pr-3"
-          style={{
-            borderRight: `2px solid ${colors.secondary}`,
-          }}
-        >
+      <div className="flex flex-row">
+        {/* Left column for Skills, Education, etc. */}
+        <div className="w-1/3 pr-4">
           {leftSideSections.map((section) => (
-            <div key={section.id} className="mb-4 resume-section">
+            <div key={section.id} className="mb-4">
               <h2
-                className="text-lg font-bold mb-2"
+                className={getSectionHeadingClass()}
                 style={{ color: colors.primary }}
               >
                 {section.title}
@@ -435,12 +457,12 @@ const ResumePreviewLayout2 = ({
           ))}
         </div>
 
-        {/* Main content */}
-        <div className="w-2/3 pl-3">
+        {/* Right column for Experience, Projects, etc. */}
+        <div className="w-2/3 pl-4 border-l border-gray-300">
           {mainSections.map((section) => (
-            <div key={section.id} className="mb-4 resume-section">
+            <div key={section.id} className="mb-5">
               <h2
-                className="text-lg font-bold mb-2"
+                className={getSectionHeadingClass()}
                 style={{ color: colors.primary }}
               >
                 {section.title}
@@ -454,10 +476,10 @@ const ResumePreviewLayout2 = ({
   );
 };
 
-ResumePreviewLayout2.propTypes = {
+ATSTwoColumnLayout1.propTypes = {
   formData: PropTypes.object.isRequired,
   templateSettings: PropTypes.object,
   sectionConfig: PropTypes.array,
 };
 
-export default ResumePreviewLayout2;
+export default ATSTwoColumnLayout1;
