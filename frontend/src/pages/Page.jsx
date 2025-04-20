@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { v4 as uuidv4 } from "uuid"; // to generate unique IDs
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
-import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { useNavigate, useParams, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
 import html2pdf from "html2pdf.js";
 import Footer from "../components/ui/footer";
 
@@ -168,6 +168,13 @@ const Page = () => {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [selectedResumeForHistory, setSelectedResumeForHistory] =
     useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
   const navigate = useNavigate(); // Initialize useNavigate hook
   const resumePreviewRef = useRef(); // Create a ref for the resume preview
@@ -473,28 +480,41 @@ const Page = () => {
     setLoadingResumes(true); // Set loading state to true
     setErrorLoadingResumes(null); // Reset error state
 
-    // Retrieve user data from local storage
-    const storedUserData = localStorage.getItem("user");
-    let userId = null; // Initialize userId
-
-    if (storedUserData) {
-      const userData = JSON.parse(storedUserData); // Parse the JSON string back into an object
-      userId = userData._id; // Get the user ID
-    } else {
-      console.error("No user data found in local storage.");
-      setErrorLoadingResumes("User  data not found. Please log in again.");
-      setLoadingResumes(false); // Set loading state to false
-      return; // Exit the function early
-    }
-
-    console.log("User  ID:", userId); // Log the user ID for debugging
-
     try {
-      const resumes = await getAllResumes(userId); // Pass user ID to the API call
-      setSavedResumes(resumes.data); // Assuming resumes are in `data`
+      // Using the updated getAllResumes that doesn't require userId parameter
+      const resumesResponse = await getAllResumes();
+
+      if (resumesResponse && resumesResponse.success === false) {
+        throw new Error(resumesResponse.error || "Failed to fetch resumes");
+      }
+
+      setSavedResumes(resumesResponse.data || []); // Assuming resumes are in `data`
     } catch (error) {
       console.error("Error fetching resumes:", error); // Log the error for debugging
       setErrorLoadingResumes(error.message || "Failed to fetch resumes");
+
+      // If the error is authentication related, redirect to login
+      if (
+        error.message.includes("log in again") ||
+        error.message.includes("Authentication required")
+      ) {
+        // Show error message to user
+        const errorToast = document.createElement("div");
+        errorToast.className =
+          "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
+        errorToast.textContent =
+          "Your session has expired. Please log in again.";
+        document.body.appendChild(errorToast);
+
+        // Remove error message after 3 seconds
+        setTimeout(() => {
+          if (document.body.contains(errorToast)) {
+            document.body.removeChild(errorToast);
+          }
+          // Redirect to login page
+          navigate("/login");
+        }, 3000);
+      }
     } finally {
       setLoadingResumes(false); // Set loading state to false
     }
@@ -683,7 +703,7 @@ const Page = () => {
 
   // Add effect to properly sync section visibility with formData
   useEffect(() => {
-    // Update the visibility of items in formData based on sectionConfig
+    // Skip this effect on initial render
     const updatedFormData = { ...formData };
     let hasChanges = false;
 
@@ -697,25 +717,49 @@ const Page = () => {
       "achievements",
     ];
 
+    // Helper function to deeply compare arrays of objects
+    const arraysAreDifferent = (arr1, arr2) => {
+      if (!arr1 || !arr2 || arr1.length !== arr2.length) return true;
+
+      for (let i = 0; i < arr1.length; i++) {
+        const item1 = arr1[i];
+        const item2 = arr2[i];
+
+        // Compare isVisible property specifically
+        if (item1.isVisible !== item2.isVisible) return true;
+      }
+
+      return false;
+    };
+
     sectionTypes.forEach((sectionType) => {
       const section = sectionConfig.find((s) => s.id === sectionType);
       if (section && Array.isArray(updatedFormData[sectionType])) {
-        updatedFormData[sectionType] = updatedFormData[sectionType].map(
-          (item) => ({
-            ...item,
-            isVisible: section.enabled,
-          })
-        );
-        hasChanges = true;
+        const enabled = !!section.enabled;
+
+        // Only update if the visibility actually changed
+        const potentialNewItems = updatedFormData[sectionType].map((item) => ({
+          ...item,
+          isVisible: enabled,
+        }));
+
+        if (
+          arraysAreDifferent(updatedFormData[sectionType], potentialNewItems)
+        ) {
+          updatedFormData[sectionType] = potentialNewItems;
+          hasChanges = true;
+        }
       }
     });
 
     // For custom sections
     if (Array.isArray(updatedFormData.customSections)) {
-      updatedFormData.customSections = updatedFormData.customSections.map(
+      let customSectionsChanged = false;
+      const newCustomSections = updatedFormData.customSections.map(
         (section) => {
           const configSection = sectionConfig.find((s) => s.id === section.id);
-          if (configSection) {
+          if (configSection && section.isVisible !== configSection.enabled) {
+            customSectionsChanged = true;
             return {
               ...section,
               isVisible: configSection.enabled,
@@ -724,7 +768,11 @@ const Page = () => {
           return section;
         }
       );
-      hasChanges = true;
+
+      if (customSectionsChanged) {
+        updatedFormData.customSections = newCustomSections;
+        hasChanges = true;
+      }
     }
 
     // Only update if there were changes to avoid infinite loops
@@ -737,6 +785,7 @@ const Page = () => {
   const saveResume = async () => {
     try {
       setIsLoading(true);
+      setErrors({});
 
       // Validate required fields
       let hasErrors = false;
@@ -757,6 +806,21 @@ const Page = () => {
       if (hasErrors) {
         setErrors(newErrors);
         setIsLoading(false);
+
+        // Display error message
+        const errorToast = document.createElement("div");
+        errorToast.className =
+          "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
+        errorToast.textContent = "Please fill in all required fields.";
+        document.body.appendChild(errorToast);
+
+        // Remove error message after 3 seconds
+        setTimeout(() => {
+          if (document.body.contains(errorToast)) {
+            document.body.removeChild(errorToast);
+          }
+        }, 3000);
+
         return;
       }
 
@@ -776,41 +840,104 @@ const Page = () => {
         templateSettings: templateSettings,
       };
 
-      // Save the current version to history
-      saveVersion({
-        ...resumeData,
-        timestamp: new Date().toISOString(),
-        versionName: `Version ${new Date().toLocaleString()}`,
-      });
+      // Display loading indicator
+      const loadingToast = document.createElement("div");
+      loadingToast.className =
+        "fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded shadow-lg z-50";
+      loadingToast.textContent = "Saving your resume...";
+      document.body.appendChild(loadingToast);
 
-      let response;
-      if (editingResumeId) {
-        // Update existing resume
-        response = await updateResume(editingResumeId, resumeData);
-      } else {
-        // Create new resume
-        response = await resumeCreate(resumeData);
-        setEditingResumeId(response.data._id);
-      }
+      try {
+        // Save the current version to history
+        saveVersion({
+          ...resumeData,
+          timestamp: new Date().toISOString(),
+          versionName: `Version ${new Date().toLocaleString()}`,
+        });
 
-      // Show success message
-      setSnackbar({
-        open: true,
-        message: `Resume ${
+        let response;
+        if (editingResumeId) {
+          // Update existing resume
+          response = await updateResume(editingResumeId, resumeData);
+          console.log("Resume update response:", response);
+        } else {
+          // Create new resume
+          response = await resumeCreate(resumeData);
+          console.log("Resume create response:", response);
+          if (response && response.data && response.data._id) {
+            setEditingResumeId(response.data._id);
+          } else {
+            throw new Error("No resume ID received from server");
+          }
+        }
+
+        // Remove loading indicator
+        if (document.body.contains(loadingToast)) {
+          document.body.removeChild(loadingToast);
+        }
+
+        // Show success message
+        setSnackbar({
+          open: true,
+          message: `Resume ${
+            editingResumeId ? "updated" : "saved"
+          } successfully!`,
+          severity: "success",
+        });
+
+        // Also display a visual toast
+        const successToast = document.createElement("div");
+        successToast.className =
+          "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50";
+        successToast.textContent = `Resume ${
           editingResumeId ? "updated" : "saved"
-        } successfully!`,
-        severity: "success",
-      });
+        } successfully!`;
+        document.body.appendChild(successToast);
 
-      // Fetch all resumes to update the list
-      fetchAllResumes();
+        // Remove success message after 3 seconds
+        setTimeout(() => {
+          if (document.body.contains(successToast)) {
+            document.body.removeChild(successToast);
+          }
+        }, 3000);
+
+        // Fetch all resumes to update the list
+        fetchAllResumes();
+      } catch (error) {
+        // Remove loading indicator if it exists
+        if (document.body.contains(loadingToast)) {
+          document.body.removeChild(loadingToast);
+        }
+
+        throw error; // Propagate the error to the outer catch block
+      }
     } catch (error) {
       console.error("Error saving resume:", error);
+
+      // Update error state
       setSnackbar({
         open: true,
-        message: "Error saving resume. Please try again.",
+        message: `Error: ${
+          error.message || "Failed to save resume. Please try again."
+        }`,
         severity: "error",
       });
+
+      // Show error message
+      const errorToast = document.createElement("div");
+      errorToast.className =
+        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
+      errorToast.textContent = `Error: ${
+        error.message || "Failed to save resume. Please try again."
+      }`;
+      document.body.appendChild(errorToast);
+
+      // Remove error message after 5 seconds
+      setTimeout(() => {
+        if (document.body.contains(errorToast)) {
+          document.body.removeChild(errorToast);
+        }
+      }, 5000);
     } finally {
       setIsLoading(false);
     }
@@ -1840,6 +1967,10 @@ const Page = () => {
     navigate("/login"); // Redirect to the login page
   };
 
+  const closeSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <div className="flex flex-grow">
@@ -1849,7 +1980,40 @@ const Page = () => {
           userName={userName}
           onLogout={handleLogout}
         />
-        <main className="flex-grow p-6 overflow-hidden">{renderContent()}</main>
+        <main className="flex-grow p-6 overflow-hidden">
+          {/* Loading overlay */}
+          {isLoading && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-5 rounded-lg shadow-lg text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="mt-2">Saving your resume...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Snackbar */}
+          {snackbar.open && (
+            <div
+              className={`fixed top-4 right-4 px-6 py-3 rounded shadow-lg z-50 flex items-center justify-between
+                ${
+                  snackbar.severity === "success"
+                    ? "bg-green-600 text-white"
+                    : snackbar.severity === "error"
+                    ? "bg-red-600 text-white"
+                    : "bg-blue-600 text-white"
+                }`}
+            >
+              <span>{snackbar.message}</span>
+              <button
+                onClick={closeSnackbar}
+                className="ml-4 text-white hover:text-gray-200"
+              >
+                ×
+              </button>
+            </div>
+          )}
+          {renderContent()}
+        </main>
       </div>
     </div>
   );

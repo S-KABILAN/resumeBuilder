@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import {
   FaRegFileAlt,
   FaLightbulb,
@@ -8,18 +9,140 @@ import {
   FaGithub,
   FaLinkedin,
   FaCheckCircle,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 
-// Import or define image URL
-const heroImage =
-  "https://img.freepik.com/free-vector/resume-concept-illustration_114360-91.jpg?w=1800";
+// Import or define image URLs - Use local images if possible
+const images = [
+  "/images/resume1.jpg",
+  "/images/resume2.jpg",
+  "/images/resume3.jpg",
+  "/images/resume4.jpg",
+  "/images/resume5.jpg",
+];
+
+// Fallback images from external source if local ones aren't available
+const fallbackImages = [
+  "https://img.freepik.com/free-vector/resume-concept-illustration_114360-91.jpg?w=800",
+  "https://img.freepik.com/free-vector/online-resume-concept-illustration_114360-5164.jpg?w=800",
+  "https://img.freepik.com/free-vector/hiring-concept-illustration_114360-532.jpg?w=800",
+  "https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-vector-illustration-cartoon-partners-working-connection-teamwork-partnership-cooperation-concept_74855-9814.jpg?w=800",
+  "https://img.freepik.com/free-vector/work-time-concept-illustration_114360-1474.jpg?w=800",
+];
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [useLocalImages, setUseLocalImages] = useState(true);
+  const intervalRef = useRef(null);
+
+  // Function to preload images and check which set to use
+  useEffect(() => {
+    // Try to load local images first
+    const checkLocalImages = async () => {
+      try {
+        const responses = await Promise.all(
+          images.map((src) =>
+            fetch(src)
+              .then((res) => res.status === 200)
+              .catch(() => false)
+          )
+        );
+
+        // If any local image fails to load, use fallback images
+        if (responses.some((success) => !success)) {
+          console.log(
+            "Using fallback images due to local image loading failures"
+          );
+          setUseLocalImages(false);
+        }
+
+        setImagesLoaded(true);
+      } catch (error) {
+        console.error("Error checking images:", error);
+        setUseLocalImages(false);
+        setImagesLoaded(true);
+      }
+    };
+
+    checkLocalImages();
+  }, []);
+
+  // Set up the image rotation interval
+  useEffect(() => {
+    if (imagesLoaded) {
+      console.log("Starting carousel interval");
+      intervalRef.current = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => {
+          const newIndex =
+            (prevIndex + 1) %
+            (useLocalImages ? images.length : fallbackImages.length);
+          console.log(`Changing image from ${prevIndex} to ${newIndex}`);
+          return newIndex;
+        });
+      }, 3000);
+
+      return () => {
+        console.log("Clearing carousel interval");
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
+    }
+  }, [imagesLoaded, useLocalImages]);
 
   const goToLogin = () => {
     navigate("/login");
   };
+
+  const goToPrevImage = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    setCurrentImageIndex((prevIndex) => {
+      const imgCount = useLocalImages ? images.length : fallbackImages.length;
+      const newIndex = prevIndex === 0 ? imgCount - 1 : prevIndex - 1;
+      console.log(`Manual change to previous image: ${newIndex}`);
+      return newIndex;
+    });
+
+    // Restart the interval
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) =>
+          (prevIndex + 1) %
+          (useLocalImages ? images.length : fallbackImages.length)
+      );
+    }, 3000);
+  };
+
+  const goToNextImage = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    setCurrentImageIndex((prevIndex) => {
+      const imgCount = useLocalImages ? images.length : fallbackImages.length;
+      const newIndex = (prevIndex + 1) % imgCount;
+      console.log(`Manual change to next image: ${newIndex}`);
+      return newIndex;
+    });
+
+    // Restart the interval
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) =>
+          (prevIndex + 1) %
+          (useLocalImages ? images.length : fallbackImages.length)
+      );
+    }, 3000);
+  };
+
+  // The actual images to use based on availability
+  const currentImages = useLocalImages ? images : fallbackImages;
 
   return (
     <div className="md:h-screen flex flex-col bg-gradient-to-b from-indigo-50 via-white to-indigo-50 overflow-hidden">
@@ -108,19 +231,104 @@ const Landing = () => {
             <div className="flex justify-center order-1 md:order-2">
               <div className="relative">
                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-25"></div>
+
+                {/* Image Carousel */}
                 <div className="relative">
-                  <img
-                    src={heroImage}
-                    alt="Resume Builder"
-                    className="rounded-lg shadow-2xl"
+                  <div
+                    className="carousel-container relative overflow-hidden rounded-lg shadow-2xl"
                     style={{
                       width: "100%",
                       maxWidth: "500px",
-                      height: "auto",
-                      maxHeight: "500px",
-                      objectFit: "contain",
+                      height: "300px",
+                      backgroundColor: "#f8f9fa",
                     }}
-                  />
+                  >
+                    {!imagesLoaded && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+
+                    {imagesLoaded &&
+                      currentImages.map((image, index) => (
+                        <div
+                          key={index}
+                          className={`carousel-slide absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${
+                            index === currentImageIndex
+                              ? "opacity-100 z-10"
+                              : "opacity-0 z-0"
+                          }`}
+                        >
+                          <img
+                            src={image}
+                            alt={`Resume Builder Slide ${index + 1}`}
+                            className="max-w-full max-h-full object-contain"
+                            onError={() => {
+                              console.log(`Image failed to load: ${image}`);
+                              if (useLocalImages) {
+                                console.log("Switching to fallback images");
+                                setUseLocalImages(false);
+                              }
+                            }}
+                          />
+                        </div>
+                      ))}
+
+                    {/* Navigation buttons */}
+                    {imagesLoaded && (
+                      <>
+                        <button
+                          onClick={goToPrevImage}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none transition-all"
+                          aria-label="Previous image"
+                        >
+                          <FaChevronLeft className="text-indigo-700" />
+                        </button>
+                        <button
+                          onClick={goToNextImage}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none transition-all"
+                          aria-label="Next image"
+                        >
+                          <FaChevronRight className="text-indigo-700" />
+                        </button>
+
+                        {/* Dots indicators */}
+                        <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 z-20">
+                          {currentImages.map((_, index) => (
+                            <button
+                              key={index}
+                              onClick={() => {
+                                // Clear the existing interval
+                                if (intervalRef.current) {
+                                  clearInterval(intervalRef.current);
+                                }
+
+                                // Set the current image
+                                setCurrentImageIndex(index);
+                                console.log(
+                                  `Dot clicked: changing to image ${index}`
+                                );
+
+                                // Restart the interval
+                                intervalRef.current = setInterval(() => {
+                                  setCurrentImageIndex(
+                                    (prevIndex) =>
+                                      (prevIndex + 1) % currentImages.length
+                                  );
+                                }, 3000);
+                              }}
+                              className={`w-2 h-2 rounded-full transition-all ${
+                                index === currentImageIndex
+                                  ? "bg-indigo-600 w-4"
+                                  : "bg-gray-300 hover:bg-gray-400"
+                              }`}
+                              aria-label={`Go to slide ${index + 1}`}
+                            />
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 {/* Feature icons floating on the image */}
