@@ -37,9 +37,10 @@
     height: auto !important;
     overflow: visible !important;
     margin: 0;
-    padding: 10mm;
+    padding: 15mm;
     background-color: white;
     position: relative;
+    font-family: "Poppins", "Roboto", "Open Sans", sans-serif;
   }
 
   /* Better page break control */
@@ -49,6 +50,8 @@
   h4 {
     page-break-after: avoid;
     break-after: avoid;
+    margin-top: 0;
+    margin-bottom: 4mm;
   }
 
   h1 + *,
@@ -63,6 +66,12 @@
   tr {
     page-break-inside: avoid;
     break-inside: avoid;
+    margin-bottom: 2mm;
+  }
+
+  p {
+    margin: 0 0 3mm 0;
+    line-height: 1.5;
   }
 
   /* Each section should try to avoid breaks inside if possible */
@@ -70,6 +79,7 @@
   .resume-section {
     page-break-inside: avoid;
     break-inside: avoid-page;
+    margin-bottom: 6mm;
   }
 
   /* Allow content to flow to multiple pages as needed */
@@ -115,6 +125,33 @@
 
   .flex {
     display: flex !important;
+  }
+
+  /* Spacing for experience items */
+  .resume-experience-item,
+  .experience-item {
+    margin-bottom: 5mm;
+  }
+
+  /* Spacing for education items */
+  .resume-education-item,
+  .education-item {
+    margin-bottom: 5mm;
+  }
+
+  /* Skills spacing */
+  .resume-skills,
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2mm;
+    margin-bottom: 5mm;
+  }
+
+  .resume-skill-item,
+  .skill-item {
+    margin: 1mm;
+    padding: 1mm 2mm;
   }
 
   /* Ensure borders are visible */

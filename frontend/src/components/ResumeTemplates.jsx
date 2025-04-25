@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Layout1Preview from "../assets/resume1.png"; // Example image paths
 import Layout2Preview from "../assets/resume2.png";
 import Layout3Preview from "../assets/resume2.png"; // Temporarily reusing Layout2 image
+import ModernTwoColumnPreview from "../assets/modern_two_column.png";
+import ProfessionalTwoColumnPreview from "../assets/professional_two_column.png";
 import TemplateCustomizer from "./TemplateCustomizer";
 import {
   FaChevronLeft,
@@ -31,7 +33,7 @@ const ResumeTemplates = ({
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [favorites, setFavorites] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const templatesPerPage = 4;
+  const templatesPerPage = 8;
 
   // Default template settings
   const [templateSettings, setTemplateSettings] = useState(
@@ -119,6 +121,24 @@ const ResumeTemplates = ({
       category: "ats",
       popular: true,
     },
+    {
+      id: "ModernTwoColumn",
+      name: "Modern Two-Column",
+      image: ModernTwoColumnPreview,
+      description:
+        "A stylish two-column layout with a colored sidebar for personal info, skills, and languages. The main section uses clean typography and proper spacing for a professional, modern look.",
+      category: "modern",
+      popular: true,
+    },
+    {
+      id: "ProfessionalTwoColumn",
+      name: "Professional Two-Column",
+      image: ProfessionalTwoColumnPreview,
+      description:
+        "A balanced professional layout with a centered header and two-column body. Left column for profile, skills and education, right column for experience and projects with a subtle divider.",
+      category: "classic",
+      popular: true,
+    },
   ];
 
   // Load favorites from localStorage on component mount
@@ -133,6 +153,11 @@ const ResumeTemplates = ({
   useEffect(() => {
     localStorage.setItem("favoriteTemplates", JSON.stringify(favorites));
   }, [favorites]);
+
+  // Reset to page 1 when filter or search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter]);
 
   const handleSelectTemplate = (templateId) => {
     const template = templates.find((t) => t.id === templateId);

@@ -56,6 +56,10 @@ import {
 } from "../services/routes/resume";
 import { saveVersion } from "../services/versionControlService";
 
+// Import template images
+import ModernTwoColumnImg from "../assets/modern_two_column.png";
+import ProfessionalTwoColumnImg from "../assets/professional_two_column.png";
+
 // Default resume data for demonstration
 const defaultResumeData = {
   personal: {
@@ -202,7 +206,9 @@ const Page = () => {
       background: "#ffffff",
     },
     font: "ui-sans-serif, system-ui, sans-serif",
+    fontSize: "medium",
     spacing: "normal",
+    contentSpacing: "standard",
     sectionOrder: [
       "education",
       "experience",
@@ -287,6 +293,36 @@ const Page = () => {
           ...templateSettings.colors,
           primary: "#7c3aed",
           secondary: "#5b21b6",
+        },
+      },
+    },
+    {
+      id: "ModernTwoColumn",
+      name: "Modern Two-Column",
+      description:
+        "A stylish two-column layout with a colored sidebar for personal info and skills",
+      image: ModernTwoColumnImg,
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#4f46e5",
+          secondary: "#4338ca",
+        },
+      },
+    },
+    {
+      id: "ProfessionalTwoColumn",
+      name: "Professional Two-Column",
+      description:
+        "A balanced professional layout with a centered header and two-column body",
+      image: ProfessionalTwoColumnImg,
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#0891b2",
+          secondary: "#0e7490",
         },
       },
     },
@@ -2247,12 +2283,18 @@ const Page = () => {
   const renderResumePreview = () => {
     // Using ResumeViewer for all layouts with section config
     return (
-      <ResumeViewer
-        formData={formData}
-        templateSettings={templateSettings}
-        selectedLayout={selectedLayout}
-        sectionConfig={sectionConfig}
-      />
+      <div
+        className={`resume-container content-spacing-${templateSettings.contentSpacing} font-size-${templateSettings.fontSize}`}
+      >
+        <div className="resume-content">
+          <ResumeViewer
+            formData={formData}
+            templateSettings={templateSettings}
+            selectedLayout={selectedLayout}
+            sectionConfig={sectionConfig}
+          />
+        </div>
+      </div>
     );
   };
 

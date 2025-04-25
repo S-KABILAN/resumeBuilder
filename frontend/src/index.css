@@ -5,8 +5,8 @@
 /* Custom font settings */
 @layer base {
   html {
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Poppins", "Roboto", "Open Sans", system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", Helvetica Neue, Arial, sans-serif;
   }
 
   body {
@@ -21,10 +21,45 @@
   h6 {
     @apply font-bold tracking-tight;
   }
+
+  /* Fix content spacing */
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  div,
+  section {
+    @apply mx-0 my-0;
+  }
+
+  /* Ensure proper text spacing */
+  p:not(:last-child) {
+    @apply mb-4;
+  }
+
+  section {
+    @apply my-6;
+  }
+
+  .content-section {
+    @apply space-y-4;
+  }
 }
 
 /* Custom component classes */
 @layer components {
+  /* Fix spacing in containers */
+  .container-fluid {
+    @apply w-full px-4 md:px-6 mx-auto;
+  }
+
+  .content-wrapper {
+    @apply space-y-6 p-4 md:p-6;
+  }
+
   .btn {
     @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium 
       transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
@@ -41,7 +76,7 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden;
+    @apply bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden p-4 md:p-6;
   }
 
   .input-field {

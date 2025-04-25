@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { isAuthenticated, getUserId } from "./utils/userUtils";
 import { logAuthState, fixAuthStateIssues } from "./utils/debugUtils";
 import "./App.css";
+import "./styles/resume.css";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));

@@ -50,13 +50,17 @@ const ResumeDownload = ({
           <h3 className="text-lg font-medium text-gray-800 mb-4">
             Resume Preview
           </h3>
-          <div className="border border-gray-300 rounded-md overflow-hidden">
-            <ResumeViewer
-              formData={formData}
-              templateSettings={templateSettings}
-              selectedLayout={selectedLayout}
-              sectionConfig={sectionConfig}
-            />
+          <div
+            className={`border border-gray-300 rounded-md overflow-hidden resume-container content-spacing-${templateSettings.contentSpacing} font-size-${templateSettings.fontSize}`}
+          >
+            <div className="resume-content">
+              <ResumeViewer
+                formData={formData}
+                templateSettings={templateSettings}
+                selectedLayout={selectedLayout}
+                sectionConfig={sectionConfig}
+              />
+            </div>
           </div>
         </div>
       )}

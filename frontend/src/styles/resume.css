@@ -1,0 +1,217 @@
+/* Resume specific content spacing */
+
+/* Base spacing for resume content */
+.resume-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  font-family: "Poppins", "Roboto", "Open Sans", sans-serif;
+}
+
+/* Resume section spacing */
+.resume-section {
+  margin-bottom: 1.25rem;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Resume content element spacing */
+.resume-content h1,
+.resume-content h2,
+.resume-content h3,
+.resume-content h4,
+.resume-content h5,
+.resume-content h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.resume-content p {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Spacing for contact information */
+.resume-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Spacing for experience and education items */
+.resume-experience-item,
+.resume-education-item {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Proper list spacing in resume */
+.resume-content ul,
+.resume-content ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.resume-content li {
+  margin-bottom: 0.25rem;
+}
+
+/* Skills section spacing */
+.resume-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.resume-skill-item {
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+  border-radius: 4px;
+}
+
+/* PDF viewer spacing */
+.resume-pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Column layout for resume */
+.resume-two-column {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+/* Three-column layout for certain sections */
+.resume-three-column {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+/* For the Header area */
+.resume-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.resume-name {
+  font-size: 1.75rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.resume-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Add proper spacing to section titles */
+.resume-section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid;
+}
+
+/* Customizer component specific spacing */
+.customizer-section {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.customizer-item {
+  margin-bottom: 1rem;
+}
+
+/* Content spacing variations */
+.content-spacing-narrow .resume-section {
+  margin-bottom: 0.75rem;
+}
+
+.content-spacing-narrow p,
+.content-spacing-narrow h1,
+.content-spacing-narrow h2,
+.content-spacing-narrow h3,
+.content-spacing-narrow h4,
+.content-spacing-narrow h5,
+.content-spacing-narrow h6,
+.content-spacing-narrow div {
+  margin-bottom: 0.5rem;
+}
+
+.content-spacing-standard .resume-section {
+  margin-bottom: 1.25rem;
+}
+
+.content-spacing-standard p,
+.content-spacing-standard h1,
+.content-spacing-standard h2,
+.content-spacing-standard h3,
+.content-spacing-standard h4,
+.content-spacing-standard h5,
+.content-spacing-standard h6,
+.content-spacing-standard div {
+  margin-bottom: 0.75rem;
+}
+
+.content-spacing-wide .resume-section {
+  margin-bottom: 2rem;
+}
+
+.content-spacing-wide p,
+.content-spacing-wide h1,
+.content-spacing-wide h2,
+.content-spacing-wide h3,
+.content-spacing-wide h4,
+.content-spacing-wide h5,
+.content-spacing-wide h6,
+.content-spacing-wide div {
+  margin-bottom: 1.25rem;
+}
+
+/* Font size variations */
+.font-size-small {
+  font-size: 0.875rem;
+}
+
+.font-size-medium {
+  font-size: 1rem;
+}
+
+.font-size-large {
+  font-size: 1.125rem;
+}
+
+/* Ensure proper spacing in print mode */
+@media print {
+  .resume-section {
+    margin-bottom: 10mm;
+  }
+
+  .resume-content h1,
+  .resume-content h2,
+  .resume-content h3 {
+    margin-bottom: 4mm;
+  }
+
+  .resume-content p {
+    margin-bottom: 3mm;
+    line-height: 1.4;
+  }
+
+  .resume-experience-item,
+  .resume-education-item {
+    margin-bottom: 5mm;
+  }
+}

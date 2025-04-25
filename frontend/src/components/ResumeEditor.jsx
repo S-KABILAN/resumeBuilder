@@ -20,6 +20,7 @@ import ATSOptimizedLayout from "./ATSOptimizedLayout";
 import MinimalistATSLayout from "./MinimalistATSLayout";
 import ATSTwoColumnLayout1 from "./ATSTwoColumnLayout1";
 import ATSTwoColumnLayout2 from "./ATSTwoColumnLayout2";
+import ReactPDFResume from "./ReactPDFResume";
 
 // UI components
 import { Tabs, TabList, Tab, TabPanel } from "./ui/tabs";
@@ -518,6 +519,16 @@ const ResumeEditor = ({
             sectionConfig={sectionConfig}
           />
         );
+      case "ModernTwoColumn":
+      case "ProfessionalTwoColumn":
+        return (
+          <ReactPDFResume
+            formData={formData}
+            templateSettings={templateSettings}
+            sectionConfig={sectionConfig}
+            selectedLayout={selectedLayout}
+          />
+        );
       default:
         return (
           <ResumePreviewLayout1
@@ -574,6 +585,10 @@ const ResumeEditor = ({
               <option value="ATSTwoColumnLayout1">ATS Two-Column Modern</option>
               <option value="ATSTwoColumnLayout2">
                 ATS Two-Column Compact
+              </option>
+              <option value="ModernTwoColumn">Modern Two-Column</option>
+              <option value="ProfessionalTwoColumn">
+                Professional Two-Column
               </option>
             </select>
           </div>

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import PropTypes from "prop-types";
 import {
   Document,
   Page,
@@ -8,7 +9,6 @@ import {
   PDFViewer,
   PDFDownloadLink,
   Link,
-  Font,
 } from "@react-pdf/renderer";
 
 // React PDF has built-in support for these standard fonts:
@@ -46,6 +46,22 @@ const createStyles = (templateSettings) => {
     }
   }
 
+  // Get font size based on settings
+  const getFontSize = (baseSize) => {
+    const fontSize = templateSettings?.fontSize || "medium";
+    if (fontSize === "small") return baseSize * 0.85;
+    if (fontSize === "large") return baseSize * 1.15;
+    return baseSize; // medium is default
+  };
+
+  // Get content spacing based on settings
+  const getContentSpacing = (baseSpacing) => {
+    const contentSpacing = templateSettings?.contentSpacing || "standard";
+    if (contentSpacing === "narrow") return baseSpacing * 0.75;
+    if (contentSpacing === "wide") return baseSpacing * 1.5;
+    return baseSpacing; // standard is default
+  };
+
   const baseStyles = StyleSheet.create({
     page: {
       flexDirection: "column",
@@ -56,31 +72,31 @@ const createStyles = (templateSettings) => {
     section: {
       marginBottom:
         templateSettings?.spacing === "tight"
-          ? 6
+          ? 10
           : templateSettings?.spacing === "relaxed"
-          ? 14
-          : 10,
+          ? 18
+          : 14,
     },
     header: {
-      marginBottom: 20,
+      marginBottom: 24,
       textAlign: "center",
     },
     name: {
-      fontSize: 24,
+      fontSize: getFontSize(24),
       fontWeight: "bold",
-      marginBottom: 5,
+      marginBottom: getContentSpacing(8),
       color: colors.primary,
     },
     title: {
-      fontSize: 14,
+      fontSize: getFontSize(14),
       color: colors.secondary,
-      marginBottom: 5,
+      marginBottom: getContentSpacing(8),
     },
     contactInfo: {
       flexDirection: "row",
       justifyContent: "center",
-      fontSize: 10,
-      marginBottom: 5,
+      fontSize: getFontSize(10),
+      marginBottom: getContentSpacing(8),
       flexWrap: "wrap",
     },
     contactItem: {
@@ -88,76 +104,78 @@ const createStyles = (templateSettings) => {
       color: colors.text,
     },
     sectionTitle: {
-      fontSize: 14,
+      fontSize: getFontSize(14),
       fontWeight: "bold",
-      marginBottom: 6,
+      marginBottom: getContentSpacing(8),
       borderBottomWidth: 1,
       borderBottomColor: colors.primary,
-      paddingBottom: 2,
+      paddingBottom: 3,
       color: colors.primary,
     },
     experienceItem: {
       marginBottom:
         templateSettings?.spacing === "tight"
-          ? 7
+          ? getContentSpacing(10)
           : templateSettings?.spacing === "relaxed"
-          ? 13
-          : 10,
+          ? getContentSpacing(16)
+          : getContentSpacing(14),
     },
     experienceHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: 3,
+      marginBottom: getContentSpacing(4),
     },
     experienceTitle: {
-      fontSize: 12,
+      fontSize: getFontSize(12),
       fontWeight: "semibold",
       color: colors.secondary,
     },
     experienceDate: {
-      fontSize: 10,
+      fontSize: getFontSize(10),
       color: colors.text,
     },
     companyName: {
-      fontSize: 11,
-      marginBottom: 3,
+      fontSize: getFontSize(11),
+      marginBottom: getContentSpacing(4),
       color: colors.text,
     },
     location: {
-      fontSize: 10,
+      fontSize: getFontSize(10),
       color: colors.secondary,
-      marginBottom: 3,
+      marginBottom: getContentSpacing(4),
     },
     description: {
-      fontSize: 10,
-      lineHeight: 1.4,
+      fontSize: getFontSize(10),
+      lineHeight: 1.5,
       color: colors.text,
     },
     educationItem: {
-      marginBottom: 8,
+      marginBottom: getContentSpacing(10),
     },
     educationHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: 2,
+      marginBottom: getContentSpacing(4),
     },
     degree: {
-      fontSize: 11,
+      fontSize: getFontSize(11),
       fontWeight: "semibold",
       color: colors.secondary,
     },
     institution: {
-      fontSize: 10,
+      fontSize: getFontSize(10),
       color: colors.text,
+      marginBottom: getContentSpacing(3),
     },
     skillsContainer: {
       flexDirection: "row",
       flexWrap: "wrap",
+      gap: getContentSpacing(4),
     },
     skillItem: {
-      fontSize: 10,
-      marginRight: 5,
-      marginBottom: 5,
+      fontSize: getFontSize(10),
+      marginRight: getContentSpacing(6),
+      marginBottom: getContentSpacing(6),
       backgroundColor: colors.accent + "20", // 20% opacity
       padding: 5,
       borderRadius: 3,
@@ -168,29 +186,29 @@ const createStyles = (templateSettings) => {
       textDecoration: "none",
     },
     listItem: {
-      fontSize: 10,
-      marginBottom: 3,
-      lineHeight: 1.4,
+      fontSize: getFontSize(10),
+      marginBottom: getContentSpacing(4),
+      lineHeight: 1.5,
       color: colors.text,
     },
     twoColumnLayout: {
       flexDirection: "row",
-      marginTop: 10,
+      marginTop: getContentSpacing(10),
     },
     leftColumn: {
       width: "30%",
-      paddingRight: 10,
+      paddingRight: getContentSpacing(10),
       borderRight: 1,
       borderRightColor: colors.primary,
     },
     rightColumn: {
       width: "70%",
-      paddingLeft: 10,
+      paddingLeft: getContentSpacing(10),
     },
     // Add a style for languages section
     languageItem: {
-      fontSize: 10,
-      marginBottom: 4,
+      fontSize: getFontSize(10),
+      marginBottom: getContentSpacing(4),
       color: colors.text,
     },
   });
@@ -667,6 +685,898 @@ const ReactPDFResume = ({
           </>
         );
 
+      case "ModernTwoColumn":
+        // Modern two-column layout with colored sidebar
+        return (
+          <>
+            <View style={styles.twoColumnLayout}>
+              {/* Left sidebar with colored background */}
+              <View
+                style={{
+                  ...styles.leftColumn,
+                  backgroundColor: styles.colors?.primary + "15", // Light version of primary color
+                  borderRight: 0,
+                  padding: 10,
+                  borderRadius: 4,
+                }}
+              >
+                {/* Personal info in sidebar */}
+                <View
+                  style={{
+                    marginBottom: 15,
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      ...styles.name,
+                      fontSize: 20,
+                      textAlign: "center",
+                      color: styles.colors?.primary,
+                    }}
+                  >
+                    {personal.name || "YOUR NAME"}
+                  </Text>
+                  {personal.title && (
+                    <Text
+                      style={{
+                        ...styles.title,
+                        textAlign: "center",
+                        fontSize: 12,
+                        marginBottom: 8,
+                      }}
+                    >
+                      {personal.title}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Contact info */}
+                <View style={{ marginBottom: 15 }}>
+                  <Text
+                    style={{
+                      ...styles.sectionTitle,
+                      fontSize: 12,
+                      borderBottomWidth: 0,
+                      backgroundColor: styles.colors?.primary,
+                      color: "white",
+                      padding: 3,
+                      textAlign: "center",
+                      borderRadius: 3,
+                    }}
+                  >
+                    CONTACT
+                  </Text>
+                  <View style={{ marginTop: 5 }}>
+                    {personal.email && (
+                      <Text style={{ fontSize: 9, marginBottom: 3 }}>
+                        {personal.email}
+                      </Text>
+                    )}
+                    {personal.phone && (
+                      <Text style={{ fontSize: 9, marginBottom: 3 }}>
+                        {personal.phone}
+                      </Text>
+                    )}
+                    {personal.location && (
+                      <Text style={{ fontSize: 9, marginBottom: 3 }}>
+                        {personal.location}
+                      </Text>
+                    )}
+                    {personal.linkedin && (
+                      <Link
+                        src={personal.linkedin}
+                        style={{
+                          fontSize: 9,
+                          marginBottom: 3,
+                          color: styles.colors?.accent,
+                        }}
+                      >
+                        LinkedIn
+                      </Link>
+                    )}
+                    {personal.github && (
+                      <Link
+                        src={personal.github}
+                        style={{
+                          fontSize: 9,
+                          marginBottom: 3,
+                          color: styles.colors?.accent,
+                        }}
+                      >
+                        GitHub
+                      </Link>
+                    )}
+                  </View>
+                </View>
+
+                {/* Skills section */}
+                {skills && skills.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        fontSize: 12,
+                        borderBottomWidth: 0,
+                        backgroundColor: styles.colors?.primary,
+                        color: "white",
+                        padding: 3,
+                        textAlign: "center",
+                        borderRadius: 3,
+                      }}
+                    >
+                      SKILLS
+                    </Text>
+                    <View
+                      style={{
+                        marginTop: 5,
+                        flexDirection: "row",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {skills
+                        .filter((skill) => skill.isVisible !== false)
+                        .map((skill, index) => (
+                          <Text
+                            key={index}
+                            style={{
+                              fontSize: 9,
+                              backgroundColor: styles.colors?.primary + "25",
+                              padding: 3,
+                              borderRadius: 2,
+                              marginRight: 3,
+                              marginBottom: 3,
+                            }}
+                          >
+                            {skill.name || skill.skillName}
+                          </Text>
+                        ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Languages section if available */}
+                {languages && languages.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        fontSize: 12,
+                        borderBottomWidth: 0,
+                        backgroundColor: styles.colors?.primary,
+                        color: "white",
+                        padding: 3,
+                        textAlign: "center",
+                        borderRadius: 3,
+                      }}
+                    >
+                      LANGUAGES
+                    </Text>
+                    <View style={{ marginTop: 5 }}>
+                      {languages
+                        .filter((lang) => lang.isVisible !== false)
+                        .map((lang, index) => (
+                          <Text
+                            key={index}
+                            style={{
+                              fontSize: 9,
+                              marginBottom: 2,
+                            }}
+                          >
+                            {lang.language}
+                            {lang.proficiency ? `: ${lang.proficiency}` : ""}
+                          </Text>
+                        ))}
+                    </View>
+                  </View>
+                )}
+              </View>
+
+              {/* Right column for main content */}
+              <View
+                style={{
+                  ...styles.rightColumn,
+                  paddingLeft: 15,
+                }}
+              >
+                {/* Professional Summary */}
+                {profileSummary && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        borderBottomColor: styles.colors?.primary,
+                        borderBottomWidth: 1,
+                      }}
+                    >
+                      PROFESSIONAL SUMMARY
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.description,
+                        marginTop: 5,
+                      }}
+                    >
+                      {profileSummary.content}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Experience section */}
+                {experience && experience.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        borderBottomColor: styles.colors?.primary,
+                        borderBottomWidth: 1,
+                      }}
+                    >
+                      EXPERIENCE
+                    </Text>
+                    {experience
+                      .filter((exp) => exp.isVisible !== false)
+                      .map((exp, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 10,
+                            marginTop: 5,
+                          }}
+                        >
+                          <View style={styles.experienceHeader}>
+                            <Text
+                              style={{
+                                ...styles.experienceTitle,
+                                color: styles.colors?.secondary,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {exp.position || exp.jobTitle || "Position"}
+                            </Text>
+                            <Text style={styles.experienceDate}>
+                              {formatDateRange(
+                                exp.startDate,
+                                exp.endDate,
+                                exp.isCurrentlyWorking
+                              )}
+                            </Text>
+                          </View>
+                          <Text
+                            style={{
+                              ...styles.companyName,
+                              fontWeight: "medium",
+                            }}
+                          >
+                            {exp.company || exp.companyName || "Company"}
+                          </Text>
+                          <Text style={{ ...styles.description, marginTop: 2 }}>
+                            {exp.description || ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Education section */}
+                {education && education.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        borderBottomColor: styles.colors?.primary,
+                        borderBottomWidth: 1,
+                      }}
+                    >
+                      EDUCATION
+                    </Text>
+                    {education
+                      .filter((edu) => edu.isVisible !== false)
+                      .map((edu, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 8,
+                            marginTop: 5,
+                          }}
+                        >
+                          <View style={styles.educationHeader}>
+                            <Text
+                              style={{
+                                ...styles.degree,
+                                color: styles.colors?.secondary,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {edu.degree || "Degree"}
+                              {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
+                            </Text>
+                            <Text style={styles.experienceDate}>
+                              {formatDateRange(
+                                edu.startDate,
+                                edu.endDate,
+                                edu.isCurrentlyStudying
+                              ) || edu.graduationYear}
+                            </Text>
+                          </View>
+                          <Text style={styles.institution}>
+                            {edu.institution || "Institution"}
+                            {edu.location ? `, ${edu.location}` : ""}
+                          </Text>
+                          {edu.description && (
+                            <Text
+                              style={{ ...styles.description, marginTop: 2 }}
+                            >
+                              {edu.description}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Projects section */}
+                {projects && projects.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        borderBottomColor: styles.colors?.primary,
+                        borderBottomWidth: 1,
+                      }}
+                    >
+                      PROJECTS
+                    </Text>
+                    {projects
+                      .filter((project) => project.isVisible !== false)
+                      .map((project, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 8,
+                            marginTop: 5,
+                          }}
+                        >
+                          <View style={styles.experienceHeader}>
+                            <Text
+                              style={{
+                                ...styles.experienceTitle,
+                                color: styles.colors?.secondary,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {project.name || project.title || "Project"}
+                            </Text>
+                            <Text style={styles.experienceDate}>
+                              {formatDateRange(
+                                project.startDate,
+                                project.endDate,
+                                project.isOngoing
+                              )}
+                            </Text>
+                          </View>
+                          {project.url && (
+                            <Link
+                              src={project.url}
+                              style={{
+                                ...styles.link,
+                                fontSize: 9,
+                              }}
+                            >
+                              {project.url.replace(/(^\w+:|^)\/\//, "")}
+                            </Link>
+                          )}
+                          <Text style={{ ...styles.description, marginTop: 2 }}>
+                            {project.description || ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+              </View>
+            </View>
+          </>
+        );
+
+      case "ProfessionalTwoColumn":
+        // Professional two-column layout with balanced design
+        return (
+          <>
+            {/* Header section with name and title */}
+            <View
+              style={{
+                marginBottom: 15,
+                textAlign: "center",
+              }}
+            >
+              <Text
+                style={{
+                  ...styles.name,
+                  fontSize: 22,
+                  color: styles.colors?.primary,
+                  textAlign: "center",
+                }}
+              >
+                {personal.name || "YOUR NAME"}
+              </Text>
+              {personal.title && (
+                <Text
+                  style={{
+                    ...styles.title,
+                    fontSize: 12,
+                    textAlign: "center",
+                    marginBottom: 5,
+                  }}
+                >
+                  {personal.title}
+                </Text>
+              )}
+
+              {/* Contact info in a row */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginTop: 5,
+                }}
+              >
+                {personal.email && (
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      margin: 3,
+                    }}
+                  >
+                    {personal.email}
+                  </Text>
+                )}
+                {personal.phone && (
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      margin: 3,
+                    }}
+                  >
+                    {personal.phone}
+                  </Text>
+                )}
+                {personal.location && (
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      margin: 3,
+                    }}
+                  >
+                    {personal.location}
+                  </Text>
+                )}
+                {personal.linkedin && (
+                  <Link
+                    src={personal.linkedin}
+                    style={{
+                      fontSize: 9,
+                      margin: 3,
+                      color: styles.colors?.primary,
+                    }}
+                  >
+                    LinkedIn
+                  </Link>
+                )}
+                {personal.github && (
+                  <Link
+                    src={personal.github}
+                    style={{
+                      fontSize: 9,
+                      margin: 3,
+                      color: styles.colors?.primary,
+                    }}
+                  >
+                    GitHub
+                  </Link>
+                )}
+              </View>
+            </View>
+
+            {/* Horizontal line */}
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: styles.colors?.primary,
+                marginBottom: 15,
+              }}
+            />
+
+            {/* Two column content */}
+            <View
+              style={{
+                ...styles.twoColumnLayout,
+                justifyContent: "space-between",
+              }}
+            >
+              {/* Left column for summary, skills, education, certifications */}
+              <View
+                style={{
+                  width: "40%",
+                  paddingRight: 15,
+                }}
+              >
+                {/* Professional Summary */}
+                {profileSummary && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      PROFILE
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.description,
+                        marginTop: 5,
+                      }}
+                    >
+                      {profileSummary.content}
+                    </Text>
+                  </View>
+                )}
+
+                {/* Skills section */}
+                {skills && skills.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      SKILLS
+                    </Text>
+                    <View style={{ marginTop: 5 }}>
+                      {skills
+                        .filter((skill) => skill.isVisible !== false)
+                        .map((skill, index) => (
+                          <Text
+                            key={index}
+                            style={{
+                              fontSize: 9,
+                              marginBottom: 2,
+                            }}
+                          >
+                            • {skill.name || skill.skillName}
+                          </Text>
+                        ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Education section */}
+                {education && education.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      EDUCATION
+                    </Text>
+                    {education
+                      .filter((edu) => edu.isVisible !== false)
+                      .map((edu, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 8,
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{ ...styles.degree, fontWeight: "bold" }}
+                          >
+                            {edu.degree || "Degree"}
+                            {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
+                          </Text>
+                          <Text style={styles.institution}>
+                            {edu.institution || "Institution"}
+                            {edu.location ? `, ${edu.location}` : ""}
+                          </Text>
+                          <Text style={{ fontSize: 8, marginTop: 2 }}>
+                            {formatDateRange(
+                              edu.startDate,
+                              edu.endDate,
+                              edu.isCurrentlyStudying
+                            ) || edu.graduationYear}
+                          </Text>
+                          {edu.description && (
+                            <Text
+                              style={{ ...styles.description, marginTop: 2 }}
+                            >
+                              {edu.description}
+                            </Text>
+                          )}
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Certifications section if available */}
+                {certifications && certifications.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      CERTIFICATIONS
+                    </Text>
+                    {certifications
+                      .filter((cert) => cert.isVisible !== false)
+                      .map((cert, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 5,
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: 10,
+                            }}
+                          >
+                            {cert.name}
+                          </Text>
+                          <Text style={{ fontSize: 9 }}>
+                            {cert.issuer}
+                            {cert.date ? ` (${cert.date})` : ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Languages section if available */}
+                {languages && languages.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      LANGUAGES
+                    </Text>
+                    {languages
+                      .filter((lang) => lang.isVisible !== false)
+                      .map((lang, index) => (
+                        <Text
+                          key={index}
+                          style={{
+                            fontSize: 9,
+                            marginBottom: 2,
+                          }}
+                        >
+                          • {lang.language}
+                          {lang.proficiency ? `: ${lang.proficiency}` : ""}
+                        </Text>
+                      ))}
+                  </View>
+                )}
+              </View>
+
+              {/* Right column for experience, projects, achievements */}
+              <View
+                style={{
+                  width: "60%",
+                  paddingLeft: 15,
+                  borderLeftWidth: 1,
+                  borderLeftColor: styles.colors?.primary + "50", // Lighter version of primary
+                }}
+              >
+                {/* Experience section */}
+                {experience && experience.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      PROFESSIONAL EXPERIENCE
+                    </Text>
+                    {experience
+                      .filter((exp) => exp.isVisible !== false)
+                      .map((exp, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 10,
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: 11,
+                            }}
+                          >
+                            {exp.position || exp.jobTitle || "Position"}
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 2,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontWeight: "medium",
+                                fontSize: 10,
+                              }}
+                            >
+                              {exp.company || exp.companyName || "Company"}
+                              {exp.location ? `, ${exp.location}` : ""}
+                            </Text>
+                            <Text style={{ fontSize: 9 }}>
+                              {formatDateRange(
+                                exp.startDate,
+                                exp.endDate,
+                                exp.isCurrentlyWorking
+                              )}
+                            </Text>
+                          </View>
+                          <Text style={{ ...styles.description, marginTop: 2 }}>
+                            {exp.description || ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Projects section */}
+                {projects && projects.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      PROJECTS
+                    </Text>
+                    {projects
+                      .filter((project) => project.isVisible !== false)
+                      .map((project, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 8,
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: 11,
+                            }}
+                          >
+                            {project.name || project.title || "Project"}
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 2,
+                            }}
+                          >
+                            {project.url ? (
+                              <Link
+                                src={project.url}
+                                style={{
+                                  fontSize: 9,
+                                  color: styles.colors?.primary,
+                                }}
+                              >
+                                {project.url.replace(/(^\w+:|^)\/\//, "")}
+                              </Link>
+                            ) : (
+                              <View />
+                            )}
+                            <Text style={{ fontSize: 9 }}>
+                              {formatDateRange(
+                                project.startDate,
+                                project.endDate,
+                                project.isOngoing
+                              )}
+                            </Text>
+                          </View>
+                          <Text style={{ ...styles.description, marginTop: 2 }}>
+                            {project.description || ""}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+
+                {/* Achievements section if available */}
+                {achievements && achievements.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      ACHIEVEMENTS
+                    </Text>
+                    {achievements
+                      .filter((achievement) => achievement.isVisible !== false)
+                      .map((achievement, index) => (
+                        <View
+                          key={index}
+                          style={{
+                            marginBottom: 5,
+                            marginTop: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              fontSize: 10,
+                            }}
+                          >
+                            {achievement.title}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 9,
+                              marginBottom: 2,
+                            }}
+                          >
+                            {achievement.date}
+                          </Text>
+                          <Text style={{ ...styles.description }}>
+                            {achievement.description}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                )}
+              </View>
+            </View>
+          </>
+        );
+
       case "MinimalistATS":
         // Minimalist ATS layout - clean, simple with no borders
         return (
@@ -779,12 +1689,11 @@ const ReactPDFResume = ({
                       key={index}
                       style={{ ...styles.educationItem, marginBottom: 6 }}
                     >
+                      {/* Education content */}
                       <View style={styles.educationHeader}>
                         <Text style={{ ...styles.degree, fontWeight: "bold" }}>
                           {edu.degree || "Degree"}
-                          {edu.fieldOfStudy
-                            ? `, ${edu.fieldOfStudy}`
-                            : ""} | {edu.institution || "Institution"}
+                          {edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ""}
                         </Text>
                         <Text style={styles.experienceDate}>
                           {formatDateRange(
@@ -794,6 +1703,18 @@ const ReactPDFResume = ({
                           ) || edu.graduationYear}
                         </Text>
                       </View>
+                      <Text style={styles.institution}>
+                        {edu.institution || "Institution"}
+                        {edu.location ? `, ${edu.location}` : ""}
+                      </Text>
+                      {edu.gpa && (
+                        <Text style={styles.description}>GPA: {edu.gpa}</Text>
+                      )}
+                      {edu.description && (
+                        <Text style={styles.description}>
+                          {edu.description}
+                        </Text>
+                      )}
                     </View>
                   ))}
               </View>
@@ -1163,14 +2084,6 @@ const ReactPDFResume = ({
                       <Text style={styles.description}>
                         {project.description || ""}
                       </Text>
-                      {project.technologiesUsed && (
-                        <Text style={styles.description}>
-                          <Text style={{ fontWeight: "bold" }}>
-                            Technologies:{" "}
-                          </Text>
-                          {project.technologiesUsed}
-                        </Text>
-                      )}
                     </View>
                   ))}
               </View>
@@ -1343,6 +2256,7 @@ export const ResumeViewer = ({
   sectionConfig = [],
 }) => (
   <PDFViewer
+    className="resume-pdf-viewer"
     style={{
       width: "100%",
       height: "700px",
@@ -1393,7 +2307,8 @@ export const ResumeDownloadButton = ({
           sectionConfig={sectionConfig}
         />
       );
-    } catch (err) {
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
       setError("Failed to generate PDF. Please check your data.");
       return null;
     }
@@ -1435,6 +2350,118 @@ export const ResumeDownloadButton = ({
       </PDFDownloadLink>
     </>
   );
+};
+
+// PropTypes for the components
+ReactPDFResume.propTypes = {
+  formData: PropTypes.shape({
+    personal: PropTypes.shape({
+      name: PropTypes.string,
+      title: PropTypes.string,
+      email: PropTypes.string,
+      phone: PropTypes.string,
+      website: PropTypes.string,
+      linkedin: PropTypes.string,
+      github: PropTypes.string,
+      location: PropTypes.string,
+    }),
+    profileSummary: PropTypes.string,
+    experience: PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        company: PropTypes.string,
+        location: PropTypes.string,
+        startDate: PropTypes.string,
+        endDate: PropTypes.string,
+        isCurrently: PropTypes.bool,
+        description: PropTypes.string,
+      })
+    ),
+    education: PropTypes.arrayOf(
+      PropTypes.shape({
+        degree: PropTypes.string,
+        institution: PropTypes.string,
+        location: PropTypes.string,
+        startDate: PropTypes.string,
+        endDate: PropTypes.string,
+        description: PropTypes.string,
+      })
+    ),
+    skills: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        level: PropTypes.string,
+      })
+    ),
+    projects: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        description: PropTypes.string,
+        url: PropTypes.string,
+        technologies: PropTypes.string,
+      })
+    ),
+    certifications: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        issuer: PropTypes.string,
+        date: PropTypes.string,
+        url: PropTypes.string,
+      })
+    ),
+    achievements: PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        date: PropTypes.string,
+        description: PropTypes.string,
+      })
+    ),
+    languages: PropTypes.arrayOf(
+      PropTypes.shape({
+        language: PropTypes.string,
+        proficiency: PropTypes.string,
+      })
+    ),
+    customSections: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string,
+        title: PropTypes.string,
+        items: PropTypes.array,
+      })
+    ),
+  }).isRequired,
+  templateSettings: PropTypes.shape({
+    colors: PropTypes.shape({
+      primary: PropTypes.string,
+      secondary: PropTypes.string,
+      accent: PropTypes.string,
+      text: PropTypes.string,
+      background: PropTypes.string,
+    }),
+    font: PropTypes.string,
+    fontSize: PropTypes.string,
+    contentSpacing: PropTypes.string,
+    spacing: PropTypes.string,
+    sectionOrder: PropTypes.array,
+  }),
+  selectedLayout: PropTypes.string,
+  sectionConfig: PropTypes.array,
+};
+
+ResumeViewer.propTypes = {
+  formData: PropTypes.object.isRequired,
+  templateSettings: PropTypes.object,
+  selectedLayout: PropTypes.string,
+  sectionConfig: PropTypes.array,
+};
+
+ResumeDownloadButton.propTypes = {
+  formData: PropTypes.object.isRequired,
+  templateSettings: PropTypes.object,
+  selectedLayout: PropTypes.string,
+  sectionConfig: PropTypes.array,
+  style: PropTypes.object,
+  children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
 };
 
 export default ReactPDFResume;
