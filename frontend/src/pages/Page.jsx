@@ -59,6 +59,9 @@ import { saveVersion } from "../services/versionControlService";
 // Import template images
 import ModernTwoColumnImg from "../assets/modern_two_column.png";
 import ProfessionalTwoColumnImg from "../assets/professional_two_column.png";
+// Add imports for the new template images - we'll use placeholders for now
+import ATSSimpleCleanImg from "../assets/ats_simple_clean.png";
+import ATSFunctionalImg from "../assets/ats_functional.png";
 
 // Default resume data for demonstration
 const defaultResumeData = {
@@ -323,6 +326,116 @@ const Page = () => {
           ...templateSettings.colors,
           primary: "#0891b2",
           secondary: "#0e7490",
+        },
+      },
+    },
+    {
+      id: "ElegantTwoColumn",
+      name: "Elegant Two-Column",
+      description:
+        "Clean design with a colored left sidebar for contact info and skills",
+      image: "https://via.placeholder.com/300x400?text=ElegantTwoColumn",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#6366f1",
+          secondary: "#4f46e5",
+        },
+      },
+    },
+    {
+      id: "ModernSplit",
+      name: "Modern Split",
+      description:
+        "Horizontal header with thin left sidebar for skills and education",
+      image: "https://via.placeholder.com/300x400?text=ModernSplit",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#3b82f6",
+          secondary: "#2563eb",
+        },
+      },
+    },
+    {
+      id: "CreativeTwoColumn",
+      name: "Creative Two-Column",
+      description:
+        "Vibrant design with photo placeholder and visual skill indicators",
+      image: "https://via.placeholder.com/300x400?text=CreativeTwoColumn",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#ec4899",
+          secondary: "#db2777",
+        },
+      },
+    },
+    {
+      id: "ExecutiveTwoColumn",
+      name: "Executive Two-Column",
+      description:
+        "Sophisticated layout for executives with competencies section",
+      image: "https://via.placeholder.com/300x400?text=ExecutiveTwoColumn",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#0f766e",
+          secondary: "#0d9488",
+        },
+      },
+    },
+    {
+      id: "CompactTwoColumn",
+      name: "Compact Two-Column",
+      description:
+        "Space-efficient design with thin header and comprehensive sidebar",
+      image: "https://via.placeholder.com/300x400?text=CompactTwoColumn",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#8b5cf6",
+          secondary: "#7c3aed",
+        },
+      },
+    },
+    // Add the two new ATS-friendly single-column templates
+    {
+      id: "ATSSimpleClean",
+      name: "ATS Simple Clean",
+      description:
+        "ATS-optimized single-column layout with clean formatting for maximum readability by both humans and resume screening software",
+      image:
+        ATSSimpleCleanImg ||
+        "https://via.placeholder.com/300x400?text=ATSSimpleClean",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#2a3b4c",
+          secondary: "#34495e",
+        },
+      },
+    },
+    {
+      id: "ATSFunctional",
+      name: "ATS Functional",
+      description:
+        "Skills-focused single-column layout that highlights your competencies while maintaining ATS compatibility",
+      image:
+        ATSFunctionalImg ||
+        "https://via.placeholder.com/300x400?text=ATSFunctional",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#01579b",
+          secondary: "#0277bd",
         },
       },
     },
@@ -1418,7 +1531,7 @@ const Page = () => {
   const renderCreateResumeSection = () => {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left sidebar for section navigation */}
+        {/* Left sidebar for section navig  ation */}
         <div className="col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-4">
             <div className="mb-4">
