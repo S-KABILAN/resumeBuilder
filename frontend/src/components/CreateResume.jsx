@@ -804,7 +804,7 @@ const CreateResume = () => {
               <div className="bg-gray-100 flex-1 overflow-y-auto p-8 rounded-b-xl">
                 <div className="bg-white shadow-xl mx-auto rounded-lg overflow-hidden max-w-4xl">
                   <ResumePreview formData={formData} />
-                </div>
+                          </div>
               </div>
             </div>
           </motion.div>

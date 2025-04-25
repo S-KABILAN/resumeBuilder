@@ -35,12 +35,16 @@ const SortableSection = memo(({ section, onToggle }) => {
     opacity: isDragging ? 0.4 : 1,
   };
 
+  // Use both active and enabled for backward compatibility
+  const isVisible =
+    section.active !== undefined ? section.active : section.enabled;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       className={`flex items-center justify-between p-3 mb-2 border rounded-md shadow-sm cursor-move transition-all ${
-        section.enabled
+        isVisible
           ? "bg-white"
           : "bg-gray-100 opacity-80 border-dashed border-gray-300"
       }`}
@@ -66,14 +70,14 @@ const SortableSection = memo(({ section, onToggle }) => {
         <label className="flex items-center cursor-pointer">
           <input
             type="checkbox"
-            checked={section.enabled}
+            checked={isVisible}
             onChange={() => onToggle(section.id)}
             className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
             onClick={(e) => e.stopPropagation()}
           />
           <span
             className={`ml-2 font-medium ${
-              section.enabled ? "text-gray-700" : "text-gray-500"
+              isVisible ? "text-gray-700" : "text-gray-500"
             }`}
           >
             {section.label}
@@ -82,17 +86,17 @@ const SortableSection = memo(({ section, onToggle }) => {
       </div>
       <div
         className={`px-2 py-0.5 rounded text-xs ${
-          section.enabled
+          isVisible
             ? "bg-green-100 text-green-700"
             : "bg-gray-100 text-gray-500"
         }`}
         title={
-          section.enabled
+          isVisible
             ? "This section will be visible in your resume"
             : "This section will be hidden in your resume"
         }
       >
-        {section.enabled ? "Visible" : "Hidden"}
+        {isVisible ? "Visible" : "Hidden"}
       </div>
     </div>
   );
@@ -168,11 +172,17 @@ const SectionManager = ({ activeSections = [], onSectionsChange }) => {
   const handleToggle = useCallback(
     (id) => {
       setSections((prevSections) => {
-        const newSections = prevSections.map((section) =>
-          section.id === id
-            ? { ...section, enabled: !section.enabled }
-            : section
-        );
+        const newSections = prevSections.map((section) => {
+          if (section.id === id) {
+            // Update both active and enabled properties for compatibility
+            return {
+              ...section,
+              active: !section.active,
+              enabled: !section.enabled,
+            };
+          }
+          return section;
+        });
         onSectionsChange(newSections);
         return newSections;
       });

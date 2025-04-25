@@ -1,18 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { v4 as uuidv4 } from "uuid"; // to generate unique IDs
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
-import { useNavigate, useParams, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
-import html2pdf from "html2pdf.js";
-import Footer from "../components/ui/footer";
+import { useNavigate } from "react-router-dom";
+import { FaDownload } from "react-icons/fa";
+import {
+  ResumeDownloadButton,
+  ResumeViewer,
+} from "../components/ReactPDFResume";
 
-import ResumePreviewLayout1 from "../components/ResumePreviewLayout1";
-import ResumePreviewLayout2 from "../components/ResumePreviewLayout2";
-import ResumePreviewLayout3 from "../components/ResumePreviewLayout3";
-import ATSOptimizedLayout from "../components/ATSOptimizedLayout";
-import MinimalistATSLayout from "../components/MinimalistATSLayout";
-import ATSTwoColumnLayout1 from "../components/ATSTwoColumnLayout1";
-import ATSTwoColumnLayout2 from "../components/ATSTwoColumnLayout2";
 import PersonalInfoForm from "../components/forms/PersonalInfoForm";
 import EducationForm from "../components/forms/EducationForm";
 import ExperienceForm from "../components/forms/ExperienceForm";
@@ -25,6 +20,7 @@ import ResumeTemplates from "../components/ResumeTemplates";
 import VersionHistory from "../components/VersionHistory";
 import TemplateCustomizer from "../components/TemplateCustomizer";
 import AchievementsForm from "../components/forms/AchievementsForm";
+import ResumeDownload from "../components/ResumeDownload";
 
 import { PersonalInfoSubmit } from "../services/routes/personal";
 import { educationCreate } from "../services/routes/education";
@@ -32,6 +28,7 @@ import { experienceCreate } from "../services/routes/experience";
 import { skillCreate } from "../services/routes/skill";
 import { projectCreate } from "../services/routes/project";
 import { certificateCreate } from "../services/routes/certificate";
+import { achievementCreate } from "../services/routes/achievement";
 import {
   getAllResumes,
   resumeCreate,
@@ -207,23 +204,63 @@ const Page = () => {
       id: "personal",
       type: "standard",
       label: "Personal Information",
+      active: true,
       enabled: true,
     },
-    { id: "education", type: "standard", label: "Education", enabled: true },
-    { id: "experience", type: "standard", label: "Experience", enabled: true },
-    { id: "skills", type: "standard", label: "Skills", enabled: true },
-    { id: "languages", type: "standard", label: "Languages", enabled: true },
-    { id: "projects", type: "standard", label: "Projects", enabled: true },
+    {
+      id: "education",
+      type: "standard",
+      label: "Education",
+      active: true,
+      enabled: true,
+    },
+    {
+      id: "experience",
+      type: "standard",
+      label: "Experience",
+      active: true,
+      enabled: true,
+    },
+    {
+      id: "skills",
+      type: "standard",
+      label: "Skills",
+      active: true,
+      enabled: true,
+    },
+    {
+      id: "languages",
+      type: "standard",
+      label: "Languages",
+      active: true,
+      enabled: true,
+    },
+    {
+      id: "projects",
+      type: "standard",
+      label: "Projects",
+      active: true,
+      enabled: true,
+    },
     {
       id: "certifications",
       type: "standard",
       label: "Certifications",
+      active: true,
       enabled: true,
     },
     {
       id: "achievements",
       type: "standard",
       label: "Achievements",
+      active: true,
+      enabled: true,
+    },
+    {
+      id: "profile-summary",
+      type: "custom",
+      label: "Profile Summary",
+      active: true,
       enabled: true,
     },
   ];
@@ -271,6 +308,7 @@ const Page = () => {
             id: "profile-summary",
             type: "custom",
             label: "Profile Summary",
+            active: true,
             enabled: true,
           },
         ]);
@@ -549,102 +587,24 @@ const Page = () => {
 
   // Handle section config changes
   const handleSectionConfigChange = (newConfig) => {
-    // Update section config state
+    // Update section configuration and sync with template settings
     setSectionConfig(newConfig);
 
-    // Update visibility in form data based on section config
-    setFormData((prevFormData) => {
-      const updatedFormData = { ...prevFormData };
+    // Update template settings section order based on visible sections
+    const visibleSections = newConfig
+      .filter((section) => section.active || section.enabled)
+      .map((section) => section.id);
 
-      // Update education items
-      if (Array.isArray(updatedFormData.education)) {
-        const educationSectionEnabled = newConfig.find(
-          (section) => section.id === "education"
-        )?.enabled;
-        updatedFormData.education = updatedFormData.education.map((item) => ({
-          ...item,
-          isVisible: educationSectionEnabled,
-        }));
-      }
-
-      // Update experience items
-      if (Array.isArray(updatedFormData.experience)) {
-        const experienceSectionEnabled = newConfig.find(
-          (section) => section.id === "experience"
-        )?.enabled;
-        updatedFormData.experience = updatedFormData.experience.map((item) => ({
-          ...item,
-          isVisible: experienceSectionEnabled,
-        }));
-      }
-
-      // Update skills items
-      if (Array.isArray(updatedFormData.skills)) {
-        const skillsSectionEnabled = newConfig.find(
-          (section) => section.id === "skills"
-        )?.enabled;
-        updatedFormData.skills = updatedFormData.skills.map((item) => ({
-          ...item,
-          isVisible: skillsSectionEnabled,
-        }));
-      }
-
-      // Update projects items
-      if (Array.isArray(updatedFormData.projects)) {
-        const projectsSectionEnabled = newConfig.find(
-          (section) => section.id === "projects"
-        )?.enabled;
-        updatedFormData.projects = updatedFormData.projects.map((item) => ({
-          ...item,
-          isVisible: projectsSectionEnabled,
-        }));
-      }
-
-      // Update achievements items
-      if (Array.isArray(updatedFormData.achievements)) {
-        const achievementsSectionEnabled = newConfig.find(
-          (section) => section.id === "achievements"
-        )?.enabled;
-        updatedFormData.achievements = updatedFormData.achievements.map(
-          (item) => ({
-            ...item,
-            isVisible: achievementsSectionEnabled,
-          })
-        );
-      }
-
-      // Update certifications items
-      if (Array.isArray(updatedFormData.certifications)) {
-        const certificationsSectionEnabled = newConfig.find(
-          (section) => section.id === "certifications"
-        )?.enabled;
-        updatedFormData.certifications = updatedFormData.certifications.map(
-          (item) => ({
-            ...item,
-            isVisible: certificationsSectionEnabled,
-          })
-        );
-      }
-
-      // Update custom sections
-      if (Array.isArray(updatedFormData.customSections)) {
-        updatedFormData.customSections = updatedFormData.customSections.map(
-          (section) => {
-            const sectionConfig = newConfig.find(
-              (config) => config.id === section.id
-            );
-            return {
-              ...section,
-              isVisible: sectionConfig
-                ? sectionConfig.enabled
-                : section.isVisible,
-            };
-          }
-        );
-      }
-
-      return updatedFormData;
-    });
+    // Only update if the order has changed to avoid unnecessary re-renders
+    if (
+      JSON.stringify(visibleSections) !==
+      JSON.stringify(templateSettings.sectionOrder)
+    ) {
+      setTemplateSettings({
+        ...templateSettings,
+        sectionOrder: visibleSections,
+      });
+    }
   };
 
   // Add a custom section to form data
@@ -662,6 +622,7 @@ const Page = () => {
         id: newSection.id,
         type: "custom",
         label: newSection.title,
+        active: true,
         enabled: true,
       },
     ]);
@@ -1206,12 +1167,12 @@ const Page = () => {
 
   const handleSubmitAchievements = async () => {
     try {
-      const response = await achievementsCreate(formData.achievements);
+      const response = await achievementCreate(formData.achievements);
       if (response.success) {
-        console.log("Skills info submitted", formData.achievements);
+        console.log("Achievements info submitted", formData.achievements);
       }
     } catch (error) {
-      console.log(error.message || "Failed to submit skills information");
+      console.log(error.message || "Failed to submit achievements information");
     }
     // Add logic to handle skills submission
   };
@@ -1268,114 +1229,10 @@ const Page = () => {
     }
   };
 
-  const downloadResume = async () => {
-    const element = resumePreviewRef.current;
-
-    if (!element) {
-      console.error("No resume preview element found");
-      return;
-    }
-
-    try {
-      // Create a loading indicator
-      const loadingToast = document.createElement("div");
-      loadingToast.className =
-        "fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded shadow-lg z-50";
-      loadingToast.textContent = "Preparing your perfect resume...";
-      document.body.appendChild(loadingToast);
-
-      // Create a clone of the resume element
-      const clone = element.cloneNode(true);
-
-      // Apply necessary styles for proper PDF generation
-      const container = document.createElement("div");
-      container.appendChild(clone);
-      document.body.appendChild(container);
-
-      container.style.position = "absolute";
-      container.style.left = "-9999px";
-      container.style.top = "-9999px";
-
-      // Set specific styles on the clone
-      clone.style.width = "210mm";
-      clone.style.margin = "0";
-      clone.style.padding = "0"; // Remove padding to avoid gaps
-      clone.style.boxShadow = "none";
-      clone.style.borderRadius = "0";
-      clone.style.backgroundColor = "white";
-      clone.style.minHeight = "auto"; // Allow content to determine height
-      clone.style.height = "auto"; // Allow content to flow to multiple pages
-
-      // Add print-specific styles
-      const styleSheet = document.createElement("style");
-      styleSheet.textContent = `
-        * {
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-          box-sizing: border-box !important;
-        }
-      `;
-      clone.appendChild(styleSheet);
-
-      // Configure html2pdf options
-      const opt = {
-        margin: [0, 0, 0, 0], // No margins to avoid gaps [top, right, bottom, left]
-        filename: `${formData.personal.name || "resume"}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2, // Higher scale for better quality
-          useCORS: true,
-          letterRendering: true,
-          logging: false,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-          compress: true,
-          textWithLinks: true,
-          putTotalPages: true,
-        },
-        pagebreak: { mode: ["avoid-all", "css", "legacy"] },
-        // Enable text extraction/selection
-        enableLinks: true,
-        keepHtml: true, // This option helps preserve content for text selection
-      };
-
-      // Generate PDF with html2pdf
-      await html2pdf().set(opt).from(clone).save();
-
-      // Clean up
-      document.body.removeChild(container);
-      document.body.removeChild(loadingToast);
-
-      // Show success message
-      const successToast = document.createElement("div");
-      successToast.className =
-        "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50";
-      successToast.textContent = "Resume downloaded successfully!";
-      document.body.appendChild(successToast);
-
-      // Remove success message after 3 seconds
-      setTimeout(() => {
-        document.body.removeChild(successToast);
-      }, 3000);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-
-      // Show error message
-      const errorToast = document.createElement("div");
-      errorToast.className =
-        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
-      errorToast.textContent = "Error creating PDF. Please try again.";
-      document.body.appendChild(errorToast);
-
-      // Remove error message after 3 seconds
-      setTimeout(() => {
-        document.body.removeChild(errorToast);
-      }, 3000);
-    }
+  // Use ReactPDF for PDF generation
+  const downloadResume = () => {
+    // Just redirect to PDF Export page for now
+    setSelectedItem("PDF Export");
   };
 
   const renderContent = () => {
@@ -1444,7 +1301,7 @@ const Page = () => {
                 </div>
               </div>
 
-              {/* Preview Section */}
+              {/* Preview Section - Updated to use a container with proper sizing */}
               <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto relative">
                 {/* Buttons Container */}
                 <div className="flex justify-between mt-4 sticky top-0 bg-white z-10 p-2">
@@ -1454,12 +1311,41 @@ const Page = () => {
                   >
                     {editingResumeId ? "Update Resume" : "Save Resume"}
                   </button>
-                  <button
-                    onClick={downloadResume}
-                    className="bg-green-500 text-white p-2 rounded"
-                  >
-                    Download Resume
-                  </button>
+                  <div className="flex gap-2">
+                    <ResumeDownloadButton
+                      formData={formData}
+                      templateSettings={templateSettings}
+                      selectedLayout={selectedLayout}
+                      sectionConfig={sectionConfig}
+                      style={{
+                        textDecoration: "none",
+                        padding: "8px 16px",
+                        backgroundColor: "#10B981", // Green color matching tailwind's green-500
+                        color: "#fff",
+                        borderRadius: "0.25rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        fontFamily: "inherit",
+                        fontSize: "inherit",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {({ loading }) => (
+                        <>
+                          <FaDownload size={14} />
+                          {loading ? "Generating..." : "Download PDF"}
+                        </>
+                      )}
+                    </ResumeDownloadButton>
+                    <button
+                      onClick={() => setSelectedItem("PDF Export")}
+                      className="bg-green-700 text-white p-2 rounded"
+                    >
+                      Advanced Export
+                    </button>
+                  </div>
                   <button
                     onClick={() => setSelectedItem("Template Settings")}
                     className="bg-purple-500 text-white p-2 rounded"
@@ -1468,7 +1354,7 @@ const Page = () => {
                   </button>
                 </div>
 
-                {/* Scrollable Content with A4 proportions for better print fidelity */}
+                {/* Scrollable Content for PDF Preview */}
                 <div className="flex justify-center mt-4">
                   <div
                     ref={resumePreviewRef}
@@ -1539,7 +1425,6 @@ const Page = () => {
             onNavigateBack={() => setSelectedItem("Create Resume")}
           />
         );
-
       case "My Resumes":
         return (
           <div className=" mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
@@ -1687,6 +1572,40 @@ const Page = () => {
             activeSections={sectionConfig}
             onSectionsChange={handleSectionConfigChange}
           />
+        );
+      case "PDF Export":
+        return (
+          <div className="container mx-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <button
+                onClick={() => setSelectedItem("Create Resume")}
+                className="flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Back to Editor
+              </button>
+              <h2 className="text-2xl font-bold">Resume Export</h2>
+              <div className="w-32"></div>
+            </div>
+
+            <ResumeDownload
+              formData={formData}
+              templateSettings={templateSettings}
+              selectedLayout={selectedLayout}
+              sectionConfig={sectionConfig}
+            />
+          </div>
         );
       default:
         return <div>Home Page</div>;
@@ -1885,73 +1804,15 @@ const Page = () => {
   };
 
   const renderResumePreview = () => {
-    // Switch based on selected layout template
-    switch (selectedLayout) {
-      case "Layout1":
-        return (
-          <ResumePreviewLayout1
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "Layout2":
-        return (
-          <ResumePreviewLayout2
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "Layout3":
-        return (
-          <ResumePreviewLayout3
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "ATSOptimized":
-        return (
-          <ATSOptimizedLayout
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "MinimalistATS":
-        return (
-          <MinimalistATSLayout
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "ATSTwoColumnLayout1":
-        return (
-          <ATSTwoColumnLayout1
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      case "ATSTwoColumnLayout2":
-        return (
-          <ATSTwoColumnLayout2
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-      default:
-        return (
-          <ResumePreviewLayout1
-            formData={formData}
-            templateSettings={templateSettings}
-            sectionConfig={sectionConfig}
-          />
-        );
-    }
+    // Using ResumeViewer for all layouts with section config
+    return (
+      <ResumeViewer
+        formData={formData}
+        templateSettings={templateSettings}
+        selectedLayout={selectedLayout}
+        sectionConfig={sectionConfig}
+      />
+    );
   };
 
   const storedUserData = localStorage.getItem("user");
