@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaGlobeAmericas, FaCheck } from "react-icons/fa";
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormField,
+  EntryCard,
+  FormFooter,
+} from "./FormStyles";
 
 const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [newLanguage, setNewLanguage] = useState("");
   const [newProficiency, setNewProficiency] = useState("Intermediate");
 
@@ -55,11 +62,6 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     onFormChange("languages", updatedLanguages);
   };
 
-  // Get field error
-  const getFieldError = (field) => {
-    return errors[field] ? errors[field].message : "";
-  };
-
   // Proficiency levels
   const proficiencyLevels = [
     "Beginner",
@@ -71,23 +73,26 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   ];
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Languages</h2>
-
+    <FormContainer title="Languages">
       {/* Current languages list */}
       {formData.languages && formData.languages.length > 0 && (
-        <div className="bg-white p-6 rounded-lg border border-gray-200 mb-6">
-          <h3 className="text-lg font-medium mb-4">Your Languages</h3>
-          <div className="space-y-4">
+        <FormSection
+          title="Your Languages"
+          description="Manage your language proficiencies"
+        >
+          <div className="space-y-2">
             {formData.languages.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 border border-gray-200 rounded-md"
+                className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-gray-50"
               >
-                <div className="flex-1">
-                  <div className="font-medium">{item.language}</div>
-                  <div className="text-sm text-gray-500">
-                    {item.proficiency}
+                <div className="flex items-center">
+                  <FaGlobeAmericas className="text-indigo-500 mr-2" size={12} />
+                  <div>
+                    <div className="font-medium text-xs">{item.language}</div>
+                    <div className="text-xs text-gray-500">
+                      {item.proficiency}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -96,87 +101,83 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
                       type="checkbox"
                       checked={item.isVisible}
                       onChange={() => handleCheckboxChange(index)}
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className="h-3 w-3 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
                     />
-                    <span className="ml-2 text-sm text-gray-600">Show</span>
+                    <span className="ml-1 text-xs text-gray-600">Show</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => handleRemoveLanguage(index)}
-                    className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
+                    className="text-red-500 hover:text-red-700 focus:outline-none text-xs"
                     title="Remove language"
                   >
-                    <FaTrash />
+                    Remove
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </FormSection>
       )}
 
       {/* Add new language form */}
-      <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <h3 className="text-lg font-medium mb-4">Add New Language</h3>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Language name input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Language
-            </label>
-            <input
-              type="text"
+      <EntryCard title="Add New Language">
+        <FormSection>
+          <FormGrid columns={2}>
+            {/* Language name input */}
+            <FormField
+              label="Language"
+              name="newLanguage"
               value={newLanguage}
               onChange={(e) => setNewLanguage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., Spanish"
+              placeholder="e.g. Spanish, French, German"
+              icon={<FaGlobeAmericas className="text-gray-400" size={11} />}
             />
-          </div>
 
-          {/* Proficiency select */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Proficiency Level
-            </label>
-            <select
-              value={newProficiency}
-              onChange={(e) => setNewProficiency(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            {/* Proficiency select */}
+            <div className="relative">
+              <label
+                htmlFor="newProficiency"
+                className="block text-xs font-medium text-gray-700 mb-1 flex items-center"
+              >
+                Proficiency Level
+              </label>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <FaCheck className="text-gray-400" size={11} />
+                </div>
+                <select
+                  id="newProficiency"
+                  value={newProficiency}
+                  onChange={(e) => setNewProficiency(e.target.value)}
+                  className="w-full pl-7 pr-2.5 py-1.5 text-xs border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors"
+                >
+                  {proficiencyLevels.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </FormGrid>
+
+          <div className="mt-3 flex justify-end">
+            <button
+              type="button"
+              onClick={handleAddLanguage}
+              className="inline-flex items-center px-3 py-1.5 text-xs bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200 transition"
+              disabled={!newLanguage.trim()}
             >
-              {proficiencyLevels.map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
+              <FaPlus className="mr-1" size={10} />
+              Add Language
+            </button>
           </div>
-        </div>
+        </FormSection>
+      </EntryCard>
 
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={handleAddLanguage}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            disabled={!newLanguage.trim()}
-          >
-            <FaPlus className="mr-2" />
-            Add Language
-          </button>
-        </div>
-      </div>
-
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
+      <FormFooter onSubmit={onSubmit} />
+    </FormContainer>
   );
 };
 

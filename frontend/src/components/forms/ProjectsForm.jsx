@@ -1,6 +1,23 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import {
+  FaTrash,
+  FaPlus,
+  FaCode,
+  FaProjectDiagram,
+  FaCalendarAlt,
+  FaLink,
+} from "react-icons/fa";
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormField,
+  FormTextArea,
+  EntryTabs,
+  EntryCard,
+  FormFooter,
+} from "./FormStyles";
 
 const ProjectsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   // State to track which project entry is being edited
@@ -74,194 +91,144 @@ const ProjectsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     }
   };
 
+  // Helper to get field error
+  const getFieldError = (field) => {
+    return (
+      errors.projects &&
+      errors.projects[activeIndex] &&
+      errors.projects[activeIndex][field]
+    );
+  };
+
+  // Toggle visibility
+  const handleVisibilityChange = (e) => {
+    handleCheckboxChange(
+      { target: { name: "isVisible", checked: e.target.checked } },
+      activeIndex
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Projects</h2>
-
-      {/* Tab navigation for multiple project entries */}
+    <FormContainer title="Projects">
       {formData.projects && formData.projects.length > 0 && (
-        <div className="flex space-x-2 mb-4 overflow-x-auto">
-          {formData.projects.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`px-4 py-2 rounded-md ${
-                activeIndex === index
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+        <>
+          <EntryTabs
+            entries={formData.projects}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+            onAdd={handleAddProject}
+            addButtonLabel="Add Project"
+            disableRemove={formData.projects.length <= 1}
+          />
+
+          {formData.projects[activeIndex] && (
+            <EntryCard
+              title={`Project ${activeIndex + 1}`}
+              onRemove={() => handleRemoveProject(activeIndex)}
+              disableRemove={formData.projects.length <= 1}
+              isVisible={formData.projects[activeIndex].isVisible}
+              onVisibilityChange={handleVisibilityChange}
             >
-              {index + 1}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={handleAddProject}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            title="Add Project"
-          >
-            <FaPlus />
-          </button>
-        </div>
-      )}
-
-      {/* Project Form Fields */}
-      {formData.projects &&
-        formData.projects.length > 0 &&
-        formData.projects[activeIndex] && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">
-                Project #{activeIndex + 1}
-              </h3>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isVisible"
-                    checked={formData.projects[activeIndex].isVisible || false}
-                    onChange={(e) => handleCheckboxChange(e, activeIndex)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Show</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveProject(activeIndex)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
-                  title="Remove project"
-                  disabled={formData.projects.length <= 1}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Project Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Project Title
-                </label>
-                <input
-                  type="text"
+              <FormGrid>
+                <FormField
+                  label="Project Title"
                   name="title"
                   value={formData.projects[activeIndex].title || ""}
                   onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., E-commerce Website, Mobile App"
+                  error={getFieldError("title")}
+                  icon={
+                    <FaProjectDiagram size={12} className="text-gray-400" />
+                  }
                 />
-              </div>
 
-              {/* Your Role */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Role
-                </label>
-                <input
-                  type="text"
+                <FormField
+                  label="Your Role"
                   name="role"
                   value={formData.projects[activeIndex].role || ""}
                   onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Developer, Team Lead, Designer"
+                  error={getFieldError("role")}
                 />
-              </div>
+              </FormGrid>
 
-              {/* Start Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Start Date
-                </label>
-                <input
-                  type="month"
+              <FormGrid>
+                <FormField
+                  label="Start Date"
                   name="startDate"
+                  type="month"
                   value={formData.projects[activeIndex].startDate || ""}
                   onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  error={getFieldError("startDate")}
+                  icon={<FaCalendarAlt size={12} className="text-gray-400" />}
                 />
-              </div>
 
-              {/* End Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  End Date
-                </label>
-                <input
-                  type="month"
+                <FormField
+                  label="End Date"
                   name="endDate"
+                  type="month"
                   value={formData.projects[activeIndex].endDate || ""}
                   onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  error={getFieldError("endDate")}
+                  icon={<FaCalendarAlt size={12} className="text-gray-400" />}
                 />
-              </div>
+              </FormGrid>
 
-              {/* URL */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Project URL
-                </label>
-                <input
-                  type="url"
-                  name="url"
-                  value={formData.projects[activeIndex].url || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com"
-                />
-              </div>
+              <FormField
+                label="Project URL"
+                name="url"
+                type="url"
+                value={formData.projects[activeIndex].url || ""}
+                onChange={(e) => handleChange(e, activeIndex)}
+                placeholder="https://example.com"
+                error={getFieldError("url")}
+                icon={<FaLink size={12} className="text-gray-400" />}
+              />
 
-              {/* Technologies Used */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Technologies Used
-                </label>
-                <input
-                  type="text"
-                  name="technologiesUsed"
-                  value={formData.projects[activeIndex].technologiesUsed || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., React, Node.js, MongoDB"
-                />
-              </div>
+              <FormField
+                label="Technologies Used"
+                name="technologiesUsed"
+                value={formData.projects[activeIndex].technologiesUsed || ""}
+                onChange={(e) => handleChange(e, activeIndex)}
+                placeholder="e.g., React, Node.js, MongoDB"
+                error={getFieldError("technologiesUsed")}
+                icon={<FaCode size={12} className="text-gray-400" />}
+              />
 
-              {/* Description */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.projects[activeIndex].description || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Describe the project, its objectives, and your contributions"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-        )}
+              <FormTextArea
+                label="Description"
+                name="description"
+                value={formData.projects[activeIndex].description || ""}
+                onChange={(e) => handleChange(e, activeIndex)}
+                rows={3}
+                placeholder="Describe the project, its objectives, and your contributions"
+                error={getFieldError("description")}
+              />
+            </EntryCard>
+          )}
+        </>
+      )}
 
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
+      <FormFooter onSubmit={onSubmit} />
+    </FormContainer>
   );
 };
 
 ProjectsForm.propTypes = {
-  formData: PropTypes.object.isRequired,
+  formData: PropTypes.shape({
+    projects: PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string,
+        role: PropTypes.string,
+        startDate: PropTypes.string,
+        endDate: PropTypes.string,
+        description: PropTypes.string,
+        technologiesUsed: PropTypes.string,
+        url: PropTypes.string,
+        isVisible: PropTypes.bool,
+      })
+    ),
+  }).isRequired,
   onFormChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   errors: PropTypes.object,

@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import { FaPlus, FaGraduationCap, FaCalendarAlt, FaUniversity, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormField,
+  FormTextArea,
+  FormCheckbox,
+  EntryTabs,
+  EntryCard,
+  FormFooter
+} from "./FormStyles";
 
 const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   // State to track which education entry is being edited
@@ -83,7 +94,7 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     onFormChange("education", defaultEducation);
   }
 
-  // Ensure GPA values are properly formatted on mount and when activeIndex changes
+  // Ensure GPA values are properly formatted
   useEffect(() => {
     if (formData.education && formData.education.length > 0) {
       const currentEducation = formData.education[activeIndex];
@@ -106,7 +117,7 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   }, [activeIndex, formData.education]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handler for input changes
-  const handleChange = (e, index) => {
+  const handleChange = (e, index = activeIndex) => {
     const { name, value } = e.target;
     const updatedEducation = [...formData.education];
 
@@ -186,7 +197,7 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   };
 
   // Handler for checkbox changes
-  const handleCheckboxChange = (e, index) => {
+  const handleCheckboxChange = (e, index = activeIndex) => {
     const { name, checked } = e.target;
     const updatedEducation = [...formData.education];
     updatedEducation[index] = { ...updatedEducation[index], [name]: checked };
@@ -198,11 +209,14 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
         if (endDateParts.length > 0) {
           updatedEducation[index].graduationYear = endDateParts[0];
         }
-      } else if (!updatedEducation[index].graduationYear) {
-        // If no end date but also no graduation year, use current year as fallback
-        updatedEducation[index].graduationYear = new Date()
-          .getFullYear()
-          .toString();
+      }
+    }
+
+    // Special handling for isCurrentlyStudying checkbox
+    if (name === "isCurrentlyStudying") {
+      if (checked) {
+        // If checked, clear the end date
+        updatedEducation[index].endDate = "";
       }
     }
 
@@ -228,34 +242,33 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
 
     const updatedEducation = [...formData.education, newEducation];
     onFormChange("education", updatedEducation);
+
+    // Select the newly added entry
     setActiveIndex(updatedEducation.length - 1);
   };
 
-  // Format and update all GPA values in education entries
+  // Format all GPA values
   const formatAllGPAValues = () => {
     if (formData.education && formData.education.length > 0) {
-      const needsUpdate = formData.education.some(
-        (edu) => edu.gpa && !edu.gpa.includes("/") && !edu.gpa.includes("%")
-      );
+      const updatedEducation = formData.education.map((edu) => {
+        if (edu.gpa) {
+          return {
+            ...edu,
+            gpa: formatGPAValue(edu.gpa),
+          };
+        }
+        return edu;
+      });
 
-      if (needsUpdate) {
-        const updatedEducation = formData.education.map((edu) => ({
-          ...edu,
-          gpa: edu.gpa ? formatGPAValue(edu.gpa) : edu.gpa,
-        }));
+      if (
+        JSON.stringify(updatedEducation) !== JSON.stringify(formData.education)
+      ) {
         onFormChange("education", updatedEducation);
-        return true;
       }
     }
-    return false;
   };
 
-  // Ensure all GPA values are properly formatted when component mounts
-  useEffect(() => {
-    formatAllGPAValues();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Remove education entry
+  // Remove an education entry
   const handleRemoveEducation = (index) => {
     if (formData.education.length <= 1) return;
 
@@ -268,8 +281,10 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     }
   };
 
-  // Clear all fields in the current education entry
+  // Clear current entry fields
   const clearCurrentEntry = () => {
+    if (!formData.education || !formData.education[activeIndex]) return;
+
     const updatedEducation = [...formData.education];
     updatedEducation[activeIndex] = {
       institution: "",
@@ -281,512 +296,198 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
       graduationYear: "",
       gpa: "",
       description: "",
-      isVisible: true,
+      isVisible: updatedEducation[activeIndex].isVisible,
       useYearOnly: false,
       isCurrentlyStudying: false,
     };
+
     onFormChange("education", updatedEducation);
   };
 
+  // Current education entry
+  const currentEducation = formData.education?.[activeIndex] || {};
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Education</h2>
-
-      {/* Tab navigation for multiple education entries */}
+    <FormContainer title="Education">
       {formData.education && formData.education.length > 0 && (
-        <div className="flex space-x-2 mb-4 overflow-x-auto">
-          {formData.education.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`px-4 py-2 rounded-md ${
-                activeIndex === index
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={handleAddEducation}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            title="Add Education"
-          >
-            <FaPlus />
-          </button>
-        </div>
+        <EntryTabs
+          entries={formData.education}
+          activeIndex={activeIndex}
+          setActiveIndex={setActiveIndex}
+          onAdd={handleAddEducation}
+          onRemove={() => handleRemoveEducation(activeIndex)}
+          addButtonLabel="Add Education"
+          addButtonIcon={<FaPlus size={10} />}
+        />
       )}
 
-      {/* Education Form Fields */}
-      {formData.education &&
-        formData.education.length > 0 &&
-        formData.education[activeIndex] && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">
-                Education #{activeIndex + 1}
-              </h3>
-              <div className="flex items-center space-x-4">
-                <button
-                  type="button"
-                  onClick={clearCurrentEntry}
-                  className="text-blue-500 hover:text-blue-700 focus:outline-none text-sm"
-                  title="Clear fields"
-                >
-                  Clear Fields
-                </button>
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isVisible"
-                    checked={formData.education[activeIndex].isVisible || false}
-                    onChange={(e) => handleCheckboxChange(e, activeIndex)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Show</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveEducation(activeIndex)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
-                  title="Remove education"
-                  disabled={formData.education.length <= 1}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Institution - Full width on all screens */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Institution <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="institution"
-                  value={formData.education[activeIndex].institution || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className={`w-full px-3 py-2 border ${
-                    getFieldError("institution")
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                  placeholder="E.g., Harvard University"
-                  required
-                />
-                {getFieldError("institution") && (
-                  <p className="mt-1 text-xs text-red-500">
-                    {getFieldError("institution")}
-                  </p>
-                )}
-              </div>
-
-              {/* Degree and Field of Study in a grid */}
-              <div className="md:col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Degree */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Degree <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="degree"
-                      value={formData.education[activeIndex].degree || ""}
-                      onChange={(e) => handleChange(e, activeIndex)}
-                      className={`w-full px-3 py-2 border ${
-                        getFieldError("degree")
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      placeholder="E.g., Bachelor of Science, B.Tech"
-                      required
-                    />
-                    {getFieldError("degree") && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {getFieldError("degree")}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter only your degree (B.Tech, BSc, etc.)
-                    </p>
-                  </div>
-
-                  {/* Field of Study */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Field of Study <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="fieldOfStudy"
-                      value={formData.education[activeIndex].fieldOfStudy || ""}
-                      onChange={(e) => handleChange(e, activeIndex)}
-                      className={`w-full px-3 py-2 border ${
-                        getFieldError("fieldOfStudy")
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      placeholder="E.g., Computer Science, Information Technology"
-                      required
-                    />
-                    {getFieldError("fieldOfStudy") && (
-                      <p className="mt-1 text-xs text-red-500">
-                        {getFieldError("fieldOfStudy")}
-                      </p>
-                    )}
-                    <p className="mt-1 text-xs text-gray-500">
-                      Enter your specialization or major
-                    </p>
-                  </div>
-
-                  {/* Split Degree & Field Button */}
-                  {formData.education[activeIndex].degree &&
-                    formData.education[activeIndex].degree.includes(",") &&
-                    !formData.education[activeIndex].fieldOfStudy && (
-                      <div className="md:col-span-2 mt-1 mb-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const degree =
-                              formData.education[activeIndex].degree;
-                            const [degreePart, fieldPart] = degree
-                              .split(",")
-                              .map((part) => part.trim());
-
-                            if (degreePart && fieldPart) {
-                              const updatedEducation = [...formData.education];
-                              updatedEducation[activeIndex] = {
-                                ...updatedEducation[activeIndex],
-                                degree: degreePart,
-                                fieldOfStudy: fieldPart,
-                              };
-                              onFormChange("education", updatedEducation);
-                            }
-                          }}
-                          className="py-1 px-3 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 border border-blue-200"
-                        >
-                          Split Degree & Field
-                        </button>
-                      </div>
-                    )}
-
-                  {/* Common quick-selection buttons for both fields */}
-                  <div className="md:col-span-2">
-                    <div className="flex flex-col space-y-3 p-3 bg-gray-50 rounded-md">
-                      <div>
-                        <span className="text-xs font-medium text-gray-500">
-                          Common Degrees:
-                        </span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {[
-                            "B.Tech",
-                            "B.Sc",
-                            "M.Tech",
-                            "M.Sc",
-                            "Ph.D.",
-                            "MBA",
-                          ].map((degree) => (
-                            <button
-                              key={degree}
-                              type="button"
-                              onClick={() => {
-                                const syntheticEvent = {
-                                  target: {
-                                    name: "degree",
-                                    value: degree,
-                                    manuallyEntered: true,
-                                  },
-                                };
-                                handleChange(syntheticEvent, activeIndex);
-                              }}
-                              className="text-xs bg-white hover:bg-gray-200 text-gray-800 py-1 px-2 rounded border border-gray-200"
-                            >
-                              {degree}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="text-xs font-medium text-gray-500">
-                          Common Fields:
-                        </span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {[
-                            "Computer Science",
-                            "Information Technology",
-                            "Electronics",
-                            "Mechanical",
-                            "Civil",
-                            "Business",
-                          ].map((field) => (
-                            <button
-                              key={field}
-                              type="button"
-                              onClick={() => {
-                                const syntheticEvent = {
-                                  target: {
-                                    name: "fieldOfStudy",
-                                    value: field,
-                                    manuallyEntered: true,
-                                  },
-                                };
-                                handleChange(syntheticEvent, activeIndex);
-                              }}
-                              className="text-xs bg-white hover:bg-gray-200 text-gray-800 py-1 px-2 rounded border border-gray-200"
-                            >
-                              {field}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location and GPA - Side by side */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.education[activeIndex].location || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="E.g., Cambridge, MA"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  GPA/Percentage (Optional)
-                </label>
-                <div className="flex items-center">
-                  <input
-                    type="text"
-                    name="gpa"
-                    value={formData.education[activeIndex].gpa || ""}
-                    onChange={(e) => {
-                      // Just store the raw input value first without formatting
-                      const rawValue = e.target.value;
-                      const syntheticEvent = {
-                        target: {
-                          name: "gpa",
-                          value: rawValue,
-                          manuallyEntered: true,
-                        },
-                      };
-                      handleChange(syntheticEvent, activeIndex);
-                    }}
-                    onBlur={(e) => {
-                      // Apply formatting on blur only if there's a value
-                      if (e.target.value) {
-                        const formattedValue = formatGPAValue(e.target.value);
-                        const syntheticEvent = {
-                          target: {
-                            name: "gpa",
-                            value: formattedValue,
-                            manuallyEntered: true,
-                          },
-                        };
-                        handleChange(syntheticEvent, activeIndex);
-                      }
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="E.g., 3.8/4.0 or 85.5%"
-                  />
-                  {formData.education[activeIndex].gpa &&
-                    !formData.education[activeIndex].gpa.includes("/") &&
-                    !formData.education[activeIndex].gpa.includes("%") && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const formattedValue = formatGPAValue(
-                            formData.education[activeIndex].gpa
-                          );
-                          const syntheticEvent = {
-                            target: {
-                              name: "gpa",
-                              value: formattedValue,
-                              manuallyEntered: true,
-                            },
-                          };
-                          handleChange(syntheticEvent, activeIndex);
-                        }}
-                        className="ml-2 py-1 px-2 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100"
-                      >
-                        Format
-                      </button>
-                    )}
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Enter either GPA (3.8/4.0) or percentage (85.5%). It will
-                  appear as &quot;| 85.5%&quot; in your resume.
-                </p>
-              </div>
-
-              {/* Date display option */}
-              <div className="md:col-span-2">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="useYearOnly"
-                    checked={
-                      formData.education[activeIndex].useYearOnly || false
-                    }
-                    onChange={(e) => handleCheckboxChange(e, activeIndex)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">
-                    Show only year of completion (instead of specific dates)
-                  </span>
-                </label>
-              </div>
-
-              {/* Conditional date fields based on selected option */}
-              {formData.education[activeIndex].useYearOnly ? (
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Year of Completion <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="graduationYear"
-                    value={formData.education[activeIndex].graduationYear || ""}
-                    onChange={(e) => handleChange(e, activeIndex)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="E.g., 2022 or 2021-2025"
-                    required
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Enter a single year or a year range (e.g., &quot;2022&quot;
-                    or &quot;2021-2025&quot;)
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {/* Start Date and End Date - Side by side */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Start Date <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="month"
-                      name="startDate"
-                      value={formData.education[activeIndex].startDate || ""}
-                      onChange={(e) => handleChange(e, activeIndex)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="block text-sm font-medium text-gray-700">
-                        End Date <span className="text-red-500">*</span>
-                      </label>
-                      <label className="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          name="isCurrentlyStudying"
-                          checked={
-                            formData.education[activeIndex]
-                              .isCurrentlyStudying || false
-                          }
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            const updatedEducation = [...formData.education];
-
-                            updatedEducation[activeIndex] = {
-                              ...updatedEducation[activeIndex],
-                              isCurrentlyStudying: checked,
-                            };
-
-                            // If checked, set end date to current month/year
-                            if (checked) {
-                              const today = new Date();
-                              const year = today.getFullYear();
-                              const month = String(
-                                today.getMonth() + 1
-                              ).padStart(2, "0");
-                              updatedEducation[
-                                activeIndex
-                              ].endDate = `${year}-${month}`;
-                            }
-
-                            onFormChange("education", updatedEducation);
-                          }}
-                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-xs text-gray-600">
-                          Currently Studying
-                        </span>
-                      </label>
-                    </div>
-                    <input
-                      type="month"
-                      name="endDate"
-                      value={formData.education[activeIndex].endDate || ""}
-                      onChange={(e) => handleChange(e, activeIndex)}
-                      className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        formData.education[activeIndex].isCurrentlyStudying
-                          ? "bg-gray-100"
-                          : ""
-                      }`}
-                      required
-                      readOnly={
-                        formData.education[activeIndex].isCurrentlyStudying
-                      }
-                    />
-                    {formData.education[activeIndex].isCurrentlyStudying && (
-                      <p className="mt-1 text-xs text-gray-500">
-                        End date set to current date for &quot;Currently
-                        Studying&quot;
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Description - Full width */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={formData.education[activeIndex].description || ""}
-                onChange={(e) => handleChange(e, activeIndex)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Describe your educational experience, achievements, relevant coursework, etc."
-              ></textarea>
-            </div>
-          </div>
-        )}
-
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      {formData.education && formData.education.length > 0 && (
+        <EntryCard
+          title={`Education #${activeIndex + 1}`}
+          onRemove={() => handleRemoveEducation(activeIndex)}
+          disableRemove={formData.education.length <= 1}
+          isVisible={currentEducation.isVisible}
+          onVisibilityChange={(e) =>
+            handleCheckboxChange({
+              target: { name: "isVisible", checked: e.target.checked },
+            })
+          }
         >
-          Save Changes
-        </button>
-      </div>
-    </div>
+          <FormSection>
+            <FormGrid columns={2}>
+              {/* Institution/School */}
+              <FormField
+                label="Institution/School"
+                name="institution"
+                value={currentEducation.institution || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. Harvard University"
+                error={getFieldError("institution")}
+                icon={<FaUniversity className="text-gray-400" size={11} />}
+              />
+
+              {/* Location */}
+              <FormField
+                label="Location"
+                name="location"
+                value={currentEducation.location || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. Cambridge, MA"
+                error={getFieldError("location")}
+                icon={<FaMapMarkerAlt className="text-gray-400" size={11} />}
+              />
+            </FormGrid>
+
+            <FormGrid columns={2}>
+              {/* Degree */}
+              <FormField
+                label="Degree"
+                name="degree"
+                value={currentEducation.degree || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. Bachelor of Science"
+                error={getFieldError("degree")}
+                icon={<FaGraduationCap className="text-gray-400" size={11} />}
+              />
+
+              {/* Field of Study */}
+              <FormField
+                label="Field of Study"
+                name="fieldOfStudy"
+                value={currentEducation.fieldOfStudy || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. Computer Science"
+                error={getFieldError("fieldOfStudy")}
+              />
+            </FormGrid>
+
+            {/* Date Inputs */}
+            <FormSection>
+              <div className="flex items-center mb-1">
+                <FormCheckbox
+                  label="Currently studying here"
+                  name="isCurrentlyStudying"
+                  checked={currentEducation.isCurrentlyStudying || false}
+                  onChange={(e) => handleCheckboxChange(e)}
+                />
+              </div>
+
+              <FormGrid columns={currentEducation.useYearOnly ? 1 : 2}>
+                {!currentEducation.useYearOnly ? (
+                  <>
+                    {/* Start Date - month and year */}
+                    <FormField
+                      label="Start Date"
+                      name="startDate"
+                      type="month"
+                      value={currentEducation.startDate || ""}
+                      onChange={(e) => handleChange(e)}
+                      error={getFieldError("startDate")}
+                      icon={
+                        <FaCalendarAlt className="text-gray-400" size={11} />
+                      }
+                    />
+
+                    {/* End Date - month and year, unless currently studying */}
+                    {!currentEducation.isCurrentlyStudying && (
+                      <FormField
+                        label="End Date"
+                        name="endDate"
+                        type="month"
+                        value={currentEducation.endDate || ""}
+                        onChange={(e) => handleChange(e)}
+                        error={getFieldError("endDate")}
+                        icon={
+                          <FaCalendarAlt className="text-gray-400" size={11} />
+                        }
+                      />
+                    )}
+                  </>
+                ) : (
+                  <FormField
+                    label="Graduation Year"
+                    name="graduationYear"
+                    value={currentEducation.graduationYear || ""}
+                    onChange={(e) => handleChange(e)}
+                    placeholder="e.g. 2022"
+                    error={getFieldError("graduationYear")}
+                    icon={<FaCalendarAlt className="text-gray-400" size={11} />}
+                  />
+                )}
+              </FormGrid>
+
+              <div className="mt-1">
+                <FormCheckbox
+                  label="Use year only (no months)"
+                  name="useYearOnly"
+                  checked={currentEducation.useYearOnly || false}
+                  onChange={(e) => handleCheckboxChange(e)}
+                  helpText="E.g. '2018 - 2022' instead of 'Sep 2018 - May 2022'"
+                />
+              </div>
+            </FormSection>
+
+            <FormGrid columns={1}>
+              {/* GPA */}
+              <FormField
+                label="GPA or Grade"
+                name="gpa"
+                value={currentEducation.gpa || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. 3.8/4.0 or 85%"
+                error={getFieldError("gpa")}
+                helpText="Format will be auto-corrected on save"
+              />
+            </FormGrid>
+
+            {/* Description */}
+            <FormTextArea
+              label="Additional Information"
+              name="description"
+              value={currentEducation.description || ""}
+              onChange={(e) => handleChange(e)}
+              placeholder="Honors, activities, relevant coursework..."
+              rows={3}
+              error={getFieldError("description")}
+              helpText="Include details such as honors, scholarships, relevant coursework, etc."
+            />
+          </FormSection>
+        </EntryCard>
+      )}
+
+      <FormFooter
+        onSubmit={onSubmit}
+        secondaryAction={
+          <button
+            type="button"
+            onClick={clearCurrentEntry}
+            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition"
+          >
+            Clear Entry
+          </button>
+        }
+      />
+    </FormContainer>
   );
 };
 

@@ -1,6 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import { FaPlus, FaTrophy, FaBuilding, FaCalendarAlt } from "react-icons/fa";
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormField,
+  FormTextArea,
+  EntryTabs,
+  EntryCard,
+  FormFooter,
+} from "./FormStyles";
 
 const AchievementsForm = ({
   formData,
@@ -10,6 +20,12 @@ const AchievementsForm = ({
 }) => {
   // State to track which achievement entry is being edited
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Get error for a specific field
+  const getFieldError = (field, index = activeIndex) => {
+    const errorKey = `achievements[${index}].${field}`;
+    return errors[errorKey] || "";
+  };
 
   // Initialize with default entries if none exist
   if (!formData.achievements || formData.achievements.length === 0) {
@@ -27,7 +43,7 @@ const AchievementsForm = ({
   }
 
   // Handler for input changes
-  const handleChange = (e, index) => {
+  const handleChange = (e, index = activeIndex) => {
     const { name, value } = e.target;
     const updatedAchievements = [...formData.achievements];
     updatedAchievements[index] = {
@@ -39,7 +55,7 @@ const AchievementsForm = ({
   };
 
   // Handler for checkbox changes
-  const handleCheckboxChange = (e, index) => {
+  const handleCheckboxChange = (e, index = activeIndex) => {
     const { name, checked } = e.target;
     const updatedAchievements = [...formData.achievements];
     updatedAchievements[index] = {
@@ -80,153 +96,88 @@ const AchievementsForm = ({
     }
   };
 
+  // Current achievement entry
+  const currentAchievement = formData.achievements?.[activeIndex] || {};
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Achievements & Awards
-      </h2>
-
-      {/* Tab navigation for multiple achievement entries */}
+    <FormContainer title="Achievements & Awards">
       {formData.achievements && formData.achievements.length > 0 && (
-        <div className="flex space-x-2 mb-4 overflow-x-auto">
-          {formData.achievements.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`px-4 py-2 rounded-md ${
-                activeIndex === index
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={handleAddAchievement}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            title="Add Achievement"
-          >
-            <FaPlus />
-          </button>
-        </div>
+        <EntryTabs
+          entries={formData.achievements}
+          activeIndex={activeIndex}
+          setActiveIndex={setActiveIndex}
+          onAdd={handleAddAchievement}
+          onRemove={() => handleRemoveAchievement(activeIndex)}
+          addButtonLabel="Add Achievement"
+          addButtonIcon={<FaPlus size={10} />}
+        />
       )}
 
-      {/* Achievement Form Fields */}
-      {formData.achievements &&
-        formData.achievements.length > 0 &&
-        formData.achievements[activeIndex] && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">
-                Achievement #{activeIndex + 1}
-              </h3>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isVisible"
-                    checked={
-                      formData.achievements[activeIndex].isVisible || false
-                    }
-                    onChange={(e) => handleCheckboxChange(e, activeIndex)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Show</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAchievement(activeIndex)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
-                  title="Remove achievement"
-                  disabled={formData.achievements.length <= 1}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
+      {formData.achievements && formData.achievements.length > 0 && (
+        <EntryCard
+          title={`Achievement #${activeIndex + 1}`}
+          onRemove={() => handleRemoveAchievement(activeIndex)}
+          disableRemove={formData.achievements.length <= 1}
+          isVisible={currentAchievement.isVisible}
+          onVisibilityChange={(e) =>
+            handleCheckboxChange({
+              target: { name: "isVisible", checked: e.target.checked },
+            })
+          }
+        >
+          <FormSection>
+            {/* Title */}
+            <FormField
+              label="Achievement Title"
+              name="title"
+              value={currentAchievement.title || ""}
+              onChange={(e) => handleChange(e)}
+              placeholder="e.g. Employee of the Month, Excellence Award"
+              error={getFieldError("title")}
+              icon={<FaTrophy className="text-gray-400" size={11} />}
+            />
 
-            <div className="grid grid-cols-1 gap-4">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Achievement Title
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.achievements[activeIndex].title || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Employee of the Month, Excellence Award"
-                />
-              </div>
-
+            <FormGrid columns={2}>
               {/* Issuer */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issuing Organization
-                </label>
-                <input
-                  type="text"
-                  name="issuer"
-                  value={formData.achievements[activeIndex].issuer || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., ABC Company, IEEE"
-                />
-              </div>
+              <FormField
+                label="Issuing Organization"
+                name="issuer"
+                value={currentAchievement.issuer || ""}
+                onChange={(e) => handleChange(e)}
+                placeholder="e.g. ABC Company, IEEE"
+                error={getFieldError("issuer")}
+                icon={<FaBuilding className="text-gray-400" size={11} />}
+              />
 
               {/* Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Received
-                </label>
-                <input
-                  type="month"
-                  name="date"
-                  value={formData.achievements[activeIndex].date || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <FormField
+                label="Date Received"
+                name="date"
+                type="month"
+                value={currentAchievement.date || ""}
+                onChange={(e) => handleChange(e)}
+                error={getFieldError("date")}
+                icon={<FaCalendarAlt className="text-gray-400" size={11} />}
+              />
+            </FormGrid>
 
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.achievements[activeIndex].description || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Describe what this achievement was for and its significance"
-                ></textarea>
-                <p className="mt-1 text-xs text-gray-500">
-                  Note: Only the description will be displayed in the resume
-                  templates
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+            {/* Description */}
+            <FormTextArea
+              label="Description"
+              name="description"
+              value={currentAchievement.description || ""}
+              onChange={(e) => handleChange(e)}
+              placeholder="Brief description of the achievement and its significance..."
+              rows={2}
+              error={getFieldError("description")}
+              helpText="Describe what you achieved and why it was significant"
+            />
+          </FormSection>
+        </EntryCard>
+      )}
 
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
+      <FormFooter onSubmit={onSubmit} />
+    </FormContainer>
   );
 };
 

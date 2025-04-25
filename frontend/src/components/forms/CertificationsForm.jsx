@@ -5,42 +5,19 @@ import {
   FaBuilding,
   FaCalendarAlt,
   FaIdCard,
-  FaTrash,
+  FaLink,
   FaPlus,
-  FaGripLines,
 } from "react-icons/fa";
-
-const InputField = ({
-  icon: Icon,
-  label,
-  type,
-  value,
-  onChange,
-  placeholder,
-  isRequired = false,
-  error = null,
-}) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      {label} {isRequired && <span className="text-red-500">*</span>}
-    </label>
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Icon className="h-5 w-5 text-gray-400" />
-      </div>
-      <input
-        type={type}
-        value={value || ""}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`block w-full pl-10 pr-3 py-2 border ${
-          error ? "border-red-500" : "border-gray-300"
-        } rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out`}
-      />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
-    </div>
-  </div>
-);
+import {
+  FormContainer,
+  FormSection,
+  FormGrid,
+  FormField,
+  FormTextArea,
+  EntryTabs,
+  EntryCard,
+  FormFooter,
+} from "./FormStyles";
 
 const CertificationsForm = ({
   formData,
@@ -58,6 +35,7 @@ const CertificationsForm = ({
         issuingOrganization: "Amazon Web Services",
         dateObtained: "2023-05",
         certificationId: "AWS-12345",
+        url: "https://aws.amazon.com/certification/",
         isVisible: true,
       },
     ];
@@ -78,11 +56,11 @@ const CertificationsForm = ({
   };
 
   // Handler for checkbox changes
-  const handleCheckboxChange = () => {
+  const handleVisibilityChange = (e) => {
     const updatedCertifications = [...formData.certifications];
     updatedCertifications[activeIndex] = {
       ...updatedCertifications[activeIndex],
-      isVisible: !updatedCertifications[activeIndex].isVisible,
+      isVisible: e.target.checked,
     };
 
     onFormChange("certifications", updatedCertifications);
@@ -95,6 +73,7 @@ const CertificationsForm = ({
       issuingOrganization: "",
       dateObtained: "",
       certificationId: "",
+      url: "",
       isVisible: true,
     };
 
@@ -107,11 +86,11 @@ const CertificationsForm = ({
   };
 
   // Remove certification
-  const handleRemoveCertification = (index) => {
+  const handleRemoveCertification = () => {
     if (formData.certifications.length <= 1) return;
 
     const updatedCertifications = formData.certifications.filter(
-      (_, i) => i !== index
+      (_, i) => i !== activeIndex
     );
     onFormChange("certifications", updatedCertifications);
 
@@ -123,174 +102,132 @@ const CertificationsForm = ({
 
   // Get field error
   const getFieldError = (field) => {
-    return errors[field] ? errors[field].message : "";
+    return (
+      errors.certifications &&
+      errors.certifications[activeIndex] &&
+      errors.certifications[activeIndex][field]
+    );
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        Certifications
-      </h2>
-
-      {/* Tab navigation for multiple certification entries */}
+    <FormContainer title="Certifications">
       {formData.certifications && formData.certifications.length > 0 && (
-        <div className="flex space-x-2 mb-4 overflow-x-auto">
-          {formData.certifications.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`px-4 py-2 rounded-md ${
-                activeIndex === index
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
+        <>
+          <EntryTabs
+            entries={formData.certifications}
+            activeIndex={activeIndex}
+            setActiveIndex={setActiveIndex}
+            onAdd={handleAddCertification}
+            addButtonLabel="Add Certification"
+            disableRemove={formData.certifications.length <= 1}
+          />
+
+          {formData.certifications[activeIndex] && (
+            <EntryCard
+              title={`Certification ${activeIndex + 1}`}
+              onRemove={handleRemoveCertification}
+              disableRemove={formData.certifications.length <= 1}
+              isVisible={formData.certifications[activeIndex].isVisible}
+              onVisibilityChange={handleVisibilityChange}
             >
-              {index + 1}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={handleAddCertification}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            title="Add Certification"
-          >
-            <FaPlus />
-          </button>
-        </div>
-      )}
-
-      {/* Certification Form Fields */}
-      {formData.certifications &&
-        formData.certifications.length > 0 &&
-        formData.certifications[activeIndex] && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">
-                Certification #{activeIndex + 1}
-              </h3>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={
-                      formData.certifications[activeIndex].isVisible || false
-                    }
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Show</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveCertification(activeIndex)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
-                  title="Remove certification"
-                  disabled={formData.certifications.length <= 1}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              {/* Certification Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Certification Name
-                </label>
-                <input
-                  type="text"
+              <FormGrid>
+                <FormField
+                  label="Certification Name"
                   name="certificationName"
                   value={
                     formData.certifications[activeIndex].certificationName || ""
                   }
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 border ${
-                    getFieldError("certificationName")
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                   placeholder="e.g., AWS Certified Solutions Architect"
+                  error={getFieldError("certificationName")}
+                  icon={<FaCertificate size={12} className="text-gray-400" />}
+                  required
                 />
-                {getFieldError("certificationName") && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {getFieldError("certificationName")}
-                  </p>
-                )}
-              </div>
 
-              {/* Issuing Organization */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Issuing Organization
-                </label>
-                <input
-                  type="text"
+                <FormField
+                  label="Issuing Organization"
                   name="issuingOrganization"
                   value={
                     formData.certifications[activeIndex].issuingOrganization ||
                     ""
                   }
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Amazon Web Services"
+                  error={getFieldError("issuingOrganization")}
+                  icon={<FaBuilding size={12} className="text-gray-400" />}
                 />
-              </div>
+              </FormGrid>
 
-              {/* Issue Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date Obtained
-                </label>
-                <input
-                  type="month"
+              <FormGrid>
+                <FormField
+                  label="Date Obtained"
                   name="dateObtained"
+                  type="month"
                   value={
                     formData.certifications[activeIndex].dateObtained || ""
                   }
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  error={getFieldError("dateObtained")}
+                  icon={<FaCalendarAlt size={12} className="text-gray-400" />}
                 />
-              </div>
 
-              {/* Certification ID */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Certification ID
-                </label>
-                <input
-                  type="text"
+                <FormField
+                  label="Certification ID"
                   name="certificationId"
                   value={
                     formData.certifications[activeIndex].certificationId || ""
                   }
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., AWS-12345"
+                  error={getFieldError("certificationId")}
+                  icon={<FaIdCard size={12} className="text-gray-400" />}
                 />
-              </div>
-            </div>
-          </div>
-        )}
+              </FormGrid>
 
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-      </div>
-    </div>
+              <FormField
+                label="URL"
+                name="url"
+                type="url"
+                value={formData.certifications[activeIndex].url || ""}
+                onChange={handleChange}
+                placeholder="https://example.com/certification"
+                error={getFieldError("url")}
+                icon={<FaLink size={12} className="text-gray-400" />}
+              />
+
+              <FormTextArea
+                label="Description (optional)"
+                name="description"
+                value={formData.certifications[activeIndex].description || ""}
+                onChange={handleChange}
+                rows={2}
+                placeholder="Describe what this certification covers and why it's relevant"
+                error={getFieldError("description")}
+              />
+            </EntryCard>
+          )}
+        </>
+      )}
+
+      <FormFooter onSubmit={onSubmit} />
+    </FormContainer>
   );
 };
 
 CertificationsForm.propTypes = {
-  formData: PropTypes.object.isRequired,
+  formData: PropTypes.shape({
+    certifications: PropTypes.arrayOf(
+      PropTypes.shape({
+        certificationName: PropTypes.string,
+        issuingOrganization: PropTypes.string,
+        dateObtained: PropTypes.string,
+        certificationId: PropTypes.string,
+        url: PropTypes.string,
+        description: PropTypes.string,
+        isVisible: PropTypes.bool,
+      })
+    ),
+  }).isRequired,
   onFormChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   errors: PropTypes.object,

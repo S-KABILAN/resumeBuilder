@@ -1,10 +1,24 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
-import { FaTrash, FaPlus } from "react-icons/fa";
+import { FaPlus, FaCode, FaTags } from "react-icons/fa";
+import {
+  FormContainer,
+  FormSection,
+  FormField,
+  EntryTabs,
+  EntryCard,
+  FormFooter,
+} from "./FormStyles";
 
 const SkillsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   // State to track which skill entry is being edited
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Get error for a specific field
+  const getFieldError = (field, index = activeIndex) => {
+    const errorKey = `skills[${index}].${field}`;
+    return errors[errorKey] || "";
+  };
 
   // Initialize with default entries if none exist
   if (!formData.skills || formData.skills.length === 0) {
@@ -40,7 +54,7 @@ const SkillsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   }
 
   // Handler for input changes
-  const handleChange = (e, index) => {
+  const handleChange = (e, index = activeIndex) => {
     const { name, value } = e.target;
     const updatedSkills = [...formData.skills];
     updatedSkills[index] = { ...updatedSkills[index], [name]: value };
@@ -49,7 +63,7 @@ const SkillsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   };
 
   // Handler for checkbox changes
-  const handleCheckboxChange = (e, index) => {
+  const handleCheckboxChange = (e, index = activeIndex) => {
     const { name, checked } = e.target;
     const updatedSkills = [...formData.skills];
     updatedSkills[index] = { ...updatedSkills[index], [name]: checked };
@@ -83,118 +97,65 @@ const SkillsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     }
   };
 
+  // Current skill entry
+  const currentSkill = formData.skills?.[activeIndex] || {};
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Skills</h2>
-
-      {/* Tab navigation for multiple skill entries */}
+    <FormContainer title="Skills">
       {formData.skills && formData.skills.length > 0 && (
-        <div className="flex space-x-2 mb-4 overflow-x-auto">
-          {formData.skills.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setActiveIndex(index)}
-              className={`px-4 py-2 rounded-md ${
-                activeIndex === index
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-
-          <button
-            type="button"
-            onClick={handleAddSkill}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            title="Add Skill"
-          >
-            <FaPlus />
-          </button>
-        </div>
+        <EntryTabs
+          entries={formData.skills}
+          activeIndex={activeIndex}
+          setActiveIndex={setActiveIndex}
+          onAdd={handleAddSkill}
+          onRemove={() => handleRemoveSkill(activeIndex)}
+          addButtonLabel="Add Skill"
+          addButtonIcon={<FaPlus size={10} />}
+        />
       )}
 
-      {/* Skill Form Fields */}
-      {formData.skills &&
-        formData.skills.length > 0 &&
-        formData.skills[activeIndex] && (
-          <div className="bg-white p-6 rounded-lg border border-gray-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium">Skill #{activeIndex + 1}</h3>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    name="isVisible"
-                    checked={formData.skills[activeIndex].isVisible || false}
-                    onChange={(e) => handleCheckboxChange(e, activeIndex)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Show</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSkill(activeIndex)}
-                  className="text-red-500 hover:text-red-700 focus:outline-none transition-colors"
-                  title="Remove skill"
-                  disabled={formData.skills.length <= 1}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              {/* Skill Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Skill Category
-                </label>
-                <input
-                  type="text"
-                  name="skillType"
-                  value={formData.skills[activeIndex].skillType || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Programming Languages, Tools, Soft Skills"
-                />
-              </div>
-
-              {/* Skill Name/Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Skills
-                </label>
-                <input
-                  type="text"
-                  name="skillName"
-                  value={formData.skills[activeIndex].skillName || ""}
-                  onChange={(e) => handleChange(e, activeIndex)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., JavaScript, React, Node.js"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Tip: Separate multiple skills with commas for better
-                  formatting
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-      {/* Submit button */}
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      {formData.skills && formData.skills.length > 0 && (
+        <EntryCard
+          title={`Skill Category #${activeIndex + 1}`}
+          onRemove={() => handleRemoveSkill(activeIndex)}
+          disableRemove={formData.skills.length <= 1}
+          isVisible={currentSkill.isVisible}
+          onVisibilityChange={(e) =>
+            handleCheckboxChange({
+              target: { name: "isVisible", checked: e.target.checked },
+            })
+          }
         >
-          Save Changes
-        </button>
-      </div>
-    </div>
+          <FormSection>
+            {/* Skill Type */}
+            <FormField
+              label="Skill Category"
+              name="skillType"
+              value={currentSkill.skillType || ""}
+              onChange={(e) => handleChange(e)}
+              placeholder="e.g. Programming Languages, Tools, Soft Skills"
+              error={getFieldError("skillType")}
+              icon={<FaTags className="text-gray-400" size={11} />}
+              helpText="Group your skills into categories for better organization"
+            />
+
+            {/* Skill Name/Description */}
+            <FormField
+              label="Skills"
+              name="skillName"
+              value={currentSkill.skillName || ""}
+              onChange={(e) => handleChange(e)}
+              placeholder="e.g. JavaScript, React, Node.js"
+              error={getFieldError("skillName")}
+              icon={<FaCode className="text-gray-400" size={11} />}
+              helpText="Separate multiple skills with commas for better formatting"
+            />
+          </FormSection>
+        </EntryCard>
+      )}
+
+      <FormFooter onSubmit={onSubmit} />
+    </FormContainer>
   );
 };
 

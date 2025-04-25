@@ -1530,126 +1530,337 @@ const Page = () => {
   // For the Create Resume section
   const renderCreateResumeSection = () => {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left sidebar for section navig  ation */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Left sidebar for section navigation - IMPROVED UI */}
         <div className="col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-4">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
+            <div className="mb-3 border-b border-gray-100 pb-3">
+              <h2 className="text-base font-semibold text-gray-800 mb-1 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1.5 text-indigo-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                    clipRule="evenodd"
+                  />
+                </svg>
                 Resume Sections
               </h2>
-              <p className="text-gray-600 text-sm mb-3">
-                Click on a section to edit your resume information
+              <p className="text-xs text-gray-500">
+                Build your resume section by section
               </p>
             </div>
-            <div className="space-y-2">
+
+            {/* Section Progress Bar */}
+            <div className="mb-3">
+              <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
+                <span>Completion</span>
+                <span className="font-medium">
+                  {Math.round(
+                    (Object.keys(formData.personal).filter(
+                      (key) => formData.personal[key]
+                    ).length /
+                      7) *
+                      100
+                  )}
+                  %
+                </span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                <div
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-1.5 rounded-full"
+                  style={{
+                    width: `${Math.round(
+                      (Object.keys(formData.personal).filter(
+                        (key) => formData.personal[key]
+                      ).length /
+                        7) *
+                        100
+                    )}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleSectionChange(item.id)}
                   className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200
+                    w-full flex items-center px-2.5 py-2 rounded-md text-left transition-all duration-200
                     ${
                       activeSection === item.id
-                        ? "bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600"
+                        ? "bg-indigo-50 text-indigo-700"
                         : "text-gray-700 hover:bg-gray-50"
                     }
                   `}
                 >
-                  <item.icon
-                    className={
+                  <div
+                    className={`
+                    flex items-center justify-center w-6 h-6 rounded-full mr-2
+                    ${
                       activeSection === item.id
-                        ? "text-indigo-600"
-                        : "text-gray-500"
+                        ? "bg-indigo-100"
+                        : "bg-gray-100"
                     }
-                    size={18}
-                  />
-                  <span className="font-medium">{item.label}</span>
+                  `}
+                  >
+                    <item.icon
+                      className={
+                        activeSection === item.id
+                          ? "text-indigo-600"
+                          : "text-gray-500"
+                      }
+                      size={13}
+                    />
+                  </div>
+                  <div>
+                    <span className="font-medium text-xs">{item.label}</span>
+                    {item.id === "PersonalInfo" && formData.personal && (
+                      <div className="text-[10px] mt-0.5">
+                        {formData.personal.name ? (
+                          <span className="text-green-600">Complete</span>
+                        ) : (
+                          <span className="text-orange-500">Required</span>
+                        )}
+                      </div>
+                    )}
+                    {item.id === "Education" && (
+                      <div className="text-[10px] mt-0.5">
+                        {formData.education && formData.education.length > 0 ? (
+                          <span className="text-green-600">
+                            {formData.education.length} added
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">Recommended</span>
+                        )}
+                      </div>
+                    )}
+                    {item.id === "Experience" && (
+                      <div className="text-[10px] mt-0.5">
+                        {formData.experience &&
+                        formData.experience.length > 0 ? (
+                          <span className="text-green-600">
+                            {formData.experience.length} added
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">Recommended</span>
+                        )}
+                      </div>
+                    )}
+                    {item.id === "Skills" && (
+                      <div className="text-[10px] mt-0.5">
+                        {formData.skills && formData.skills.length > 0 ? (
+                          <span className="text-green-600">
+                            {formData.skills.length} added
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">Recommended</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
 
             {/* Add Manage Sections button */}
-            <div className="mt-6 pt-4 border-t border-gray-100 space-y-3">
+            <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
               <button
                 onClick={() => setActiveSection("SectionManager")}
-                className="w-full bg-indigo-50 text-indigo-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-indigo-100"
+                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaCogs className="mr-2" size={14} /> Manage Sections
+                <FaCogs className="mr-1.5 text-gray-500" size={12} /> Manage
+                Sections
               </button>
 
               <button
                 onClick={() => setActiveSection("CustomSections")}
-                className="w-full bg-purple-50 text-purple-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-purple-100"
+                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaPlus className="mr-2" size={14} /> Add Custom Section
+                <FaPlus className="mr-1.5 text-gray-500" size={12} /> Add Custom
+                Section
               </button>
 
               <button
                 onClick={() => setSelectedItem("Template Settings")}
-                className="w-full bg-blue-50 text-blue-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-blue-100"
+                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaPalette className="mr-2" size={14} /> Customize Template
+                <FaPalette className="mr-1.5 text-gray-500" size={12} />{" "}
+                Customize Template
               </button>
 
               <button
                 onClick={saveResume}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center mt-3"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center mt-2 shadow-sm"
               >
-                <FaSave className="mr-2" /> Save Resume
+                <FaSave className="mr-1.5" size={12} /> Save Resume
               </button>
             </div>
           </div>
         </div>
 
-        {/* Middle section with form */}
+        {/* Middle section with form - IMPROVED UI */}
         <div className="col-span-1 lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <div className="mb-6 pb-4 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-800">
-                {navItems.find((item) => item.id === activeSection)?.label ||
-                  (activeSection === "SectionManager"
-                    ? "Manage Sections"
-                    : activeSection === "CustomSections"
-                    ? "Custom Sections"
-                    : "Resume Details")}
-              </h2>
-              <p className="text-gray-600 text-sm mt-1">
-                {activeSection === "SectionManager"
-                  ? "Configure which sections appear in your resume"
-                  : activeSection === "CustomSections"
-                  ? "Add and edit custom sections"
-                  : "Fill in the details for this section"}
-              </p>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+            <div className="border-b border-gray-100">
+              <div className="px-4 py-3 flex items-center">
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold text-gray-800">
+                    {navItems.find((item) => item.id === activeSection)
+                      ?.label ||
+                      (activeSection === "SectionManager"
+                        ? "Manage Sections"
+                        : activeSection === "CustomSections"
+                        ? "Custom Sections"
+                        : "Resume Details")}
+                  </h2>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {activeSection === "PersonalInfo"
+                      ? "Add your personal and contact information"
+                      : activeSection === "Education"
+                      ? "Add your educational background and qualifications"
+                      : activeSection === "Experience"
+                      ? "Add your work experience and internships"
+                      : activeSection === "Skills"
+                      ? "Add your key skills and competencies"
+                      : activeSection === "Languages"
+                      ? "Add languages you know and proficiency levels"
+                      : activeSection === "Projects"
+                      ? "Add notable projects you've worked on"
+                      : activeSection === "SectionManager"
+                      ? "Configure which sections appear in your resume"
+                      : activeSection === "CustomSections"
+                      ? "Add and edit custom sections"
+                      : "Fill in the details for this section"}
+                  </p>
+                </div>
+                {activeSection === "PersonalInfo" && (
+                  <div className="bg-indigo-50 rounded-full p-1.5 text-indigo-700">
+                    <FaUser size={16} />
+                  </div>
+                )}
+                {activeSection === "Education" && (
+                  <div className="bg-blue-50 rounded-full p-1.5 text-blue-700">
+                    <FaGraduationCap size={16} />
+                  </div>
+                )}
+                {activeSection === "Experience" && (
+                  <div className="bg-purple-50 rounded-full p-1.5 text-purple-700">
+                    <FaBriefcase size={16} />
+                  </div>
+                )}
+                {activeSection === "Skills" && (
+                  <div className="bg-green-50 rounded-full p-1.5 text-green-700">
+                    <FaCogs size={16} />
+                  </div>
+                )}
+              </div>
             </div>
 
-            {renderResumeSectionForm(activeSection)}
+            <div className="p-4">{renderResumeSectionForm(activeSection)}</div>
           </div>
         </div>
 
-        {/* Right section with preview */}
+        {/* Right section with preview - IMPROVED UI */}
         <div className="col-span-1">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-4">
-            <div className="mb-4 pb-3 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Resume Preview
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
+            <div className="mb-3 pb-3 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="text-base font-semibold text-gray-800 flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-1.5 text-indigo-600"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                </svg>
+                Preview
               </h2>
-              <div className="flex space-x-2">
+              <div className="flex space-x-1.5">
                 <button
                   onClick={() => setSelectedItem("Resume Templates")}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200 flex items-center"
+                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-1.5 px-2 rounded text-xs transition-colors duration-200 flex items-center"
                 >
-                  <FaThLarge className="mr-1" size={14} /> Templates
+                  <FaThLarge className="mr-1" size={10} />
+                  <span className="hidden sm:inline">Templates</span>
                 </button>
                 <button
                   onClick={downloadResume}
-                  className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200 flex items-center"
+                  className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-1.5 px-2 rounded text-xs transition-colors duration-200 flex items-center"
                 >
-                  <FaDownload className="mr-1" size={14} /> Download
+                  <FaDownload className="mr-1" size={10} />
+                  <span className="hidden sm:inline">Download</span>
                 </button>
               </div>
             </div>
-            {renderResumePreview()}
+
+            {/* Template info */}
+            <div className="mb-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
+              <div className="flex items-center">
+                <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+                  <FaThLarge className="text-indigo-600" size={11} />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-gray-700">
+                    {templates.find((t) => t.id === selectedLayout)?.name ||
+                      "Template"}
+                  </p>
+                  <p className="text-[10px] text-gray-500">
+                    {selectedLayout === "ATSSimpleClean" ||
+                    selectedLayout === "ATSFunctional"
+                      ? "ATS-Optimized"
+                      : selectedLayout.includes("TwoColumn")
+                      ? "Two-Column Layout"
+                      : "Single-Column Layout"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedItem("Resume Templates")}
+                className="text-indigo-600 hover:text-indigo-800 text-[10px] font-medium"
+              >
+                Change
+              </button>
+            </div>
+
+            <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
+              <div className="scale-[0.58] origin-top-left py-10 px-4">
+                {renderResumePreview()}
+              </div>
+            </div>
+
+            <div className="mt-3 flex justify-center">
+              <div className="inline-flex rounded-md shadow-sm" role="group">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem("PDF Export")}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
+                >
+                  PDF Export
+                </button>
+                <button
+                  type="button"
+                  onClick={saveResume}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border-t border-b border-gray-200 hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem("Template Settings")}
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
+                >
+                  Customize
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
