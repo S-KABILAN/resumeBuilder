@@ -2,7 +2,26 @@ import { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/ui/sidebar";
 import TopNav from "../components/ui/topnav";
 import { useNavigate } from "react-router-dom";
-import { FaDownload } from "react-icons/fa";
+import {
+  FaDownload,
+  FaFileAlt,
+  FaFolder,
+  FaThLarge,
+  FaSave,
+  FaPlus,
+  FaCheck,
+  FaSignOutAlt,
+  FaUser,
+  FaGraduationCap,
+  FaBriefcase,
+  FaCogs,
+  FaLanguage,
+  FaTrophy,
+  FaProjectDiagram,
+  FaCertificate,
+  FaPalette,
+  FaArrowLeft,
+} from "react-icons/fa";
 import {
   ResumeDownloadButton,
   ResumeViewer,
@@ -173,11 +192,7 @@ const Page = () => {
     severity: "info",
   });
 
-  const navigate = useNavigate(); // Initialize useNavigate hook
-  const resumePreviewRef = useRef(); // Create a ref for the resume preview
-  const [activeItem, setActiveItem] = useState("Home");
-
-  // Add template settings state
+  // Add template settings state first, before using it in templates
   const [templateSettings, setTemplateSettings] = useState({
     colors: {
       primary: "#2563eb",
@@ -197,6 +212,92 @@ const Page = () => {
       "certifications",
     ],
   });
+
+  // Define navItems for section navigation
+  const navItems = [
+    { id: "PersonalInfo", label: "Personal Info", icon: FaUser },
+    { id: "Education", label: "Education", icon: FaGraduationCap },
+    { id: "Experience", label: "Experience", icon: FaBriefcase },
+    { id: "Skills", label: "Skills", icon: FaCogs },
+    { id: "Languages", label: "Languages", icon: FaLanguage },
+    { id: "Achievements", label: "Achievements", icon: FaTrophy },
+    { id: "Projects", label: "Projects", icon: FaProjectDiagram },
+    { id: "Certifications", label: "Certifications", icon: FaCertificate },
+  ];
+
+  // Define templates for resume templates section
+  const templates = [
+    {
+      id: "Layout1",
+      name: "Professional",
+      description: "Clean and professional layout, perfect for most industries",
+      image: "https://via.placeholder.com/300x400?text=Professional",
+      settings: templateSettings,
+    },
+    {
+      id: "Layout2",
+      name: "Modern",
+      description: "Contemporary design with a fresh look",
+      image: "https://via.placeholder.com/300x400?text=Modern",
+      settings: templateSettings,
+    },
+    {
+      id: "Layout3",
+      name: "Creative",
+      description: "Showcase your creativity with this unique layout",
+      image: "https://via.placeholder.com/300x400?text=Creative",
+      settings: templateSettings,
+    },
+    {
+      id: "Layout4",
+      name: "Minimal",
+      description: "Clean and simple design focused on content",
+      image: "https://via.placeholder.com/300x400?text=Minimal",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#374151",
+          secondary: "#1f2937",
+        },
+      },
+    },
+    {
+      id: "Layout5",
+      name: "Executive",
+      description: "Elegant and professional for senior positions",
+      image: "https://via.placeholder.com/300x400?text=Executive",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#10b981",
+          secondary: "#047857",
+        },
+      },
+    },
+    {
+      id: "Layout6",
+      name: "Academic",
+      description: "Perfect for academic and research positions",
+      image: "https://via.placeholder.com/300x400?text=Academic",
+      settings: {
+        ...templateSettings,
+        colors: {
+          ...templateSettings.colors,
+          primary: "#7c3aed",
+          secondary: "#5b21b6",
+        },
+      },
+    },
+  ];
+
+  const navigate = useNavigate(); // Initialize useNavigate hook
+  const resumePreviewRef = useRef(); // Create a ref for the resume preview
+  const [activeItem, setActiveItem] = useState("Home");
+
+  // For the My Resumes section - use savedResumes for consistency
+  const [resumes, setResumes] = useState([]);
 
   // Initialize with default sections configuration
   const defaultSectionConfig = [
@@ -526,7 +627,11 @@ const Page = () => {
         throw new Error(resumesResponse.error || "Failed to fetch resumes");
       }
 
-      setSavedResumes(resumesResponse.data || []); // Assuming resumes are in `data`
+      const resumesData = resumesResponse.data || [];
+      console.log("Fetched resumes:", resumesData);
+      setSavedResumes(resumesData); // Update saved resumes state
+
+      return resumesResponse;
     } catch (error) {
       console.error("Error fetching resumes:", error); // Log the error for debugging
       setErrorLoadingResumes(error.message || "Failed to fetch resumes");
@@ -553,6 +658,7 @@ const Page = () => {
           navigate("/login");
         }, 3000);
       }
+      return { success: false, error: error.message };
     } finally {
       setLoadingResumes(false); // Set loading state to false
     }
@@ -906,14 +1012,51 @@ const Page = () => {
 
   const handleResumeCreate = async () => {
     try {
-      const response = await resumeCreate(formData);
-      console.log("Resume created successfully:", response.data);
-      // You can update state or UI here after success
+      // Reset the editing state and form data for a new resume
+      setEditingResumeId(null);
+
+      // Start with a clean form with defaults
+      setFormData({
+        personal: {
+          name: "",
+          email: "",
+          phone: "",
+          location: "",
+          website: "",
+          linkedin: "",
+          github: "",
+        },
+        education: [],
+        experience: [],
+        skills: [],
+        projects: [],
+        certifications: [],
+        achievements: [],
+        customSections: [],
+        layout: "Layout1",
+      });
+
+      // Switch to the Create Resume tab
+      setSelectedItem("Create Resume");
+      setActiveSection("PersonalInfo");
+
+      // Show a success message
+      setSnackbar({
+        open: true,
+        message: "Start creating your new resume!",
+        severity: "info",
+      });
     } catch (error) {
-      console.error("Error creating resume:", error.message || error);
+      console.error("Error creating new resume:", error.message || error);
       // Show error message to the user
+      setSnackbar({
+        open: true,
+        message: "Error creating new resume. Please try again.",
+        severity: "error",
+      });
     }
   };
+
   // Load a resume into the form for editing
   const loadResumeForEditing = (resumeId) => {
     try {
@@ -1235,139 +1378,560 @@ const Page = () => {
     setSelectedItem("PDF Export");
   };
 
-  const renderContent = () => {
-    switch (selectedItem) {
-      case "Home":
-        return (
-          <div className="h-screen flex flex-col items-center justify-center font-sans">
-            <div className="py-16 px-8 text-center">
-              <h1 className="text-4xl font-bold mb-4">
-                Build Your Perfect Resume
-              </h1>
-              <p className="text-lg mb-6">
-                Effortlessly craft professional resumes with our guided builder.
+  // For the Create Resume section
+  const renderCreateResumeSection = () => {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left sidebar for section navigation */}
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-4">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Resume Sections
+              </h2>
+              <p className="text-gray-600 text-sm mb-3">
+                Click on a section to edit your resume information
               </p>
-              <div className="flex justify-center gap-4">
+            </div>
+            <div className="space-y-2">
+              {navItems.map((item) => (
                 <button
-                  onClick={() => handleLayoutSelect()}
-                  className="bg-blue-500 text-white px-6 py-3 rounded"
+                  key={item.id}
+                  onClick={() => handleSectionChange(item.id)}
+                  className={`
+                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-all duration-200
+                    ${
+                      activeSection === item.id
+                        ? "bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }
+                  `}
                 >
-                  Get Started
+                  <item.icon
+                    className={
+                      activeSection === item.id
+                        ? "text-indigo-600"
+                        : "text-gray-500"
+                    }
+                    size={18}
+                  />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Add Manage Sections button */}
+            <div className="mt-6 pt-4 border-t border-gray-100 space-y-3">
+              <button
+                onClick={() => setActiveSection("SectionManager")}
+                className="w-full bg-indigo-50 text-indigo-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-indigo-100"
+              >
+                <FaCogs className="mr-2" size={14} /> Manage Sections
+              </button>
+
+              <button
+                onClick={() => setActiveSection("CustomSections")}
+                className="w-full bg-purple-50 text-purple-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-purple-100"
+              >
+                <FaPlus className="mr-2" size={14} /> Add Custom Section
+              </button>
+
+              <button
+                onClick={() => setSelectedItem("Template Settings")}
+                className="w-full bg-blue-50 text-blue-700 py-2.5 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center hover:bg-blue-100"
+              >
+                <FaPalette className="mr-2" size={14} /> Customize Template
+              </button>
+
+              <button
+                onClick={saveResume}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center mt-3"
+              >
+                <FaSave className="mr-2" /> Save Resume
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle section with form */}
+        <div className="col-span-1 lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+            <div className="mb-6 pb-4 border-b border-gray-100">
+              <h2 className="text-xl font-bold text-gray-800">
+                {navItems.find((item) => item.id === activeSection)?.label ||
+                  (activeSection === "SectionManager"
+                    ? "Manage Sections"
+                    : activeSection === "CustomSections"
+                    ? "Custom Sections"
+                    : "Resume Details")}
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                {activeSection === "SectionManager"
+                  ? "Configure which sections appear in your resume"
+                  : activeSection === "CustomSections"
+                  ? "Add and edit custom sections"
+                  : "Fill in the details for this section"}
+              </p>
+            </div>
+
+            {renderResumeSectionForm(activeSection)}
+          </div>
+        </div>
+
+        {/* Right section with preview */}
+        <div className="col-span-1">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 sticky top-4">
+            <div className="mb-4 pb-3 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                Resume Preview
+              </h2>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setSelectedItem("Resume Templates")}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200 flex items-center"
+                >
+                  <FaThLarge className="mr-1" size={14} /> Templates
                 </button>
                 <button
-                  onClick={() => handleLayoutTemplate()}
-                  className="bg-gray-200 px-6 py-3 rounded"
+                  onClick={downloadResume}
+                  className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200 flex items-center"
                 >
-                  Explore Templates
-                </button>
-              </div>
-              <div className="mt-8">
-                <button
-                  onClick={populateWithDemoData}
-                  className="text-blue-600 underline hover:text-blue-800"
-                >
-                  Use Example Resume
+                  <FaDownload className="mr-1" size={14} /> Download
                 </button>
               </div>
             </div>
+            {renderResumePreview()}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // For the Resume Templates section
+  const renderResumeTemplatesSection = () => {
+    return (
+      <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            Resume Templates
+          </h1>
+          <p className="text-gray-600">Choose a template for your resume</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
+            <div
+              key={template.id}
+              className={`
+                border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
+                ${
+                  selectedLayout === template.id
+                    ? "ring-2 ring-indigo-500 ring-offset-2"
+                    : "border-gray-200"
+                }
+              `}
+              onClick={() => handleLayoutSelect(template.id, template.settings)}
+            >
+              <div className="relative aspect-[3/4] bg-gray-100">
+                <img
+                  src={
+                    template.image ||
+                    "https://via.placeholder.com/300x400?text=Template"
+                  }
+                  alt={template.name}
+                  className="w-full h-full object-cover"
+                />
+                {selectedLayout === template.id && (
+                  <div className="absolute inset-0 bg-indigo-600 bg-opacity-20 flex items-center justify-center">
+                    <div className="bg-white rounded-full p-2 shadow-md">
+                      <FaCheck className="text-indigo-600 w-5 h-5" />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                  {template.name}
+                </h3>
+                <p className="text-gray-600 text-sm">{template.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Update renderContent to handle Template Settings
+  const renderContent = () => {
+    if (selectedItem === "Home") {
+      return (
+        <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+            Welcome to Resume Builder
+          </h1>
+          <p className="text-lg text-gray-600 mb-8">
+            Create a professional resume in minutes with our easy-to-use
+            builder.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+            <div
+              className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => setSelectedItem("Create Resume")}
+            >
+              <FaFileAlt className="w-10 h-10 text-indigo-600 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Create New Resume
+              </h3>
+              <p className="text-gray-600">
+                Build a professional resume with our templates
+              </p>
+            </div>
+
+            <div
+              className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-xl border border-purple-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => setSelectedItem("My Resumes")}
+            >
+              <FaFolder className="w-10 h-10 text-purple-600 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                My Resumes
+              </h3>
+              <p className="text-gray-600">
+                Access and edit your saved resumes
+              </p>
+            </div>
+
+            <div
+              className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => setSelectedItem("Resume Templates")}
+            >
+              <FaThLarge className="w-10 h-10 text-blue-600 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Resume Templates
+              </h3>
+              <p className="text-gray-600">
+                Browse and select from our template collection
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+              Tips for a Great Resume
+            </h3>
+            <ul className="space-y-2">
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
+                <span className="text-gray-700">
+                  Keep your resume concise and focused on relevant information
+                </span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
+                <span className="text-gray-700">
+                  Tailor your resume for each job application
+                </span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
+                <span className="text-gray-700">
+                  Use action verbs and quantify your achievements
+                </span>
+              </li>
+              <li className="flex items-start">
+                <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
+                <span className="text-gray-700">
+                  Proofread your resume for errors before submitting
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    switch (selectedItem) {
+      case "Create Resume":
+        return renderCreateResumeSection();
+      case "My Resumes":
+        return (
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-800">My Resumes</h1>
+              <button
+                onClick={handleResumeCreate}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
+              >
+                <FaPlus className="mr-2" size={14} /> Create New
+              </button>
+            </div>
+
+            {savedResumes && savedResumes.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {savedResumes.map((resume) => (
+                  <div
+                    key={resume._id}
+                    className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    <div className="p-5">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {resume.title || resume.name || "Untitled Resume"}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-3">
+                        Last updated:{" "}
+                        {new Date(resume.updatedAt).toLocaleDateString()}
+                      </p>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => loadResumeForEditing(resume._id)}
+                          className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm flex-1 transition-colors duration-200"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteResume(resume._id)}
+                          className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 rounded-xl">
+                <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-2 text-lg text-gray-600">No resumes found</p>
+                <p className="text-gray-500 mb-4">
+                  Create your first resume to get started
+                </p>
+                <button
+                  onClick={handleResumeCreate}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+                >
+                  Create Resume
+                </button>
+              </div>
+            )}
           </div>
         );
-      case "Create Resume":
+      case "Resume Templates":
+        return renderResumeTemplatesSection();
+      case "Template Settings":
         return (
-          <div className="h-full">
-            <TopNav
-              activeSection={activeSection}
-              onSectionChange={setActiveSection}
-            />
-            <div className="flex mt-4 h-[85vh]">
-              {/* Form Section */}
-              <div className="w-1/2 pr-4 overflow-y-auto h-full">
-                {renderResumeSectionForm(activeSection)}
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold text-gray-800">
+                Template Customization
+              </h1>
+              <button
+                onClick={() => setSelectedItem("Create Resume")}
+                className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200"
+              >
+                <FaArrowLeft className="text-gray-500" size={14} />
+                <span>Back to Editor</span>
+              </button>
+            </div>
 
-                {/* Section Navigation */}
-                <div className="mt-6 flex space-x-2 border-t pt-4">
-                  <button
-                    onClick={() => setActiveSection("CustomSections")}
-                    className="px-3 py-1 text-sm bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200"
-                  >
-                    Custom Sections
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("SectionManager")}
-                    className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
-                  >
-                    Manage Sections
-                  </button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Template Settings Form */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  Customize Appearance
+                </h2>
+
+                <div className="space-y-6">
+                  {/* Colors Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                      Colors
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Primary Color
+                        </label>
+                        <div className="flex items-center">
+                          <input
+                            type="color"
+                            value={templateSettings.colors.primary}
+                            onChange={(e) =>
+                              setTemplateSettings({
+                                ...templateSettings,
+                                colors: {
+                                  ...templateSettings.colors,
+                                  primary: e.target.value,
+                                },
+                              })
+                            }
+                            className="w-10 h-10 border-0 p-0 mr-2"
+                          />
+                          <span className="text-sm">
+                            {templateSettings.colors.primary}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Secondary Color
+                        </label>
+                        <div className="flex items-center">
+                          <input
+                            type="color"
+                            value={templateSettings.colors.secondary}
+                            onChange={(e) =>
+                              setTemplateSettings({
+                                ...templateSettings,
+                                colors: {
+                                  ...templateSettings.colors,
+                                  secondary: e.target.value,
+                                },
+                              })
+                            }
+                            className="w-10 h-10 border-0 p-0 mr-2"
+                          />
+                          <span className="text-sm">
+                            {templateSettings.colors.secondary}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Text Color
+                        </label>
+                        <div className="flex items-center">
+                          <input
+                            type="color"
+                            value={templateSettings.colors.text}
+                            onChange={(e) =>
+                              setTemplateSettings({
+                                ...templateSettings,
+                                colors: {
+                                  ...templateSettings.colors,
+                                  text: e.target.value,
+                                },
+                              })
+                            }
+                            className="w-10 h-10 border-0 p-0 mr-2"
+                          />
+                          <span className="text-sm">
+                            {templateSettings.colors.text}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Background Color
+                        </label>
+                        <div className="flex items-center">
+                          <input
+                            type="color"
+                            value={templateSettings.colors.background}
+                            onChange={(e) =>
+                              setTemplateSettings({
+                                ...templateSettings,
+                                colors: {
+                                  ...templateSettings.colors,
+                                  background: e.target.value,
+                                },
+                              })
+                            }
+                            className="w-10 h-10 border-0 p-0 mr-2"
+                          />
+                          <span className="text-sm">
+                            {templateSettings.colors.background}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Font Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                      Typography
+                    </h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Font Family
+                      </label>
+                      <select
+                        value={templateSettings.font}
+                        onChange={(e) =>
+                          setTemplateSettings({
+                            ...templateSettings,
+                            font: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="ui-sans-serif, system-ui, sans-serif">
+                          Sans Serif
+                        </option>
+                        <option value="ui-serif, Georgia, Cambria, serif">
+                          Serif
+                        </option>
+                        <option value="ui-monospace, SFMono-Regular, Menlo, monospace">
+                          Monospace
+                        </option>
+                        <option value="'Poppins', sans-serif">Poppins</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Open Sans', sans-serif">
+                          Open Sans
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Spacing Section */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                      Spacing
+                    </h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">
+                        Content Spacing
+                      </label>
+                      <select
+                        value={templateSettings.spacing}
+                        onChange={(e) =>
+                          setTemplateSettings({
+                            ...templateSettings,
+                            spacing: e.target.value,
+                          })
+                        }
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="compact">Compact</option>
+                        <option value="normal">Normal</option>
+                        <option value="spacious">Spacious</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      onClick={() => setSelectedItem("Create Resume")}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition-colors duration-200"
+                    >
+                      Apply Changes & Return to Editor
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Preview Section - Updated to use a container with proper sizing */}
-              <div className="w-1/2 pl-4 border-l border-gray-300 h-full overflow-y-auto relative">
-                {/* Buttons Container */}
-                <div className="flex justify-between mt-4 sticky top-0 bg-white z-10 p-2">
-                  <button
-                    onClick={saveResume}
-                    className="bg-blue-500 text-white p-2 rounded"
-                  >
-                    {editingResumeId ? "Update Resume" : "Save Resume"}
-                  </button>
-                  <div className="flex gap-2">
-                    <ResumeDownloadButton
-                      formData={formData}
-                      templateSettings={templateSettings}
-                      selectedLayout={selectedLayout}
-                      sectionConfig={sectionConfig}
-                      style={{
-                        textDecoration: "none",
-                        padding: "8px 16px",
-                        backgroundColor: "#10B981", // Green color matching tailwind's green-500
-                        color: "#fff",
-                        borderRadius: "0.25rem",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        fontFamily: "inherit",
-                        fontSize: "inherit",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {({ loading }) => (
-                        <>
-                          <FaDownload size={14} />
-                          {loading ? "Generating..." : "Download PDF"}
-                        </>
-                      )}
-                    </ResumeDownloadButton>
-                    <button
-                      onClick={() => setSelectedItem("PDF Export")}
-                      className="bg-green-700 text-white p-2 rounded"
-                    >
-                      Advanced Export
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => setSelectedItem("Template Settings")}
-                    className="bg-purple-500 text-white p-2 rounded"
-                  >
-                    Customize Template
-                  </button>
-                </div>
-
-                {/* Scrollable Content for PDF Preview */}
-                <div className="flex justify-center mt-4">
-                  <div
-                    ref={resumePreviewRef}
-                    className="w-[210mm] max-w-full mx-auto bg-white shadow-md print:shadow-none overflow-hidden"
-                    style={{
-                      minHeight: "297mm" /* A4 height */,
-                      height: "auto",
-                      boxSizing: "border-box",
-                      padding: "0",
-                      margin: "0",
-                      position: "relative",
-                    }}
-                  >
+              {/* Preview Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">
+                  Preview
+                </h2>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="scale-75 origin-top-left mb-4 transform overflow-hidden">
                     {renderResumePreview()}
                   </div>
                 </div>
@@ -1375,162 +1939,39 @@ const Page = () => {
             </div>
           </div>
         );
-      case "Template Settings":
-        return (
-          <div className="h-full flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-              <button
-                onClick={() => setSelectedItem("Create Resume")}
-                className="flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Back to Editor
-              </button>
-              <h2 className="text-2xl font-bold">Template Customization</h2>
-              <div className="w-32"></div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <TemplateCustomizer
-                  templateSettings={templateSettings}
-                  onSettingsChange={handleTemplateSettingsChange}
-                />
-              </div>
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                <h3 className="text-lg font-medium mb-4">Preview</h3>
-                <div className="scale-75 origin-top-left">
-                  {renderResumePreview()}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case "Resume Templates":
-        return (
-          <ResumeTemplates
-            onSelectTemplate={handleLayoutSelect}
-            formData={formData}
-            initialTemplateSettings={templateSettings}
-            onNavigateBack={() => setSelectedItem("Create Resume")}
-          />
-        );
-      case "My Resumes":
-        return (
-          <div className=" mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
-            <div className="p-6">
-              {showVersionHistory ? (
-                // Show Version History
-                <div>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      Version History
-                    </h2>
-                    <button
-                      onClick={() => setShowVersionHistory(false)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
-                    >
-                      Back to Resumes
-                    </button>
-                  </div>
-                  <VersionHistory onApplyVersion={handleApplyVersion} />
-                </div>
-              ) : (
-                // Show Resume List
-                <>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      Your Saved Resumes
-                    </h2>
-                    <button
-                      onClick={resetFormData}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200 flex items-center"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      New Resume
-                    </button>
-                  </div>
-
-                  {loadingResumes ? (
-                    <div className="space-y-4">
-                      {[...Array(3)].map((_, index) => (
-                        <div
-                          key={index}
-                          className="h-12 bg-gray-200 rounded animate-pulse"
-                        ></div>
-                      ))}
-                    </div>
-                  ) : errorLoadingResumes ? (
-                    <div className="text-center py-4 text-red-500">
-                      <p>Error: {errorLoadingResumes}</p>
-                    </div>
-                  ) : (
-                    <div className="overflow-y-auto max-h-[550px] pr-2">
-                      <ul className="space-y-3">
-                        {savedResumes.map((resume) => (
-                          <li
-                            key={resume._id}
-                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                          >
-                            <span className="font-medium text-gray-700">
-                              {resume.name}
-                            </span>
-                            <div className="space-x-2">
-                              <button
-                                onClick={() => loadResumeForEditing(resume._id)}
-                                className="px-3 py-1 text-sm bg-white border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition-colors duration-200"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedResumeForHistory(resume._id);
-                                  setShowVersionHistory(true);
-                                }}
-                                className="px-3 py-1 text-sm bg-white border border-purple-500 text-purple-500 rounded hover:bg-purple-50 transition-colors duration-200"
-                              >
-                                Version History
-                              </button>
-                              <button
-                                onClick={() => handleDeleteResume(resume._id)}
-                                className="px-3 py-1 text-sm bg-white border border-red-500 text-red-500 rounded hover:bg-red-50 transition-colors duration-200"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        );
       case "Settings":
-        return <div>Adjust your settings</div>;
+        return (
+          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
+
+            <div className="space-y-6">
+              <div className="p-5 border border-gray-200 rounded-xl">
+                <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                  Account Settings
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Manage your account preferences
+                </p>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
+                >
+                  <FaSignOutAlt className="mr-2" size={14} /> Logout
+                </button>
+              </div>
+
+              <div className="p-5 border border-gray-200 rounded-xl">
+                <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                  Help & Support
+                </h2>
+                <p className="text-gray-600">
+                  Need help? Contact our support team at
+                  support@resumebuilder.com
+                </p>
+              </div>
+            </div>
+          </div>
+        );
       case "CustomSections":
         return (
           <CustomSectionForm
@@ -1833,48 +2274,15 @@ const Page = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-grow">
-        <Sidebar
-          onMenuClick={handleMenuClick}
-          selectedItem={selectedItem}
-          userName={userName}
-          onLogout={handleLogout}
-        />
-        <main className="flex-grow p-6 overflow-hidden">
-          {/* Loading overlay */}
-          {isLoading && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white p-5 rounded-lg shadow-lg text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-                <p className="mt-2">Saving your resume...</p>
-              </div>
-            </div>
-          )}
-
-          {/* Snackbar */}
-          {snackbar.open && (
-            <div
-              className={`fixed top-4 right-4 px-6 py-3 rounded shadow-lg z-50 flex items-center justify-between
-                ${
-                  snackbar.severity === "success"
-                    ? "bg-green-600 text-white"
-                    : snackbar.severity === "error"
-                    ? "bg-red-600 text-white"
-                    : "bg-blue-600 text-white"
-                }`}
-            >
-              <span>{snackbar.message}</span>
-              <button
-                onClick={closeSnackbar}
-                className="ml-4 text-white hover:text-gray-200"
-              >
-                ×
-              </button>
-            </div>
-          )}
-          {renderContent()}
-        </main>
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar
+        onMenuClick={handleMenuClick}
+        userName={formData.personal?.name || "User"}
+        onLogout={handleLogout}
+        selectedItem={selectedItem}
+      />
+      <div className="flex-1 flex flex-col overflow-auto">
+        <div className="p-4 md:p-6 space-y-6">{renderContent()}</div>
       </div>
     </div>
   );

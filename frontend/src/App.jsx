@@ -16,6 +16,7 @@ import "./App.css";
 function App() {
   const [token, setToken] = useState(localStorage.getItem("jwtToken"));
   const [authChecked, setAuthChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Verify authentication state when app loads
   useEffect(() => {
@@ -33,6 +34,13 @@ function App() {
     }
 
     setAuthChecked(true);
+
+    // Simulate loading time for smoother transitions
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Update token state if it changes in localStorage
@@ -45,17 +53,22 @@ function App() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  // If auth check hasn't completed yet, show nothing (or a loading spinner)
-  if (!authChecked) {
+  // If auth check hasn't completed yet, show loading spinner
+  if (!authChecked || loading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-transparent border-indigo-600 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-700 font-medium">
+            Loading Resume Builder...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen font-sans text-gray-900">
+    <div className="min-h-screen font-sans text-gray-900 bg-gray-50">
       <Router>
         <Routes>
           {/* Landing page as the default route */}
