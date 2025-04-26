@@ -17,6 +17,20 @@ const authenticateToken = (req, res, next) => {
       return res.status(403).json({ message: "Invalid token" });
     }
     req.user = user;
+
+    // Ensure the user object has id or userId
+    if (!req.user.id && req.user.userId) {
+      req.user.id = req.user.userId;
+    }
+
+    // If the decoded user doesn't have userId but has id, set userId to id
+    if (!req.user.userId && req.user.id) {
+      req.user.userId = req.user.id;
+    }
+
+    // Log the user object for debugging
+    console.log("Authenticated user:", req.user);
+
     next();
   });
 };

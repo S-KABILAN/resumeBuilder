@@ -64,6 +64,10 @@ import ProfessionalTwoColumnImg from "../assets/professional_two_column.png";
 import ATSSimpleCleanImg from "../assets/ats_simple_clean.png";
 import ATSFunctionalImg from "../assets/ats_functional.png";
 
+// Import the axiosInstance and getAuthToken at the top of the file after other imports
+import axiosInstance from "../services/api";
+import { getAuthToken } from "../utils/userUtils";
+
 // Default resume data for demonstration
 const defaultResumeData = {
   personal: {
@@ -770,45 +774,39 @@ const Page = () => {
     setErrorLoadingResumes(null); // Reset error state
 
     try {
-      // Using the updated getAllResumes that doesn't require userId parameter
-      const resumesResponse = await getAllResumes();
+      // Get resumes from the API
+      const response = await getAllResumes();
 
-      if (resumesResponse && resumesResponse.success === false) {
-        throw new Error(resumesResponse.error || "Failed to fetch resumes");
+      if (!response || response.success === false) {
+        throw new Error(response?.error || "Failed to fetch resumes");
       }
 
-      const resumesData = resumesResponse.data || [];
+      const resumesData = response.data || [];
       console.log("Fetched resumes:", resumesData);
       setSavedResumes(resumesData); // Update saved resumes state
 
-      return resumesResponse;
+      return resumesData;
     } catch (error) {
       console.error("Error fetching resumes:", error); // Log the error for debugging
       setErrorLoadingResumes(error.message || "Failed to fetch resumes");
 
-      // If the error is authentication related, redirect to login
-      if (
-        error.message.includes("log in again") ||
-        error.message.includes("Authentication required")
-      ) {
-        // Show error message to user
-        const errorToast = document.createElement("div");
-        errorToast.className =
-          "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
-        errorToast.textContent =
-          "Your session has expired. Please log in again.";
-        document.body.appendChild(errorToast);
+      // Display error toast
+      const errorToast = document.createElement("div");
+      errorToast.className =
+        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
+      errorToast.textContent = `Error: ${
+        error.message || "Failed to fetch resumes"
+      }`;
+      document.body.appendChild(errorToast);
 
-        // Remove error message after 3 seconds
-        setTimeout(() => {
-          if (document.body.contains(errorToast)) {
-            document.body.removeChild(errorToast);
-          }
-          // Redirect to login page
-          navigate("/login");
-        }, 3000);
-      }
-      return { success: false, error: error.message };
+      // Remove error message after 3 seconds
+      setTimeout(() => {
+        if (document.body.contains(errorToast)) {
+          document.body.removeChild(errorToast);
+        }
+      }, 3000);
+
+      return []; // Return empty array on error
     } finally {
       setLoadingResumes(false); // Set loading state to false
     }
@@ -1043,11 +1041,12 @@ const Page = () => {
 
       // Create resume data object
       const resumeData = {
-        name: formData.personal.name,
+        name: formData.personal.name || "Untitled Resume",
         personal: formData.personal,
         education: formData.education,
         experience: formData.experience,
         skills: formData.skills,
+        languages: formData.languages,
         projects: formData.projects,
         certifications: formData.certifications,
         achievements: formData.achievements,
@@ -1101,8 +1100,6 @@ const Page = () => {
               setEditingResumeId(response.data.data.id);
             } else {
               console.error("Resume ID structure unexpected:", response.data);
-              // Don't throw error, just log it and continue
-              // This allows the save to continue even if we can't set the ID correctly
             }
           }
         }
@@ -1227,10 +1224,34 @@ const Page = () => {
   };
 
   // Load a resume into the form for editing
-  const loadResumeForEditing = (resumeId) => {
+  const loadResumeForEditing = async (resumeId) => {
     try {
-      const resume = savedResumes.find((resume) => resume._id === resumeId);
-      if (!resume) return;
+      setIsLoading(true);
+
+      // Try to find in cache first
+      let resume = savedResumes.find((r) => r._id === resumeId);
+
+      // If not in cache or we want to ensure we have latest data, fetch from server
+      if (!resume) {
+        // Fetch the resume from the server using the API
+        const response = await axiosInstance.get(`/resume/r/${resumeId}`, {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+
+        if (response.data && response.data.success) {
+          resume = response.data.data;
+        } else {
+          throw new Error("Failed to fetch resume data");
+        }
+      }
+
+      if (!resume) {
+        throw new Error("Resume not found");
+      }
+
+      console.log("Loading resume for editing:", resume);
 
       // Set form data
       setFormData({
@@ -1241,7 +1262,9 @@ const Page = () => {
         projects: resume.projects || [],
         certifications: resume.certifications || [],
         achievements: resume.achievements || [],
+        languages: resume.languages || [],
         customSections: resume.customSections || [],
+        layout: resume.layout || "Layout1",
       });
 
       // Set layout and template settings
@@ -1260,13 +1283,22 @@ const Page = () => {
 
       // Switch to Create Resume tab
       setSelectedItem("Create Resume");
+
+      // Show success toast
+      setSnackbar({
+        open: true,
+        message: "Resume loaded successfully!",
+        severity: "success",
+      });
     } catch (error) {
       console.error("Error loading resume for editing:", error);
       setSnackbar({
         open: true,
-        message: "Error loading resume. Please try again.",
+        message: `Error loading resume: ${error.message}`,
         severity: "error",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -1563,12 +1595,38 @@ const Page = () => {
 
   const handleDeleteResume = async (resumeId) => {
     try {
-      await deleteResume(resumeId); // Call the delete function from services
+      setIsLoading(true);
+
+      // Show confirmation dialog
+      if (!window.confirm("Are you sure you want to delete this resume?")) {
+        return;
+      }
+
+      // Call the delete function from services
+      const response = await deleteResume(resumeId);
+
+      // Update the UI by removing the deleted resume
       setSavedResumes((prevResumes) =>
         prevResumes.filter((resume) => resume._id !== resumeId)
       );
+
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: "Resume deleted successfully!",
+        severity: "success",
+      });
     } catch (error) {
       console.error("Error deleting resume:", error.message || error);
+
+      // Show error message
+      setSnackbar({
+        open: true,
+        message: `Error deleting resume: ${error.message || "Unknown error"}`,
+        severity: "error",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 

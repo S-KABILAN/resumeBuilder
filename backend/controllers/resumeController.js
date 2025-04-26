@@ -1,14 +1,12 @@
 const Resume = require("../models/Resume");
 
 // Controller to create a new resume
-// Assuming you have already imported the Resume model at the top of your file
-
 exports.createResume = async (req, res) => {
   try {
     // Create a new resume instance with the request body
     const resume = new Resume({
       ...req.body, // Spread the body to include all fields
-      userId: req.user.id // Associate the resume with the authenticated user
+      userId: req.user.id, // Associate the resume with the authenticated user
     });
 
     // Save the resume to the database
@@ -17,61 +15,135 @@ exports.createResume = async (req, res) => {
     // Send a successful response
     res.status(201).send({ success: true, data: resume });
   } catch (err) {
+    console.error("Error creating resume:", err);
     // Handle errors and send a response
     res.status(400).send({ success: false, error: err.message });
   }
 };
 
-
-// Controller to fetch all resumes
+// Controller to fetch all resumes for a user
 exports.getAllResumes = async (req, res) => {
   try {
-    const userId = req.query.userId;
-    const resumes = await Resume.find({ userId: userId });
-    res.send({ success: true, data: resumes });
+    const userId = req.user.id;
+
+    // Find all resumes associated with the authenticated user
+    const resumes = await Resume.find({ userId });
+
+    // Send a successful response with the data
+    res.status(200).send({ success: true, data: resumes });
   } catch (err) {
+    console.error("Error fetching resumes:", err);
     res.status(500).send({ success: false, error: err.message });
   }
 };
 
 // Controller to update a resume
 exports.updateResume = async (req, res) => {
-  
+  try {
+    const { id } = req.params;
+    const resumeData = req.body;
+    const userId = req.user.id;
 
-      const { id } = req.params;
-      const resumeData = req.body;
+    // Find the resume and verify it belongs to the authenticated user
+    const resume = await Resume.findById(id);
 
-   try {
-     const updatedResume = await Resume.findByIdAndUpdate(id, resumeData, {
-       new: true,
-     });
-     if (!updatedResume) {
-       return res.status(404).json({ message: "Resume not found" });
-     }
-     res.json({ message: "Resume updated successfully", data: updatedResume });
-   } catch (error) {
-     console.error(error);
-     res
-       .status(500)
-       .json({ message: "Error updating resume", error: error.message });
-   }
+    if (!resume) {
+      return res
+        .status(404)
+        .send({ success: false, error: "Resume not found" });
+    }
+
+    // Verify ownership
+    if (resume.userId.toString() !== userId) {
+      return res
+        .status(403)
+        .send({
+          success: false,
+          error: "Not authorized to update this resume",
+        });
+    }
+
+    // Update the resume
+    const updatedResume = await Resume.findByIdAndUpdate(id, resumeData, {
+      new: true, // Return the updated document
+      runValidators: true, // Run mongoose validators
+    });
+
+    // Send a successful response
+    res.status(200).send({ success: true, data: updatedResume });
+  } catch (error) {
+    console.error("Error updating resume:", error);
+    res.status(500).send({ success: false, error: error.message });
+  }
 };
 
 // Controller to delete a resume
 exports.deleteResume = async (req, res) => {
-  const {id} = req.params;
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
 
-    try {
-      const deletedResume = await Resume.findByIdAndDelete(id);
-      if (!deletedResume) {
-        return res.status(404).json({ message: "Resume not found" });
-      }
-      res.json({ message: "Resume deleted successfully" });
-    } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ message: "Error deleting resume", error: error.message });
+    // Find the resume and verify it belongs to the authenticated user
+    const resume = await Resume.findById(id);
+
+    if (!resume) {
+      return res
+        .status(404)
+        .send({ success: false, error: "Resume not found" });
     }
 
+    // Verify ownership
+    if (resume.userId.toString() !== userId) {
+      return res
+        .status(403)
+        .send({
+          success: false,
+          error: "Not authorized to delete this resume",
+        });
+    }
+
+    // Delete the resume
+    await Resume.findByIdAndDelete(id);
+
+    // Send a successful response
+    res
+      .status(200)
+      .send({ success: true, message: "Resume deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting resume:", error);
+    res.status(500).send({ success: false, error: error.message });
+  }
+};
+
+// Controller to get a single resume by ID
+exports.getResumeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Find the resume
+    const resume = await Resume.findById(id);
+
+    if (!resume) {
+      return res
+        .status(404)
+        .send({ success: false, error: "Resume not found" });
+    }
+
+    // Verify ownership
+    if (resume.userId.toString() !== userId) {
+      return res
+        .status(403)
+        .send({
+          success: false,
+          error: "Not authorized to access this resume",
+        });
+    }
+
+    // Send a successful response
+    res.status(200).send({ success: true, data: resume });
+  } catch (error) {
+    console.error("Error fetching resume:", error);
+    res.status(500).send({ success: false, error: error.message });
+  }
 };
