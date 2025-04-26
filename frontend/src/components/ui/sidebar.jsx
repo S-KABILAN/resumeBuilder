@@ -11,6 +11,8 @@ import {
   FaChevronRight,
   FaBars,
   FaTimes,
+  FaGithub,
+  FaStar,
 } from "react-icons/fa";
 
 const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
@@ -91,7 +93,30 @@ const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
             <p className="text-indigo-100 text-sm mt-2 font-medium opacity-90">
               Welcome, {userName || "User"}
             </p>
+
+            {/* GitHub Star Button */}
+            <a
+              href="https://github.com/S-KABILAN/resume-builder"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 px-4 py-2 bg-gray-800 hover:bg-black text-white rounded-full flex items-center transition-all duration-300 group"
+            >
+              <FaGithub className="mr-2" />
+              <span>Give a Star</span>
+              <FaStar className="ml-2 text-yellow-400 animate-pulse group-hover:animate-spin" />
+            </a>
           </>
+        )}
+        {!isExpanded && (
+          <a
+            href="https://github.com/S-KABILAN/resume-builder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 p-2 bg-gray-800 hover:bg-black text-white rounded-full flex items-center justify-center transition-all duration-300"
+            title="Star us on GitHub"
+          >
+            <FaGithub className="text-lg" />
+          </a>
         )}
       </div>
       <nav className="flex-grow py-6">

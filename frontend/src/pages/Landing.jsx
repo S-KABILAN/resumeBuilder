@@ -2,8 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import {
   FaRegFileAlt,
-  FaLightbulb,
-  FaRegClock,
   FaDownload,
   FaArrowRight,
   FaGithub,
@@ -11,88 +9,69 @@ import {
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
-  FaLock,
+  FaStar,
+  FaCogs,
+  FaDesktop,
 } from "react-icons/fa";
+import { getImageWithFallback, fallbackImageBase64 } from "../utils/imageUtils";
 
-// Import or define image URLs - Use local images if possible
-const images = [
-  "/images/resume1.jpg",
-  "/images/resume2.jpg",
-  "/images/resume3.jpg",
-  "/images/resume4.jpg",
-  "/images/resume5.jpg",
-];
-
-// Fallback images from external source if local ones aren't available
-const fallbackImages = [
-  "https://img.freepik.com/free-vector/resume-concept-illustration_114360-91.jpg?w=800",
-  "https://img.freepik.com/free-vector/online-resume-concept-illustration_114360-5164.jpg?w=800",
-  "https://img.freepik.com/free-vector/hiring-concept-illustration_114360-532.jpg?w=800",
-  "https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-vector-illustration-cartoon-partners-working-connection-teamwork-partnership-cooperation-concept_74855-9814.jpg?w=800",
-  "https://img.freepik.com/free-vector/work-time-concept-illustration_114360-1474.jpg?w=800",
+// Define application images to show in the carousel
+const appImages = [
+  {
+    src: "home.png",
+    alt: "Resume Builder Dashboard",
+    caption: "User-friendly dashboard to manage all your resumes",
+  },
+  {
+    src: "create-resume.png",
+    alt: "Resume Creation Process",
+    caption: "Simple step-by-step process to create your resume",
+  },
+  {
+    src: "resume-templates1.png",
+    alt: "Available Resume Templates",
+    caption: "Choose from numerous professional templates",
+  },
+  {
+    src: "section-rearrange.png",
+    alt: "Section Customization",
+    caption: "Easily rearrange and customize resume sections",
+  },
+  {
+    src: "template-cutomization.png",
+    alt: "Template Customization",
+    caption: "Personalize templates to match your style",
+  },
+  {
+    src: "settings.png",
+    alt: "Application Settings",
+    caption: "Configure settings to suit your preferences",
+  },
+  {
+    src: "Screenshot 2025-04-26 162120.png",
+    alt: "Resume Builder Features",
+    caption: "Additional tools and features to enhance your resume",
+  },
 ];
 
 const Landing = () => {
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  const [useLocalImages, setUseLocalImages] = useState(true);
   const intervalRef = useRef(null);
-
-  // Function to preload images and check which set to use
-  useEffect(() => {
-    // Try to load local images first
-    const checkLocalImages = async () => {
-      try {
-        const responses = await Promise.all(
-          images.map((src) =>
-            fetch(src)
-              .then((res) => res.status === 200)
-              .catch(() => false)
-          )
-        );
-
-        // If any local image fails to load, use fallback images
-        if (responses.some((success) => !success)) {
-          console.log(
-            "Using fallback images due to local image loading failures"
-          );
-          setUseLocalImages(false);
-        }
-
-        setImagesLoaded(true);
-      } catch (error) {
-        console.error("Error checking images:", error);
-        setUseLocalImages(false);
-        setImagesLoaded(true);
-      }
-    };
-
-    checkLocalImages();
-  }, []);
+  const carouselRef = useRef(null);
 
   // Set up the image rotation interval
   useEffect(() => {
-    if (imagesLoaded) {
-      console.log("Starting carousel interval");
-      intervalRef.current = setInterval(() => {
-        setCurrentImageIndex((prevIndex) => {
-          const newIndex =
-            (prevIndex + 1) %
-            (useLocalImages ? images.length : fallbackImages.length);
-          console.log(`Changing image from ${prevIndex} to ${newIndex}`);
-          return newIndex;
-        });
-      }, 3000);
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % appImages.length);
+    }, 3000);
 
-      return () => {
-        console.log("Clearing carousel interval");
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [imagesLoaded, useLocalImages]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   const goToLogin = () => {
     navigate("/login");
@@ -103,20 +82,13 @@ const Landing = () => {
       clearInterval(intervalRef.current);
     }
 
-    setCurrentImageIndex((prevIndex) => {
-      const imgCount = useLocalImages ? images.length : fallbackImages.length;
-      const newIndex = prevIndex === 0 ? imgCount - 1 : prevIndex - 1;
-      console.log(`Manual change to previous image: ${newIndex}`);
-      return newIndex;
-    });
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? appImages.length - 1 : prevIndex - 1
+    );
 
     // Restart the interval
     intervalRef.current = setInterval(() => {
-      setCurrentImageIndex(
-        (prevIndex) =>
-          (prevIndex + 1) %
-          (useLocalImages ? images.length : fallbackImages.length)
-      );
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % appImages.length);
     }, 3000);
   };
 
@@ -125,46 +97,59 @@ const Landing = () => {
       clearInterval(intervalRef.current);
     }
 
-    setCurrentImageIndex((prevIndex) => {
-      const imgCount = useLocalImages ? images.length : fallbackImages.length;
-      const newIndex = (prevIndex + 1) % imgCount;
-      console.log(`Manual change to next image: ${newIndex}`);
-      return newIndex;
-    });
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % appImages.length);
 
     // Restart the interval
     intervalRef.current = setInterval(() => {
-      setCurrentImageIndex(
-        (prevIndex) =>
-          (prevIndex + 1) %
-          (useLocalImages ? images.length : fallbackImages.length)
-      );
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % appImages.length);
     }, 3000);
   };
 
-  // The actual images to use based on availability
-  const currentImages = useLocalImages ? images : fallbackImages;
+  const goToSlide = (index) => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    setCurrentImageIndex(index);
+
+    // Restart the interval
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % appImages.length);
+    }, 3000);
+  };
 
   return (
-    <div className="md:h-screen flex flex-col bg-gradient-to-b from-indigo-50 via-white to-indigo-50 overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50 via-white to-indigo-50 overflow-hidden">
       {/* Header */}
-      <nav className="py-4 px-4 sm:px-8 flex justify-between items-center">
+      <nav className="py-4 px-6 sm:px-10 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur-sm z-30 border-b border-gray-100 shadow-sm">
         <div className="flex items-center">
           <FaRegFileAlt className="text-indigo-600 text-xl mr-2" />
           <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             Resume Builder
           </span>
         </div>
-        <button
-          onClick={goToLogin}
-          className="px-4 sm:px-6 py-2 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
-        >
-          Login
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/S-KABILAN/resume-builder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-lg font-medium text-white bg-gray-800 hover:bg-black transition-colors shadow-sm flex items-center group"
+          >
+            <FaGithub className="mr-2" />
+            <span>Star</span>
+            <FaStar className="ml-2 text-yellow-400 animate-pulse group-hover:animate-spin" />
+          </a>
+          <button
+            onClick={goToLogin}
+            className="px-4 sm:px-6 py-2 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm"
+          >
+            Login
+          </button>
+        </div>
       </nav>
 
-      {/* Main Content - Single Screen */}
-      <main className="flex-1 flex items-center justify-center px-4 relative">
+      {/* Hero Section */}
+      <section className="pt-12 pb-20 px-4 md:px-8 relative">
         {/* Background decorative elements */}
         <div className="absolute inset-0 overflow-hidden z-0">
           <div className="absolute top-10 left-10 w-64 h-64 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
@@ -173,38 +158,39 @@ const Landing = () => {
         </div>
 
         {/* Content */}
-        <div className="max-w-7xl w-full z-10">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="max-w-7xl mx-auto z-10 relative">
+          <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+            {/* Left Column - Text Content */}
             <div className="text-left order-2 md:order-1">
-              <div className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm font-medium mb-4">
+              <div className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 text-sm font-medium mb-4 animate-fadeIn">
                 # Resume Builder Tool
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 leading-tight animate-slideUp">
                 Create Professional Resumes in{" "}
                 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Minutes
                 </span>
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
+              <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 animate-slideUp animation-delay-200">
                 Stand out from the crowd with a beautifully designed resume. No
                 design skills needed. Free and easy to use.
               </p>
 
               {/* Features as bullet points */}
-              <div className="mb-4 sm:mb-6 grid gap-2">
-                <div className="flex items-center">
+              <div className="mb-8 sm:mb-10 grid gap-3 animate-slideUp animation-delay-300">
+                <div className="flex items-center transform hover:translate-x-1 transition-transform">
                   <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
                   <span className="text-sm sm:text-base text-gray-700">
                     Professional ATS-friendly templates
                   </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center transform hover:translate-x-1 transition-transform">
                   <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
                   <span className="text-sm sm:text-base text-gray-700">
                     Easy-to-use drag-and-drop builder
                   </span>
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center transform hover:translate-x-1 transition-transform">
                   <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
                   <span className="text-sm sm:text-base text-gray-700">
                     Export to multiple formats
@@ -212,243 +198,203 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Features grid with authentication indicators */}
-              <div className="mt-10 grid md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                      <FaRegFileAlt className="text-indigo-600 mr-2" />
-                      Free Features
-                    </h3>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                      No Sign Up Required
-                    </span>
-                  </div>
-                  <ul className="mt-4 space-y-2">
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
-                      <span>Create professional resumes</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
-                      <span>Choose from multiple templates</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
-                      <span>Format and edit content</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
-                      <span>Customize resume sections</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
-                      <span>Preview your resume</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
-                      <FaLock className="text-indigo-600 mr-2" />
-                      Premium Features
-                    </h3>
-                    <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
-                      Sign Up Required
-                    </span>
-                  </div>
-                  <ul className="mt-4 space-y-2">
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
-                      <span>Save resumes to your account</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
-                      <span>Download resumes as PDF</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
-                      <span>Create multiple resumes</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
-                      <span>Version history tracking</span>
-                    </li>
-                    <li className="flex items-center text-gray-700">
-                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
-                      <span>Sync across devices</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 animate-slideUp animation-delay-400">
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="px-6 py-3 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-md hover:shadow-lg"
+                  className="px-6 py-3 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
                 >
                   <FaRegFileAlt className="mr-2" />
                   Create Resume Now
                 </button>
                 <button
                   onClick={goToLogin}
-                  className="px-6 py-3 rounded-lg font-medium border border-indigo-600 text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center"
+                  className="px-6 py-3 rounded-lg font-medium border border-indigo-600 text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center transform hover:-translate-y-1 transition-all"
                 >
                   Sign In <FaArrowRight className="ml-2" />
                 </button>
               </div>
             </div>
 
-            <div className="flex justify-center order-1 md:order-2">
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-25"></div>
-
-                {/* Image Carousel */}
+            {/* Right Column - Image Carousel */}
+            <div className="flex justify-center order-1 md:order-2 animate-fadeIn">
+              <div ref={carouselRef} className="relative w-full max-w-xl">
+                {/* Enhanced Image Carousel */}
                 <div className="relative">
-                  <div
-                    className="carousel-container relative overflow-hidden rounded-lg shadow-2xl"
-                    style={{
-                      width: "100%",
-                      maxWidth: "500px",
-                      height: "300px",
-                      backgroundColor: "#f8f9fa",
-                    }}
-                  >
-                    {!imagesLoaded && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                      </div>
-                    )}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg blur opacity-30 animate-pulse"></div>
 
-                    {imagesLoaded &&
-                      currentImages.map((image, index) => (
-                        <div
-                          key={index}
-                          className={`carousel-slide absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${
-                            index === currentImageIndex
-                              ? "opacity-100 z-10"
-                              : "opacity-0 z-0"
-                          }`}
-                        >
-                          <img
-                            src={image}
-                            alt={`Resume Builder Slide ${index + 1}`}
-                            className="max-w-full max-h-full object-contain"
-                            onError={() => {
-                              console.log(`Image failed to load: ${image}`);
-                              if (useLocalImages) {
-                                console.log("Switching to fallback images");
-                                setUseLocalImages(false);
-                              }
+                  <div className="carousel-container relative overflow-hidden rounded-lg shadow-2xl bg-white">
+                    <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-gray-50 rounded-xl overflow-hidden">
+                      <div
+                        className="relative"
+                        style={{ paddingBottom: "60%" }}
+                      >
+                        {appImages.map((image, index) => (
+                          <div
+                            key={image.src}
+                            className={`absolute inset-0 transition-opacity duration-500 ${
+                              index === currentImageIndex
+                                ? "opacity-100"
+                                : "opacity-0"
+                            }`}
+                            style={{
+                              zIndex: index === currentImageIndex ? 1 : 0,
                             }}
-                          />
-                        </div>
-                      ))}
+                          >
+                            <img
+                              src={getImageWithFallback(image.src)}
+                              alt={image.alt}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                console.error(
+                                  `Failed to load image: ${image.src}`
+                                );
+                                e.target.src = fallbackImageBase64;
+                              }}
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-white text-sm md:text-base">
+                              {image.caption}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     {/* Navigation buttons */}
-                    {imagesLoaded && (
-                      <>
+                    <button
+                      onClick={goToPrevImage}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-indigo-700 rounded-full p-3 shadow-lg focus:outline-none transition-all hover:scale-110"
+                      aria-label="Previous image"
+                    >
+                      <FaChevronLeft size={18} />
+                    </button>
+                    <button
+                      onClick={goToNextImage}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-white/80 hover:bg-white text-indigo-700 rounded-full p-3 shadow-lg focus:outline-none transition-all hover:scale-110"
+                      aria-label="Next image"
+                    >
+                      <FaChevronRight size={18} />
+                    </button>
+
+                    {/* Dots indicators */}
+                    <div className="absolute bottom-12 left-0 right-0 flex justify-center space-x-2 z-20">
+                      {appImages.map((_, index) => (
                         <button
-                          onClick={goToPrevImage}
-                          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none transition-all"
-                          aria-label="Previous image"
-                        >
-                          <FaChevronLeft className="text-indigo-700" />
-                        </button>
-                        <button
-                          onClick={goToNextImage}
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-70 hover:bg-opacity-90 rounded-full p-2 focus:outline-none transition-all"
-                          aria-label="Next image"
-                        >
-                          <FaChevronRight className="text-indigo-700" />
-                        </button>
-
-                        {/* Dots indicators */}
-                        <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 z-20">
-                          {currentImages.map((_, index) => (
-                            <button
-                              key={index}
-                              onClick={() => {
-                                // Clear the existing interval
-                                if (intervalRef.current) {
-                                  clearInterval(intervalRef.current);
-                                }
-
-                                // Set the current image
-                                setCurrentImageIndex(index);
-                                console.log(
-                                  `Dot clicked: changing to image ${index}`
-                                );
-
-                                // Restart the interval
-                                intervalRef.current = setInterval(() => {
-                                  setCurrentImageIndex(
-                                    (prevIndex) =>
-                                      (prevIndex + 1) % currentImages.length
-                                  );
-                                }, 3000);
-                              }}
-                              className={`w-2 h-2 rounded-full transition-all ${
-                                index === currentImageIndex
-                                  ? "bg-indigo-600 w-4"
-                                  : "bg-gray-300 hover:bg-gray-400"
-                              }`}
-                              aria-label={`Go to slide ${index + 1}`}
-                            />
-                          ))}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Feature icons floating on the image */}
-                <div className="absolute -bottom-6 right-8 flex space-x-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <FaLightbulb className="text-indigo-600 text-sm sm:text-base" />
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <FaRegClock className="text-indigo-600 text-sm sm:text-base" />
-                  </div>
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <FaDownload className="text-indigo-600 text-sm sm:text-base" />
+                          key={index}
+                          onClick={() => goToSlide(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === currentImageIndex
+                              ? "bg-white w-6"
+                              : "bg-white/50 hover:bg-white/80"
+                          }`}
+                          aria-label={`Go to slide ${index + 1}`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
+      </section>
 
-      {/* Minimal Footer */}
-      <footer className="py-3 px-4 sm:px-8 text-center text-xs sm:text-sm text-gray-500 border-t border-gray-200">
-        <div className="flex justify-center space-x-4 mb-1">
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-500 hover:text-indigo-600"
-          >
-            <FaGithub />
-          </a>
-          <a
-            href="https://linkedin.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-500 hover:text-indigo-600"
-          >
-            <FaLinkedin />
-          </a>
+      {/* Features Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Powerful Features
+            </h2>
+            <p className="max-w-2xl mx-auto text-gray-600">
+              Everything you need to create impressive resumes that help you
+              land your dream job
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-5">
+                <FaDesktop className="text-indigo-600 text-xl" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Modern Templates</h3>
+              <p className="text-gray-600">
+                Choose from a variety of professional, ATS-friendly templates
+                designed to impress recruiters.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-5">
+                <FaCogs className="text-indigo-600 text-xl" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">
+                Customizable Sections
+              </h3>
+              <p className="text-gray-600">
+                Drag and drop to rearrange sections, customize content, and
+                tailor your resume to specific jobs.
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-5">
+                <FaDownload className="text-indigo-600 text-xl" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">One-Click Export</h3>
+              <p className="text-gray-600">
+                Download your resume as a PDF with a single click and apply for
+                jobs immediately.
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="flex items-center justify-center">
-          © {new Date().getFullYear()} Resume Builder • Made with{" "}
-          <span className="text-red-500 mx-1">❤️</span> by Kabilan S
-        </p>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t border-gray-200 bg-gray-50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center mb-4 md:mb-0">
+            <FaRegFileAlt className="text-indigo-600 mr-2" />
+            <span className="font-semibold text-gray-800">Resume Builder</span>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <a
+              href="https://github.com/S-KABILAN/resume-builder"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-indigo-600 transition-colors"
+            >
+              <FaGithub size={20} />
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-indigo-600 transition-colors"
+            >
+              <FaLinkedin size={20} />
+            </a>
+          </div>
+
+          <p className="text-sm text-gray-500 mt-4 md:mt-0">
+            © {new Date().getFullYear()} Resume Builder • Made with ❤️ by
+            Kabilan S
+          </p>
+        </div>
       </footer>
     </div>
   );
 };
 
 export default Landing;
+
+// Add these animations to your CSS or tailwind config
+// .animation-delay-200 { animation-delay: 0.2s; }
+// .animation-delay-300 { animation-delay: 0.3s; }
+// .animation-delay-400 { animation-delay: 0.4s; }
+// @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+// @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+// .animate-fadeIn { animation: fadeIn 1s ease forwards; }
+// .animate-slideUp { animation: slideUp 1s ease forwards; }

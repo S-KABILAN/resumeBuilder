@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/ui/sidebar";
-import TopNav from "../components/ui/topnav";
 import { useNavigate } from "react-router-dom";
 import {
   FaDownload,
@@ -476,6 +475,12 @@ const Page = () => {
   const [errorLoadingResumes, setErrorLoadingResumes] = useState(null); // State for error handling
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authAction, setAuthAction] = useState(""); // 'save' or 'download'
+
+  // Add these state variables after other state declarations, around line 476
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [resumeToDelete, setResumeToDelete] = useState(null);
+  const [showEditConfirmation, setShowEditConfirmation] = useState(false);
+  const [resumeToEdit, setResumeToEdit] = useState(null);
 
   // Add profile summary section on initial load
   useEffect(() => {
@@ -1165,6 +1170,15 @@ const Page = () => {
 
   // Load a resume into the form for editing
   const loadResumeForEditing = async (resumeId) => {
+    // Show confirmation dialog instead of immediately loading
+    setResumeToEdit(resumeId);
+    setShowEditConfirmation(true);
+  };
+
+  const confirmLoadResumeForEditing = async () => {
+    if (!resumeToEdit) return;
+
+    const resumeId = resumeToEdit;
     try {
       setIsLoading(true);
 
@@ -1224,19 +1238,27 @@ const Page = () => {
       // Switch to Create Resume tab
       setSelectedItem("Create Resume");
 
+      // Close the confirmation dialog
+      setShowEditConfirmation(false);
+      setResumeToEdit(null);
+
       // Show success toast
       setSnackbar({
         open: true,
-        message: "Resume loaded successfully!",
+        message: "Resume loaded successfully",
         severity: "success",
       });
     } catch (error) {
       console.error("Error loading resume for editing:", error);
+      // Show error message
       setSnackbar({
         open: true,
-        message: `Error loading resume: ${error.message}`,
+        message: `Failed to load resume: ${error.message}`,
         severity: "error",
       });
+      // Close the confirmation dialog
+      setShowEditConfirmation(false);
+      setResumeToEdit(null);
     } finally {
       setIsLoading(false);
     }
@@ -1534,14 +1556,16 @@ const Page = () => {
   };
 
   const handleDeleteResume = async (resumeId) => {
+    // Show confirmation dialog instead of immediately deleting
+    setResumeToDelete(resumeId);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDeleteResume = async () => {
+    if (!resumeToDelete) return;
+
+    const resumeId = resumeToDelete;
     try {
-      setIsLoading(true);
-
-      // Show confirmation dialog
-      if (!window.confirm("Are you sure you want to delete this resume?")) {
-        return;
-      }
-
       // Call the delete function from services
       const response = await deleteResume(resumeId);
 
@@ -1553,20 +1577,23 @@ const Page = () => {
       // Show success message
       setSnackbar({
         open: true,
-        message: "Resume deleted successfully!",
+        message: "Resume deleted successfully",
         severity: "success",
       });
-    } catch (error) {
-      console.error("Error deleting resume:", error.message || error);
 
+      // Close the confirmation dialog
+      setShowDeleteConfirmation(false);
+      setResumeToDelete(null);
+    } catch (error) {
+      console.error("Error deleting resume:", error);
       // Show error message
       setSnackbar({
         open: true,
-        message: `Error deleting resume: ${error.message || "Unknown error"}`,
+        message: "Failed to delete resume",
         severity: "error",
       });
-    } finally {
-      setIsLoading(false);
+      // Close the confirmation dialog but keep the resume ID in case user wants to retry
+      setShowDeleteConfirmation(false);
     }
   };
 
@@ -2313,7 +2340,7 @@ const Page = () => {
                   Preview
                 </h2>
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="scale-75 origin-top-left mb-4 transform overflow-hidden">
+                  <div className=" origin-top-left mb-4 transform overflow-hidden">
                     {renderResumePreview()}
                   </div>
                 </div>
@@ -2652,14 +2679,14 @@ const Page = () => {
       <div
         className={`resume-container content-spacing-${templateSettings.contentSpacing} font-size-${templateSettings.fontSize}`}
       >
-        {!isAuthenticated() && (
-          <div className="bg-indigo-50 p-2 border-l-4 border-indigo-500 rounded-md mb-3 flex items-center">
-            <FaLock className="text-indigo-600 mr-2" />
-            <p className="text-sm text-indigo-700">
-              Sign in to download or print your resume
-            </p>
-          </div>
-        )}
+        <div className="bg-indigo-50 p-2 border-l-4 border-indigo-500 rounded-md mb-3 flex items-center">
+          <FaDownload className="text-indigo-600 mr-2" />
+          <p className="text-sm text-indigo-700">
+            {!isAuthenticated()
+              ? "Use the save button to save your resume, then download from My Resumes page"
+              : "Sign in to download or print your resume"}
+          </p>
+        </div>
         <div className="resume-content">
           <ResumeViewer
             formData={formData}
@@ -2781,66 +2808,134 @@ const Page = () => {
     }
 
     return (
-      <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl font-bold text-gray-800">My Resumes</h1>
-          <button
-            onClick={handleResumeCreate}
-            className="bg-indigo-600 text-sm hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
-          >
-            <FaPlus className="mr-2" size={14} /> Create New
-          </button>
-        </div>
-
-        {savedResumes && savedResumes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {savedResumes.map((resume) => (
-              <div
-                key={resume._id}
-                className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <div className="p-5">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {resume.title || resume.name || "Untitled Resume"}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    Last updated:{" "}
-                    {new Date(resume.updatedAt).toLocaleDateString()}
-                  </p>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => loadResumeForEditing(resume._id)}
-                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm flex-1 transition-colors duration-200"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteResume(resume._id)}
-                      className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
-            <p className="mt-2 text-lg text-gray-600">No resumes found</p>
-            <p className="text-gray-500 mb-4">
-              Create your first resume to get started
-            </p>
+      <>
+        <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-xl font-bold text-gray-800">My Resumes</h1>
             <button
               onClick={handleResumeCreate}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+              className="bg-indigo-600 text-sm hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
             >
-              Create Resume
+              <FaPlus className="mr-2" size={14} /> Create New
             </button>
           </div>
+
+          {savedResumes && savedResumes.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {savedResumes.map((resume) => (
+                <div
+                  key={resume._id}
+                  className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <div className="p-5">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {resume.title || resume.name || "Untitled Resume"}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-3">
+                      Last updated:{" "}
+                      {new Date(resume.updatedAt).toLocaleDateString()}
+                    </p>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => loadResumeForEditing(resume._id)}
+                        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm flex-1 transition-colors duration-200"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteResume(resume._id)}
+                        className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
+              <p className="mt-2 text-lg text-gray-600">No resumes found</p>
+              <p className="text-gray-500 mb-4">
+                Create your first resume to get started
+              </p>
+              <button
+                onClick={handleResumeCreate}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Create Resume
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirmation && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                  <FaTimes className="text-red-600" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-800">
+                  Delete Resume
+                </h2>
+              </div>
+              <p className="mb-6 text-gray-600 text-sm">
+                Are you sure you want to delete this resume? This action cannot
+                be undone.
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDeleteConfirmation(false)}
+                  className="px-2 py-1 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteResume}
+                  className="px-2 py-1 text-sm bg-red-600 rounded-md text-white hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
+
+        {/* Edit Confirmation Dialog */}
+        {showEditConfirmation && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                  <FaFileAlt className="text-indigo-600" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-800">Edit Resume</h2>
+              </div>
+              <p className="mb-6 text-gray-600 text-sm">
+                Loading this resume will replace your current work. Do you want
+                to continue?
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowEditConfirmation(false)}
+                  className="px-2 py-1 border text-sm border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmLoadResumeForEditing}
+                  className="px-2 py-1 text-sm bg-indigo-600 rounded-md text-white hover:bg-indigo-700"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
     );
   };
 
@@ -2855,24 +2950,38 @@ const Page = () => {
 
       {/* Main Content */}
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-        {/* Top Navigation */}
-        <TopNav isAuthenticated={isAuthenticated()} onLogout={handleLogout} />
-
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto">
           {renderContent()}
           {renderAuthModal()}
         </main>
 
-        {/* Notification */}
+        {/* Notification Toast - Moved to top center */}
         {snackbar.open && (
-          <div className="fixed bottom-4 right-4 px-4 py-2 bg-green-600 text-white rounded-md shadow-lg">
-            {snackbar.message}
+          <div
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-lg z-50 flex items-center"
+            style={{
+              backgroundColor:
+                snackbar.severity === "error"
+                  ? "#ef4444"
+                  : snackbar.severity === "success"
+                  ? "#10b981"
+                  : "#3b82f6",
+            }}
+          >
+            {snackbar.severity === "success" && (
+              <FaCheck className="text-white mr-2" />
+            )}
+            {snackbar.severity === "error" && (
+              <FaTimes className="text-white mr-2" />
+            )}
+            <span className="text-white font-medium">{snackbar.message}</span>
             <button
               onClick={closeSnackbar}
-              className="ml-2 text-white focus:outline-none"
+              className="ml-3 text-white focus:outline-none hover:bg-white hover:bg-opacity-20 rounded-full p-1"
+              aria-label="Close notification"
             >
-              ×
+              <FaTimes size={14} />
             </button>
           </div>
         )}
