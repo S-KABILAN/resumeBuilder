@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Sidebar from "../components/ui/sidebar";
+import MobileTopNav from "../components/ui/MobileTopNav";
+import MobileBottomNav from "../components/ui/MobileBottomNav";
 import { useNavigate } from "react-router-dom";
 import {
   FaDownload,
@@ -65,7 +67,11 @@ import ATSFunctionalImg from "../assets/ats_functional.png";
 
 // Import the axiosInstance and getAuthToken at the top of the file after other imports
 import axiosInstance from "../services/api";
-import { getAuthToken, isAuthenticated } from "../utils/userUtils";
+import {
+  getAuthToken,
+  isAuthenticated,
+  getCurrentUser,
+} from "../utils/userUtils";
 
 import layout4 from "../assets/minimal-layout4.png";
 import layout5 from "../assets/executive-layout5.png";
@@ -481,6 +487,9 @@ const Page = () => {
   const [resumeToDelete, setResumeToDelete] = useState(null);
   const [showEditConfirmation, setShowEditConfirmation] = useState(false);
   const [resumeToEdit, setResumeToEdit] = useState(null);
+
+  const [userData, setUserData] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState("modern");
 
   // Add profile summary section on initial load
   useEffect(() => {
@@ -2682,8 +2691,8 @@ const Page = () => {
         <div className="bg-indigo-50 p-2 border-l-4 border-indigo-500 rounded-md mb-3 flex items-center">
           <FaDownload className="text-indigo-600 mr-2" />
           <p className="text-sm text-indigo-700">
-            {!isAuthenticated()
-              ? "Use the save button to save your resume, then download from My Resumes page"
+            {isAuthenticated()
+              ? "Use the save button to save and download buttons"
               : "Sign in to download or print your resume"}
           </p>
         </div>
@@ -2939,53 +2948,73 @@ const Page = () => {
     );
   };
 
+  // Add this useEffect to get user data when component mounts
+  useEffect(() => {
+    const user = getCurrentUser();
+    setUserData(user);
+  }, []);
+
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar
-        selectedItem={selectedItem}
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* Mobile Top Navigation */}
+      <MobileTopNav userName={userData?.name} onLogout={handleLogout} />
+
+      <div className="flex flex-1 h-full">
+        {/* Sidebar - Only shown on desktop */}
+        <Sidebar
+          onMenuClick={handleMenuClick}
+          userName={userData?.name}
+          onLogout={handleLogout}
+          selectedItem={selectedItem}
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-hidden flex flex-col relative h-screen">
+          {/* Main content with padding adjusted for mobile navigation */}
+          <div className="flex-1 overflow-auto h-full pb-16 md:pb-0 pt-14 md:pt-0">
+            {/* Content container */}
+            <div className="px-4 py-4 md:px-8 md:py-6 h-full">
+              {renderContent()}
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav
         onMenuClick={handleMenuClick}
-        onLogout={handleLogout}
+        selectedItem={selectedItem}
       />
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto">
-          {renderContent()}
-          {renderAuthModal()}
-        </main>
-
-        {/* Notification Toast - Moved to top center */}
-        {snackbar.open && (
-          <div
-            className="fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-md shadow-lg z-50 flex items-center"
-            style={{
-              backgroundColor:
-                snackbar.severity === "error"
-                  ? "#ef4444"
-                  : snackbar.severity === "success"
-                  ? "#10b981"
-                  : "#3b82f6",
-            }}
-          >
-            {snackbar.severity === "success" && (
-              <FaCheck className="text-white mr-2" />
-            )}
-            {snackbar.severity === "error" && (
-              <FaTimes className="text-white mr-2" />
-            )}
-            <span className="text-white font-medium">{snackbar.message}</span>
+      {/* Snackbar notification */}
+      {snackbar.open && (
+        <div
+          className={`fixed bottom-20 md:bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+            snackbar.severity === "success"
+              ? "bg-green-600"
+              : snackbar.severity === "error"
+              ? "bg-red-600"
+              : "bg-indigo-600"
+          }`}
+        >
+          <div className="flex items-center text-white">
+            <span>{snackbar.message}</span>
             <button
               onClick={closeSnackbar}
-              className="ml-3 text-white focus:outline-none hover:bg-white hover:bg-opacity-20 rounded-full p-1"
-              aria-label="Close notification"
+              className="ml-3 text-white hover:text-gray-200"
             >
-              <FaTimes size={14} />
+              <FaTimes />
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && renderAuthModal()}
+
+      {/* Delete/Edit Confirmation Dialogs */}
+      {showDeleteConfirmation && renderDeleteConfirmation()}
+      {showEditConfirmation && renderEditConfirmation()}
     </div>
   );
 };

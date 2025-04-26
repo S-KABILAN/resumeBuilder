@@ -16,13 +16,24 @@ export const storeUserData = (userData, token) => {
     }
 
     // Ensure user data has required fields before storing
-    if (!userData._id) {
+    // Check for either id or _id field
+    if (!userData._id && !userData.id) {
       console.error("User data missing required ID field");
       return false;
     }
 
+    // Create a normalized user object to ensure consistent _id field
+    const normalizedUser = {
+      ...userData,
+    };
+
+    // Ensure _id exists (use id as fallback)
+    if (!normalizedUser._id && normalizedUser.id) {
+      normalizedUser._id = normalizedUser.id;
+    }
+
     // Store data
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
     localStorage.setItem("jwtToken", token);
     return true;
   } catch (error) {
@@ -46,9 +57,20 @@ export const getUserData = () => {
     const userData = JSON.parse(userStr);
 
     // Validate the user data has required fields
-    if (!userData || !userData._id) {
+    if (!userData) {
       console.error("Invalid user data in local storage");
       return null;
+    }
+
+    // Check for either id or _id field
+    if (!userData._id && !userData.id) {
+      console.error("User data missing required ID field");
+      return null;
+    }
+
+    // Normalize the user data to ensure _id exists
+    if (!userData._id && userData.id) {
+      userData._id = userData.id;
     }
 
     return userData;
@@ -72,6 +94,7 @@ export const getCurrentUser = () => {
  */
 export const getUserId = () => {
   const userData = getUserData();
+  // getUserData now ensures that _id always exists if any ID field exists
   return userData ? userData._id : null;
 };
 

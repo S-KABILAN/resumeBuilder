@@ -24,6 +24,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,15 +32,55 @@ const LoginPage = () => {
       ...formData,
       [name]: value,
     });
+
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Email validation
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (!isLogin && formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    // Name validation for registration
+    if (!isLogin && !formData.name) {
+      newErrors.name = "Name is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -51,6 +92,8 @@ const LoginPage = () => {
         });
         if (response.success) {
           navigate("/dashboard");
+        } else if (response.message) {
+          setError(response.message);
         }
       } else {
         // Register new user
@@ -61,10 +104,13 @@ const LoginPage = () => {
         });
         if (response.success) {
           navigate("/dashboard");
+        } else if (response.message) {
+          setError(response.message);
         }
       }
     } catch (error) {
-      setError(error.message);
+      console.error("Authentication error:", error);
+      setError(error.message || "An error occurred during authentication");
     } finally {
       setLoading(false);
     }
@@ -79,7 +125,10 @@ const LoginPage = () => {
     <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white overflow-hidden">
       {/* Header */}
       <header className="py-4 px-6 flex justify-between items-center">
-        <a href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <a
+          href="/"
+          className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+        >
           Resume Builder
         </a>
       </header>
@@ -160,10 +209,15 @@ const LoginPage = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required={!isLogin}
-                        className="py-2 pl-10 pr-3 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className={`py-2 pl-10 pr-3 block w-full rounded-lg border ${
+                          errors.name ? "border-red-500" : "border-gray-300"
+                        } shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
                         placeholder="Full Name"
                       />
                     </div>
+                    {errors.name && (
+                      <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                    )}
                   </div>
                 )}
 
@@ -178,10 +232,15 @@ const LoginPage = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="py-2 pl-10 pr-3 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      className={`py-2 pl-10 pr-3 block w-full rounded-lg border ${
+                        errors.email ? "border-red-500" : "border-gray-300"
+                      } shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
                       placeholder="Email Address"
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                  )}
                 </div>
 
                 <div>
@@ -195,7 +254,9 @@ const LoginPage = () => {
                       value={formData.password}
                       onChange={handleInputChange}
                       required
-                      className="py-2 pl-10 pr-10 block w-full rounded-lg border border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      className={`py-2 pl-10 pr-10 block w-full rounded-lg border ${
+                        errors.password ? "border-red-500" : "border-gray-300"
+                      } shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
                       placeholder="Password"
                     />
                     <div
@@ -209,6 +270,11 @@ const LoginPage = () => {
                       )}
                     </div>
                   </div>
+                  {errors.password && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
 
                 {error && (

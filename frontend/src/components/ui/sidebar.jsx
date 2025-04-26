@@ -87,9 +87,12 @@ const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
         </div>
         {isExpanded && (
           <>
-            <h1 className="text-xl font-bold text-white text-center tracking-wide">
+            <a
+              href="/"
+              className="text-xl font-bold text-white text-center tracking-wide"
+            >
               Resume Builder
-            </h1>
+            </a>
             <p className="text-indigo-100 text-sm mt-2 font-medium opacity-90">
               Welcome, {userName || "User"}
             </p>

@@ -66,13 +66,19 @@ export const register = async (userData) => {
     if (response.data.success) {
       // Ensure the user object has the required fields
       const user = response.data.data.user;
-      if (!user || !user._id) {
+      if (!user || !user.id) {
         console.error("Registration succeeded but user data is invalid");
         throw new Error("Invalid user data received from server");
       }
 
+      // Create a normalized user object with _id for consistency
+      const normalizedUser = {
+        ...user,
+        _id: user.id, // Ensure _id exists for consistency with other authentication methods
+      };
+
       // Store user data and token
-      storeUserData(user, response.data.token);
+      storeUserData(normalizedUser, response.data.token);
     }
     return response.data;
   } catch (error) {
@@ -90,13 +96,19 @@ export const login = async (credentials) => {
     if (response.data.success) {
       // Ensure the user object has the required fields
       const user = response.data.data.user;
-      if (!user || !user._id) {
+      if (!user || !user.id) {
         console.error("Login succeeded but user data is invalid");
         throw new Error("Invalid user data received from server");
       }
 
+      // Create a normalized user object with _id for consistency
+      const normalizedUser = {
+        ...user,
+        _id: user.id, // Ensure _id exists for consistency with other authentication methods
+      };
+
       // Store user data and token
-      storeUserData(user, response.data.token);
+      storeUserData(normalizedUser, response.data.token);
     }
     return response.data;
   } catch (error) {
