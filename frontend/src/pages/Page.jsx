@@ -19,7 +19,6 @@ import {
   FaTrophy,
   FaProjectDiagram,
   FaCertificate,
-  FaPalette,
   FaArrowLeft,
 } from "react-icons/fa";
 import {
@@ -35,6 +34,7 @@ import ProjectsForm from "../components/forms/ProjectsForm";
 import CertificationsForm from "../components/forms/CertificationsForm";
 import SectionManager from "../components/SectionManager";
 import CustomSectionForm from "../components/forms/CustomSectionForm";
+import LanguagesForm from "../components/forms/LanguagesForm";
 import ResumeTemplates from "../components/ResumeTemplates";
 import VersionHistory from "../components/VersionHistory";
 import TemplateCustomizer from "../components/TemplateCustomizer";
@@ -55,6 +55,7 @@ import {
   deleteResume,
 } from "../services/routes/resume";
 import { saveVersion } from "../services/versionControlService";
+import { languageCreate } from "../services/routes/language";
 
 // Import template images
 import ModernTwoColumnImg from "../assets/modern_two_column.png";
@@ -1404,6 +1405,37 @@ const Page = () => {
     setFormData({ ...formData, certifications: updatedCertifications });
   };
 
+  const addLanguage = () => {
+    setFormData({
+      ...formData,
+      languages: [
+        ...(formData.languages || []),
+        {
+          language: "",
+          proficiency: "Intermediate",
+          isVisible: true,
+        },
+      ],
+    });
+  };
+
+  const removeLanguage = (index) => {
+    const updatedLanguages = formData.languages.filter((_, i) => i !== index);
+    setFormData({ ...formData, languages: updatedLanguages });
+  };
+
+  const handleSubmitLanguages = async () => {
+    try {
+      const response = await languageCreate(formData.languages);
+      if (response && response.success) {
+        console.log("Languages info submitted", formData.languages);
+      }
+    } catch (error) {
+      console.log(error.message || "Failed to submit languages information");
+    }
+    console.log("Languages Submitted", formData.languages);
+  };
+
   const handleSubmitPersonalInfo = async () => {
     try {
       const response = await PersonalInfoSubmit(formData.personal); // Ensure `formData.personal` has the correct fields
@@ -1530,15 +1562,15 @@ const Page = () => {
   // For the Create Resume section
   const renderCreateResumeSection = () => {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left sidebar for section navigation - IMPROVED UI */}
-        <div className="col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
-            <div className="mb-3 border-b border-gray-100 pb-3">
-              <h2 className="text-base font-semibold text-gray-800 mb-1 flex items-center">
+      <div className="grid grid-cols-12 gap-4">
+        {/* Left sidebar for section navigation - 20% */}
+        <div className="col-span-2">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sticky top-4">
+            <div className="mb-3 border-b border-gray-100 pb-2">
+              <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1.5 text-indigo-600"
+                  className="h-3 w-3 mr-1 text-indigo-600"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -1551,40 +1583,6 @@ const Page = () => {
                 </svg>
                 Resume Sections
               </h2>
-              <p className="text-xs text-gray-500">
-                Build your resume section by section
-              </p>
-            </div>
-
-            {/* Section Progress Bar */}
-            <div className="mb-3">
-              <div className="flex items-center justify-between text-[10px] text-gray-500 mb-1">
-                <span>Completion</span>
-                <span className="font-medium">
-                  {Math.round(
-                    (Object.keys(formData.personal).filter(
-                      (key) => formData.personal[key]
-                    ).length /
-                      7) *
-                      100
-                  )}
-                  %
-                </span>
-              </div>
-              <div className="w-full bg-gray-100 rounded-full h-1.5">
-                <div
-                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-1.5 rounded-full"
-                  style={{
-                    width: `${Math.round(
-                      (Object.keys(formData.personal).filter(
-                        (key) => formData.personal[key]
-                      ).length /
-                        7) *
-                        100
-                    )}%`,
-                  }}
-                ></div>
-              </div>
             </div>
 
             <div className="space-y-1">
@@ -1593,7 +1591,7 @@ const Page = () => {
                   key={item.id}
                   onClick={() => handleSectionChange(item.id)}
                   className={`
-                    w-full flex items-center px-2.5 py-2 rounded-md text-left transition-all duration-200
+                    w-full flex items-center p-2 rounded-md text-left transition-all duration-200
                     ${
                       activeSection === item.id
                         ? "bg-indigo-50 text-indigo-700"
@@ -1620,52 +1618,7 @@ const Page = () => {
                       size={13}
                     />
                   </div>
-                  <div>
-                    <span className="font-medium text-xs">{item.label}</span>
-                    {item.id === "PersonalInfo" && formData.personal && (
-                      <div className="text-[10px] mt-0.5">
-                        {formData.personal.name ? (
-                          <span className="text-green-600">Complete</span>
-                        ) : (
-                          <span className="text-orange-500">Required</span>
-                        )}
-                      </div>
-                    )}
-                    {item.id === "Education" && (
-                      <div className="text-[10px] mt-0.5">
-                        {formData.education && formData.education.length > 0 ? (
-                          <span className="text-green-600">
-                            {formData.education.length} added
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">Recommended</span>
-                        )}
-                      </div>
-                    )}
-                    {item.id === "Experience" && (
-                      <div className="text-[10px] mt-0.5">
-                        {formData.experience &&
-                        formData.experience.length > 0 ? (
-                          <span className="text-green-600">
-                            {formData.experience.length} added
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">Recommended</span>
-                        )}
-                      </div>
-                    )}
-                    {item.id === "Skills" && (
-                      <div className="text-[10px] mt-0.5">
-                        {formData.skills && formData.skills.length > 0 ? (
-                          <span className="text-green-600">
-                            {formData.skills.length} added
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">Recommended</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <span className="text-xs font-medium">{item.label}</span>
                 </button>
               ))}
             </div>
@@ -1676,38 +1629,36 @@ const Page = () => {
                 onClick={() => setActiveSection("SectionManager")}
                 className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaCogs className="mr-1.5 text-gray-500" size={12} /> Manage
-                Sections
+                <FaCogs className="mr-1.5 text-gray-500" size={10} /> Manage
               </button>
 
               <button
                 onClick={() => setActiveSection("CustomSections")}
                 className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaPlus className="mr-1.5 text-gray-500" size={12} /> Add Custom
-                Section
+                <FaPlus className="mr-1.5 text-gray-500" size={10} /> Custom
               </button>
 
               <button
                 onClick={() => setSelectedItem("Template Settings")}
                 className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
               >
-                <FaPalette className="mr-1.5 text-gray-500" size={12} />{" "}
-                Customize Template
+                <FaThLarge className="mr-1.5 text-gray-500" size={10} />{" "}
+                Customize
               </button>
 
               <button
                 onClick={saveResume}
                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center mt-2 shadow-sm"
               >
-                <FaSave className="mr-1.5" size={12} /> Save Resume
+                <FaSave className="mr-1.5" size={10} /> Save Resume
               </button>
             </div>
           </div>
         </div>
 
-        {/* Middle section with form - IMPROVED UI */}
-        <div className="col-span-1 lg:col-span-1">
+        {/* Middle section with form - 30% */}
+        <div className="col-span-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="border-b border-gray-100">
               <div className="px-4 py-3 flex items-center">
@@ -1768,8 +1719,8 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Right section with preview - IMPROVED UI */}
-        <div className="col-span-1">
+        {/* Right section with preview - 30% */}
+        <div className="col-span-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
             <div className="mb-3 pb-3 border-b border-gray-100 flex justify-between items-center">
               <h2 className="text-base font-semibold text-gray-800 flex items-center">
@@ -1783,26 +1734,31 @@ const Page = () => {
                 </svg>
                 Preview
               </h2>
-              <div className="flex space-x-1.5">
+              <div className="flex space-x-2">
                 <button
-                  onClick={() => setSelectedItem("Resume Templates")}
-                  className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-1.5 px-2 rounded text-xs transition-colors duration-200 flex items-center"
+                  type="button"
+                  onClick={saveResume}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
                 >
-                  <FaThLarge className="mr-1" size={10} />
-                  <span className="hidden sm:inline">Templates</span>
+                  <FaSave className="mr-1.5" size={12} /> Save Resume
                 </button>
+
                 <button
+                  type="button"
                   onClick={downloadResume}
-                  className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-1.5 px-2 rounded text-xs transition-colors duration-200 flex items-center"
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
                 >
-                  <FaDownload className="mr-1" size={10} />
-                  <span className="hidden sm:inline">Download</span>
+                  <FaDownload className="mr-1.5" size={12} /> Download PDF
                 </button>
               </div>
             </div>
 
+            <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
+              <div className="py-10 px-4">{renderResumePreview()}</div>
+            </div>
+
             {/* Template info */}
-            <div className="mb-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
+            <div className="mt-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
               <div className="flex items-center">
                 <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
                   <FaThLarge className="text-indigo-600" size={11} />
@@ -1824,42 +1780,10 @@ const Page = () => {
               </div>
               <button
                 onClick={() => setSelectedItem("Resume Templates")}
-                className="text-indigo-600 hover:text-indigo-800 text-[10px] font-medium"
+                className="text-indigo-600 hover:text-indigo-800 text-[10px] font-medium transition-colors duration-200 py-1 px-2 rounded border border-indigo-100 flex items-center"
               >
-                Change
+                <FaThLarge className="mr-1" size={10} /> Change Template
               </button>
-            </div>
-
-            <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
-              <div className="scale-[0.58] origin-top-left py-10 px-4">
-                {renderResumePreview()}
-              </div>
-            </div>
-
-            <div className="mt-3 flex justify-center">
-              <div className="inline-flex rounded-md shadow-sm" role="group">
-                <button
-                  type="button"
-                  onClick={() => setSelectedItem("PDF Export")}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-l-md hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
-                >
-                  PDF Export
-                </button>
-                <button
-                  type="button"
-                  onClick={saveResume}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border-t border-b border-gray-200 hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedItem("Template Settings")}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-r-md hover:bg-gray-50 focus:z-10 focus:ring-1 focus:ring-indigo-500 focus:text-indigo-700"
-                >
-                  Customize
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -1872,10 +1796,10 @@ const Page = () => {
     return (
       <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          <h1 className="text-xl font-bold text-gray-800 mb-2">
             Resume Templates
           </h1>
-          <p className="text-gray-600">Choose a template for your resume</p>
+          <p className="text-gray-600 text-sm">Choose a template for your resume</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1892,14 +1816,14 @@ const Page = () => {
               `}
               onClick={() => handleLayoutSelect(template.id, template.settings)}
             >
-              <div className="relative aspect-[3/4] bg-gray-100">
+              <div className="relative aspect-[2/2.5] bg-gray-100">
                 <img
                   src={
                     template.image ||
                     "https://via.placeholder.com/300x400?text=Template"
                   }
                   alt={template.name}
-                  className="w-full h-full object-cover"
+                  className=" object-cover"
                 />
                 {selectedLayout === template.id && (
                   <div className="absolute inset-0 bg-indigo-600 bg-opacity-20 flex items-center justify-center">
@@ -1927,10 +1851,10 @@ const Page = () => {
     if (selectedItem === "Home") {
       return (
         <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          <h1 className="text-xl font-bold text-gray-800 mb-3">
             Welcome to Resume Builder
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-sm text-gray-600 mb-8">
             Create a professional resume in minutes with our easy-to-use
             builder.
           </p>
@@ -1944,7 +1868,7 @@ const Page = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 Create New Resume
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 Build a professional resume with our templates
               </p>
             </div>
@@ -1957,7 +1881,7 @@ const Page = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 My Resumes
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 Access and edit your saved resumes
               </p>
             </div>
@@ -1970,7 +1894,7 @@ const Page = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 Resume Templates
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 Browse and select from our template collection
               </p>
             </div>
@@ -2018,10 +1942,10 @@ const Page = () => {
         return (
           <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">My Resumes</h1>
+              <h1 className="text-xl font-bold text-gray-800">My Resumes</h1>
               <button
                 onClick={handleResumeCreate}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
+                className="bg-indigo-600 text-sm hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
               >
                 <FaPlus className="mr-2" size={14} /> Create New
               </button>
@@ -2555,6 +2479,27 @@ const Page = () => {
             addCertification={addCertification}
             removeCertification={removeCertification}
             onSubmit={handleSubmitCertifications}
+          />
+        );
+      case "Languages":
+        return (
+          <LanguagesForm
+            formData={formData}
+            onFormChange={(field, updatedLanguages) => {
+              if (field === "languages" && Array.isArray(updatedLanguages)) {
+                // Handle the case where the entire certifications array is updated
+                setFormData({
+                  ...formData,
+                  languages: updatedLanguages,
+                });
+              } else {
+                // Handle the legacy case
+                handleFormChange("languages", field, updatedLanguages);
+              }
+            }}
+            addLanguage={addLanguage}
+            removeLanguage={removeLanguage}
+            onSubmit={handleSubmitLanguages}
           />
         );
       case "CustomSections":

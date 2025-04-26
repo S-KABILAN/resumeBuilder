@@ -2593,7 +2593,7 @@ export const ResumeViewer = ({
     className="resume-pdf-viewer"
     style={{
       width: "100%",
-      height: "700px",
+      height: "600px",
       maxHeight: "90vh", // More responsive height
       border: "none", // Remove border for cleaner look
     }}
