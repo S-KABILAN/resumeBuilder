@@ -6,14 +6,16 @@ import {
   FormSection,
   FormFooter,
   EntryCard,
-  FormField,
 } from "./FormStyles";
-import { Select, Checkbox } from "./FormComponents";
+import { Checkbox } from "./FormComponents";
 
 const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const [newLanguage, setNewLanguage] = useState("");
   const [newProficiency, setNewProficiency] = useState("Intermediate");
   const [isVisible, setIsVisible] = useState(true);
+
+  // Log initial form data for debugging
+  console.log("LanguagesForm rendered with formData:", formData);
 
   // Initialize with default entries if none exist
   if (!formData.languages || formData.languages.length === 0) {
@@ -25,6 +27,7 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
       },
     ];
 
+    console.log("Initializing with default languages:", defaultLanguages);
     onFormChange("languages", defaultLanguages);
   }
 
@@ -43,20 +46,32 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const handleAddLanguage = () => {
     if (!newLanguage.trim()) return;
 
+    // Get the selected proficiency value
+    const proficiency = newProficiency || "Intermediate";
+
+    console.log("Adding new language with proficiency:", proficiency);
+
     // Add the new language directly to the formData
     const languageEntry = {
       language: newLanguage,
-      proficiency: newProficiency,
+      proficiency: proficiency,
       isVisible: isVisible,
     };
 
+    console.log("New language entry:", languageEntry);
+
     const updatedLanguages = [...(formData.languages || []), languageEntry];
+
+    // First update the form data
     onFormChange("languages", updatedLanguages);
 
-    // Reset the form
-    setNewLanguage("");
-    setNewProficiency("Intermediate");
-    setIsVisible(true);
+    // Only reset the form after the data has been updated
+    setTimeout(() => {
+      setNewLanguage("");
+      setNewProficiency("Intermediate"); // Reset to default
+      setIsVisible(true);
+      console.log("Form reset complete");
+    }, 100);
   };
 
   // Handle input change
@@ -200,19 +215,30 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
                 )}
               </div>
 
-              <FormField label="Proficiency" className="col-span-1">
-                <Select
+              <div className="col-span-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Proficiency
+                </label>
+                <select
                   value={newProficiency}
-                  onChange={(e) => setNewProficiency(e.target.value)}
-                  className="w-full"
+                  onChange={(e) => {
+                    console.log("Direct select change:", e.target.value);
+                    setNewProficiency(e.target.value);
+                  }}
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  name="proficiency"
                 >
                   <option value="Native">Native</option>
                   <option value="Proficient">Proficient</option>
                   <option value="Advanced">Advanced</option>
                   <option value="Intermediate">Intermediate</option>
                   <option value="Elementary">Elementary</option>
-                </Select>
-              </FormField>
+                </select>
+                {/* Debug display */}
+                <div className="text-xs text-gray-500 mt-1">
+                  Current selection: {newProficiency}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center mt-4">
@@ -244,6 +270,20 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
       </EntryCard>
 
       <FormFooter onSubmit={onSubmit} />
+
+      {/* Debug section */}
+      <div className="mt-4 p-2 bg-gray-100 rounded text-xs">
+        <details>
+          <summary className="cursor-pointer">Debug Info</summary>
+          <div className="mt-2">
+            <p>Current proficiency state: {newProficiency}</p>
+            <p className="mt-1">Languages in formData:</p>
+            <pre className="mt-1 bg-gray-200 p-1 rounded overflow-auto">
+              {JSON.stringify(formData.languages, null, 2)}
+            </pre>
+          </div>
+        </details>
+      </div>
     </FormContainer>
   );
 };
