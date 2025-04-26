@@ -110,7 +110,7 @@ const CertificationsForm = ({
   };
 
   return (
-    <FormContainer title="Certifications">
+    <FormContainer>
       {formData.certifications && formData.certifications.length > 0 && (
         <>
           <EntryTabs

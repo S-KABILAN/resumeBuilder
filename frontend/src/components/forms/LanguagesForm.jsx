@@ -116,12 +116,10 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   };
 
   return (
-    <FormContainer title="Languages">
+    <FormContainer>
       {/* Current languages list */}
       {formData.languages && formData.languages.length > 0 ? (
         <FormSection
-          title="Your Languages"
-          description="Manage your language proficiencies"
         >
           <div className="space-y-3">
             {formData.languages.map((item, index) => (

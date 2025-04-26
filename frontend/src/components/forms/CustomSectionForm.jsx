@@ -65,12 +65,8 @@ const CustomSectionForm = ({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Custom Sections</h2>
       </div>
-      <p className="mb-6 text-gray-600">
-        Add any additional sections to highlight other skills, interests, or
-        achievements.
-      </p>
+    
 
       {/* Custom section entries */}
       <div className="space-y-6">
@@ -98,7 +94,7 @@ const CustomSectionForm = ({
                     type="text"
                     value={section.title || ""}
                     onChange={(e) => handleTitleChange(index, e.target.value)}
-                    className="text-lg font-medium px-2 py-1 border-0 focus:ring-0 focus:border-b-2 focus:border-blue-500"
+                    className="text-sm  px-2 py-1 border-0 focus:ring-0 focus:border-b-2 focus:border-blue-500"
                     placeholder="Section Title"
                   />
                 </div>
@@ -151,19 +147,19 @@ const CustomSectionForm = ({
               type="text"
               value={newSectionTitle}
               onChange={(e) => setNewSectionTitle(e.target.value)}
-              className="flex-grow px-3 py-2 mr-2 text-gray-700 border rounded-lg focus:outline-none"
+              className="flex-grow text-sm px-3 py-2 mr-2 text-gray-700 border rounded-lg focus:outline-none"
               placeholder="Section Title"
             />
             <button
               onClick={handleAddNewSection}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
               disabled={!newSectionTitle.trim()}
             >
               Add
             </button>
             <button
               onClick={() => setShowTitleInput(false)}
-              className="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+              className="ml-2 px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
             >
               Cancel
             </button>

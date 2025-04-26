@@ -69,15 +69,15 @@ import ATSFunctionalImg from "../assets/ats_functional.png";
 import axiosInstance from "../services/api";
 import { getAuthToken } from "../utils/userUtils";
 
-import layout4 from "../assets/minimal-layout4.png"
-import layout5 from "../assets/executive-layout5.png"
-import layout6 from "../assets/acadamic-layout6.png"
-import ATSFunctional from "../assets/ATSFunctional.png"
-import ModernTwoColumn from "../assets/ModernTwoColumn.png"
-import ProfessionalTwoColumn from "../assets/ProfessionalTwoColumn.png"
-import professional from "../assets/Professional.png"
-import ATSsimpleClean from "../assets/ATSSimpleClean.png"
-import CompactTwoColumn from "../assets/CompactTwoColumn.png"
+import layout4 from "../assets/minimal-layout4.png";
+import layout5 from "../assets/executive-layout5.png";
+import layout6 from "../assets/acadamic-layout6.png";
+import ATSFunctional from "../assets/ATSFunctional.png";
+import ModernTwoColumn from "../assets/ModernTwoColumn.png";
+import ProfessionalTwoColumn from "../assets/ProfessionalTwoColumn.png";
+import professional from "../assets/Professional.png";
+import ATSsimpleClean from "../assets/ATSSimpleClean.png";
+import CompactTwoColumn from "../assets/CompactTwoColumn.png";
 
 // Default resume data for demonstration
 const defaultResumeData = {
@@ -2122,7 +2122,7 @@ const Page = () => {
         return (
           <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-xl font-bold text-gray-800">
                 Template Customization
               </h1>
               <button
@@ -2267,7 +2267,7 @@ const Page = () => {
                             font: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full text-sm px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       >
                         <option value="ui-sans-serif, system-ui, sans-serif">
                           Sans Serif
@@ -2304,7 +2304,7 @@ const Page = () => {
                             spacing: e.target.value,
                           })
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="w-full px-2 text-sm py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       >
                         <option value="compact">Compact</option>
                         <option value="normal">Normal</option>
@@ -2316,7 +2316,7 @@ const Page = () => {
                   <div className="pt-4">
                     <button
                       onClick={() => setSelectedItem("Create Resume")}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg transition-colors duration-200"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 text-sm rounded-lg transition-colors duration-200"
                     >
                       Apply Changes & Return to Editor
                     </button>
@@ -2435,7 +2435,7 @@ const Page = () => {
                 </svg>
                 Back to Editor
               </button>
-              <h2 className="text-2xl font-bold">Resume Export</h2>
+              <h2 className="text-xl font-bold">Resume Export</h2>
               <div className="w-32"></div>
             </div>
 

@@ -100,7 +100,7 @@ const AchievementsForm = ({
   const currentAchievement = formData.achievements?.[activeIndex] || {};
 
   return (
-    <FormContainer title="Achievements & Awards">
+    <FormContainer>
       {formData.achievements && formData.achievements.length > 0 && (
         <EntryTabs
           entries={formData.achievements}

@@ -101,7 +101,7 @@ const SkillsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const currentSkill = formData.skills?.[activeIndex] || {};
 
   return (
-    <FormContainer title="Skills">
+    <FormContainer>
       {formData.skills && formData.skills.length > 0 && (
         <EntryTabs
           entries={formData.skills}

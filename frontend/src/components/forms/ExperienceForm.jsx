@@ -131,7 +131,7 @@ const ExperienceForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   };
 
   return (
-    <FormContainer title="Work Experience">
+    <FormContainer>
       {formData.experience && formData.experience.length > 0 && (
         <>
           <EntryTabs

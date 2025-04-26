@@ -308,7 +308,7 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const currentEducation = formData.education?.[activeIndex] || {};
 
   return (
-    <FormContainer title="Education">
+    <FormContainer>
       {formData.education && formData.education.length > 0 && (
         <EntryTabs
           entries={formData.education}
@@ -323,7 +323,7 @@ const EducationForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
 
       {formData.education && formData.education.length > 0 && (
         <EntryCard
-          title={`Education #${activeIndex + 1}`}
+          title={`Education ${activeIndex + 1}`}
           onRemove={() => handleRemoveEducation(activeIndex)}
           disableRemove={formData.education.length <= 1}
           isVisible={currentEducation.isVisible}

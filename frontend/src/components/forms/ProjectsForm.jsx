@@ -109,7 +109,7 @@ const ProjectsForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   };
 
   return (
-    <FormContainer title="Projects">
+    <FormContainer >
       {formData.projects && formData.projects.length > 0 && (
         <>
           <EntryTabs
