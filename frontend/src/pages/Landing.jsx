@@ -130,7 +130,7 @@ const Landing = () => {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="https://github.com/S-KABILAN/resume-builder"
+            href="https://github.com/S-KABILAN/resumeBuilder"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 rounded-lg font-medium text-white bg-gray-800 hover:bg-black transition-colors shadow-sm flex items-center group"

@@ -740,20 +740,11 @@ const Page = () => {
       setErrorLoadingResumes(error.message || "Failed to fetch resumes");
 
       // Display error toast
-      const errorToast = document.createElement("div");
-      errorToast.className =
-        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
-      errorToast.textContent = `Error: ${
-        error.message || "Failed to fetch resumes"
-      }`;
-      document.body.appendChild(errorToast);
-
-      // Remove error message after 3 seconds
-      setTimeout(() => {
-        if (document.body.contains(errorToast)) {
-          document.body.removeChild(errorToast);
-        }
-      }, 3000);
+      setSnackbar({
+        open: true,
+        message: `Error: ${error.message || "Failed to fetch resumes"}`,
+        severity: "error",
+      });
 
       return []; // Return empty array on error
     } finally {
@@ -977,18 +968,11 @@ const Page = () => {
         setIsLoading(false);
 
         // Display error message
-        const errorToast = document.createElement("div");
-        errorToast.className =
-          "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
-        errorToast.textContent = "Please fill in all required fields.";
-        document.body.appendChild(errorToast);
-
-        // Remove error message after 3 seconds
-        setTimeout(() => {
-          if (document.body.contains(errorToast)) {
-            document.body.removeChild(errorToast);
-          }
-        }, 3000);
+        setSnackbar({
+          open: true,
+          message: "Please fill in all required fields.",
+          severity: "error",
+        });
 
         return;
       }
@@ -1013,7 +997,7 @@ const Page = () => {
       // Display loading indicator
       const loadingToast = document.createElement("div");
       loadingToast.className =
-        "fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded shadow-lg z-50";
+        "fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded shadow-lg z-50";
       loadingToast.textContent = "Saving your resume...";
       document.body.appendChild(loadingToast);
 
@@ -1072,22 +1056,6 @@ const Page = () => {
           severity: "success",
         });
 
-        // Also display a visual toast
-        const successToast = document.createElement("div");
-        successToast.className =
-          "fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50";
-        successToast.textContent = `Resume ${
-          editingResumeId ? "updated" : "saved"
-        } successfully!`;
-        document.body.appendChild(successToast);
-
-        // Remove success message after 3 seconds
-        setTimeout(() => {
-          if (document.body.contains(successToast)) {
-            document.body.removeChild(successToast);
-          }
-        }, 3000);
-
         // Fetch all resumes to update the list
         fetchAllResumes();
       } catch (error) {
@@ -1110,21 +1078,7 @@ const Page = () => {
         severity: "error",
       });
 
-      // Show error message
-      const errorToast = document.createElement("div");
-      errorToast.className =
-        "fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded shadow-lg z-50";
-      errorToast.textContent = `Error: ${
-        error.message || "Failed to save resume. Please try again."
-      }`;
-      document.body.appendChild(errorToast);
-
-      // Remove error message after 5 seconds
-      setTimeout(() => {
-        if (document.body.contains(errorToast)) {
-          document.body.removeChild(errorToast);
-        }
-      }, 5000);
+      // No need for duplicate toast here
     } finally {
       setIsLoading(false);
     }
@@ -1190,23 +1144,43 @@ const Page = () => {
     const resumeId = resumeToEdit;
     try {
       setIsLoading(true);
+      console.log(`Loading resume with ID: ${resumeId}`);
 
       // Try to find in cache first
       let resume = savedResumes.find((r) => r._id === resumeId);
 
+      if (resume) {
+        console.log("Found resume in cached savedResumes data");
+      } else {
+        console.log("Resume not found in cache, fetching from server");
+      }
+
       // If not in cache or we want to ensure we have latest data, fetch from server
       if (!resume) {
         // Fetch the resume from the server using the API
-        const response = await axiosInstance.get(`/resume/r/${resumeId}`, {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-        });
+        console.log(`Fetching resume data from: /resume/r/${resumeId}`);
 
-        if (response.data && response.data.success) {
-          resume = response.data.data;
-        } else {
-          throw new Error("Failed to fetch resume data");
+        try {
+          const response = await axiosInstance.get(`/resume/r/${resumeId}`, {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+
+          console.log("API response:", response);
+
+          if (response.data && response.data.success) {
+            resume = response.data.data;
+            console.log("Successfully fetched resume data:", resume);
+          } else {
+            console.error("API returned unsuccessful response:", response.data);
+            throw new Error(
+              response.data?.error || "Failed to fetch resume data"
+            );
+          }
+        } catch (apiError) {
+          console.error("API call error:", apiError);
+          throw new Error(`API error: ${apiError.message}`);
         }
       }
 
@@ -1566,22 +1540,51 @@ const Page = () => {
 
   const handleDeleteResume = async (resumeId) => {
     // Show confirmation dialog instead of immediately deleting
+    console.log(`Preparing to delete resume with ID: ${resumeId}`);
     setResumeToDelete(resumeId);
     setShowDeleteConfirmation(true);
   };
 
+  // Add this after confirmDeleteResume function
+  // Function to refresh resumes after operations
+  const refreshResumes = async () => {
+    try {
+      console.log("Refreshing resume list");
+      await fetchAllResumes();
+      console.log("Resume list refreshed successfully");
+    } catch (error) {
+      console.error("Error refreshing resumes:", error);
+      setSnackbar({
+        open: true,
+        message: `Error refreshing resumes: ${error.message}`,
+        severity: "error",
+      });
+    }
+  };
+
+  // Update this part in confirmDeleteResume
   const confirmDeleteResume = async () => {
-    if (!resumeToDelete) return;
+    if (!resumeToDelete) {
+      console.error("No resume ID to delete");
+      return;
+    }
 
     const resumeId = resumeToDelete;
+    console.log(`Confirming deletion of resume ID: ${resumeId}`);
+
     try {
       // Call the delete function from services
+      console.log(`Calling deleteResume service for ID: ${resumeId}`);
       const response = await deleteResume(resumeId);
+      console.log(`Delete service response:`, response);
 
       // Update the UI by removing the deleted resume
       setSavedResumes((prevResumes) =>
         prevResumes.filter((resume) => resume._id !== resumeId)
       );
+
+      // Refresh the resume list to ensure we have the latest data
+      await refreshResumes();
 
       // Show success message
       setSnackbar({
@@ -1598,7 +1601,7 @@ const Page = () => {
       // Show error message
       setSnackbar({
         open: true,
-        message: "Failed to delete resume",
+        message: `Failed to delete resume: ${error.message}`,
         severity: "error",
       });
       // Close the confirmation dialog but keep the resume ID in case user wants to retry
@@ -2989,7 +2992,7 @@ const Page = () => {
       {/* Snackbar notification */}
       {snackbar.open && (
         <div
-          className={`fixed bottom-20 md:bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+          className={`fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ${
             snackbar.severity === "success"
               ? "bg-green-600"
               : snackbar.severity === "error"
@@ -3013,8 +3016,66 @@ const Page = () => {
       {showAuthModal && renderAuthModal()}
 
       {/* Delete/Edit Confirmation Dialogs */}
-      {showDeleteConfirmation && renderDeleteConfirmation()}
-      {showEditConfirmation && renderEditConfirmation()}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                <FaTimes className="text-red-600" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-800">Delete Resume</h2>
+            </div>
+            <p className="mb-6 text-gray-600 text-sm">
+              Are you sure you want to delete this resume? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className="px-2 py-1 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteResume}
+                className="px-2 py-1 text-sm bg-red-600 rounded-md text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {showEditConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center mb-4">
+              <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                <FaFileAlt className="text-indigo-600" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-800">Edit Resume</h2>
+            </div>
+            <p className="mb-6 text-gray-600 text-sm">
+              Loading this resume will replace your current work. Do you want to
+              continue?
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setShowEditConfirmation(false)}
+                className="px-2 py-1 border text-sm border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLoadResumeForEditing}
+                className="px-2 py-1 text-sm bg-indigo-600 rounded-md text-white hover:bg-indigo-700"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

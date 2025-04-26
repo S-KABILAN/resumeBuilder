@@ -55,6 +55,9 @@ export const updateResume = async (resumeId, formData) => {
       throw new Error("Resume ID is missing. Cannot update resume.");
     }
 
+    console.log(`Attempting to update resume with ID: ${resumeId}`);
+    console.log(`Using token: ${token ? "Token exists" : "No token"}`);
+
     const response = await axiosInstance.put(
       `/resume/r/${resumeId}`,
       formData,
@@ -66,10 +69,20 @@ export const updateResume = async (resumeId, formData) => {
       }
     );
 
+    console.log("Update response:", response);
+
+    // Check if the response is successful
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.error || "Failed to update resume");
+    }
+
     return response.data;
   } catch (error) {
     console.error("Error updating resume:", error);
-    throw error || { message: "Failed to update resume" };
+    // Include original error message if available
+    const errorMessage =
+      error.response?.data?.error || error.message || "Failed to update resume";
+    throw new Error(errorMessage);
   }
 };
 
@@ -112,15 +125,29 @@ export const deleteResume = async (resumeId) => {
       throw new Error("Resume ID is missing. Cannot delete resume.");
     }
 
+    console.log(`Attempting to delete resume with ID: ${resumeId}`);
+    console.log(`Using token: ${token ? "Token exists" : "No token"}`);
+
+    // Make sure resumeId is properly passed in the URL
     const response = await axiosInstance.delete(`/resume/r/${resumeId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
+    console.log("Delete response:", response);
+
+    // Check if the response is successful
+    if (!response.data || response.data.success === false) {
+      throw new Error(response.data?.error || "Failed to delete resume");
+    }
+
     return response.data;
   } catch (error) {
     console.error("Error deleting resume:", error);
-    throw error || { message: "Failed to delete resume" };
+    // Include original error message if available
+    const errorMessage =
+      error.response?.data?.error || error.message || "Failed to delete resume";
+    throw new Error(errorMessage);
   }
 };
