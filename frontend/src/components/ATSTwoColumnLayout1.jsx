@@ -101,9 +101,12 @@ const ATSTwoColumnLayout1 = ({
             .map((section) => section.id)
         : sectionConfigFromSettings;
 
-    // Filter sections for sidebar
+    // Define which sections should be in the sidebar
+    const sidebarSectionTypes = ["skills", "education", "certifications"];
+
+    // Get sections for sidebar while preserving their original order
     const sidebarSections = enabledSections.filter((sectionId) =>
-      ["skills", "education", "certifications"].includes(sectionId)
+      sidebarSectionTypes.includes(sectionId)
     );
 
     return sidebarSections
@@ -162,11 +165,13 @@ const ATSTwoColumnLayout1 = ({
             .map((section) => section.id)
         : sectionConfigFromSettings;
 
-    // Filter sections for main content
-    const mainSections = enabledSections.filter((sectionId) =>
-      ["profile-summary", "experience", "projects", "achievements"].includes(
-        sectionId
-      )
+    // Define which sections should be in the sidebar (for exclusion)
+    const sidebarSectionTypes = ["skills", "education", "certifications"];
+
+    // Get sections for main content while preserving their original order
+    // by excluding sidebar sections
+    const mainSections = enabledSections.filter(
+      (sectionId) => !sidebarSectionTypes.includes(sectionId)
     );
 
     return mainSections

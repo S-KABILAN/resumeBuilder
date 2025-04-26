@@ -91,7 +91,7 @@ const ATSTwoColumnLayout2 = ({
     return value;
   };
 
-  // Function to get sections for left sidebar - Contact and Skills
+  // Function to get sections for left sidebar - Only skills for this layout
   const getLeftSideSections = () => {
     // Use the provided sectionConfig prop if available, otherwise use default from settings
     const enabledSections =
@@ -101,9 +101,12 @@ const ATSTwoColumnLayout2 = ({
             .map((section) => section.id)
         : sectionConfigFromSettings;
 
-    // For this layout, we only want skills in the left column
+    // Define which sections should be in the sidebar
+    const sidebarSectionTypes = ["skills"];
+
+    // Get sections for sidebar while preserving their original order
     const sidebarSections = enabledSections.filter((sectionId) =>
-      ["skills"].includes(sectionId)
+      sidebarSectionTypes.includes(sectionId)
     );
 
     return sidebarSections
@@ -150,16 +153,13 @@ const ATSTwoColumnLayout2 = ({
             .map((section) => section.id)
         : sectionConfigFromSettings;
 
-    // Filter sections for main content - everything except skills
-    const mainSections = enabledSections.filter((sectionId) =>
-      [
-        "profile-summary",
-        "experience",
-        "education",
-        "projects",
-        "achievements",
-        "certifications",
-      ].includes(sectionId)
+    // Define which sections should be in the sidebar (for exclusion)
+    const sidebarSectionTypes = ["skills"];
+
+    // Get sections for main content while preserving their original order
+    // by excluding sidebar sections
+    const mainSections = enabledSections.filter(
+      (sectionId) => !sidebarSectionTypes.includes(sectionId)
     );
 
     return mainSections
