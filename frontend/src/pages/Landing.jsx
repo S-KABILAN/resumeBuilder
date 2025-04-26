@@ -361,7 +361,7 @@ const Landing = () => {
 
           <div className="flex items-center space-x-4">
             <a
-              href="https://github.com/S-KABILAN/resume-builder"
+              href="https://github.com/S-KABILAN/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-indigo-600 transition-colors"
@@ -369,7 +369,7 @@ const Landing = () => {
               <FaGithub size={20} />
             </a>
             <a
-              href="https://linkedin.com"
+              href="https://www.linkedin.com/in/kabilan-s-3aab74256/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 hover:text-indigo-600 transition-colors"
