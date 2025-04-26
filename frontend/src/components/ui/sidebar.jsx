@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaHome,
   FaFileAlt,
@@ -9,10 +9,34 @@ import {
   FaUserCircle,
   FaChevronLeft,
   FaChevronRight,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 
 const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if the device is mobile on mount and window resize
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      // Auto-collapse sidebar on mobile
+      if (window.innerWidth < 768) {
+        setIsExpanded(false);
+      }
+    };
+
+    // Initial check
+    checkIfMobile();
+
+    // Add resize listener
+    window.addEventListener("resize", checkIfMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   const menuItems = [
     { name: "Home", icon: FaHome },
@@ -23,30 +47,34 @@ const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
   ];
 
   const handleMenuClick = (itemName) => {
-    onMenuClick(itemName); // This will call the parent's menu click handler
+    onMenuClick(itemName); // Call the parent's menu click handler
+    if (isMobile) {
+      setIsMobileMenuOpen(false); // Close mobile menu when an item is clicked
+    }
   };
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
   };
 
-  return (
-    <aside
-      className={`${
-        isExpanded ? "w-72" : "w-20"
-      } shrink-0 border-r border-gray-200 bg-white h-screen flex flex-col transition-all duration-300 ease-in-out relative shadow-md`}
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // Mobile menu button that appears only on small screens
+  const mobileMenuButton = (
+    <button
+      onClick={toggleMobileMenu}
+      className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-full shadow-md text-indigo-600"
+      aria-label="Toggle mobile menu"
     >
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-20 bg-white border border-gray-200 rounded-full p-1.5 text-indigo-600 hover:text-indigo-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-200 z-10"
-        aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-      >
-        {isExpanded ? (
-          <FaChevronLeft className="w-3 h-3" />
-        ) : (
-          <FaChevronRight className="w-3 h-3" />
-        )}
-      </button>
+      {isMobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+    </button>
+  );
+
+  // Main sidebar content
+  const sidebarContent = (
+    <>
       <div
         className={`px-6 py-8 flex flex-col items-center bg-gradient-to-br from-indigo-700 to-purple-700 ${
           isExpanded ? "" : "px-2"
@@ -112,7 +140,56 @@ const Sidebar = ({ onMenuClick, userName, onLogout, selectedItem }) => {
           {isExpanded && <span className="font-medium">Logout</span>}
         </button>
       </div>
+    </>
+  );
+
+  // Desktop sidebar
+  const desktopSidebar = (
+    <aside
+      className={`hidden md:flex ${
+        isExpanded ? "w-72" : "w-20"
+      } shrink-0 border-r border-gray-200 bg-white h-screen flex-col transition-all duration-300 ease-in-out relative shadow-md`}
+    >
+      <button
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-20 bg-white border border-gray-200 rounded-full p-1.5 text-indigo-600 hover:text-indigo-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-200 z-10"
+        aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+      >
+        {isExpanded ? (
+          <FaChevronLeft className="w-3 h-3" />
+        ) : (
+          <FaChevronRight className="w-3 h-3" />
+        )}
+      </button>
+      {sidebarContent}
     </aside>
+  );
+
+  // Mobile sidebar (overlay)
+  const mobileSidebar = (
+    <>
+      {mobileMenuButton}
+      <div
+        className={`md:hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-40 transition-opacity duration-300 ${
+          isMobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      ></div>
+      <aside
+        className={`md:hidden fixed top-0 left-0 z-50 w-72 h-screen bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {sidebarContent}
+      </aside>
+    </>
+  );
+
+  return (
+    <>
+      {desktopSidebar}
+      {mobileSidebar}
+    </>
   );
 };
 

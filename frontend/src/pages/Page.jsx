@@ -20,6 +20,7 @@ import {
   FaProjectDiagram,
   FaCertificate,
   FaArrowLeft,
+  FaHome,
 } from "react-icons/fa";
 import {
   ResumeDownloadButton,
@@ -1639,12 +1640,13 @@ const Page = () => {
   // For the Create Resume section
   const renderCreateResumeSection = () => {
     return (
-      <div className="grid grid-cols-12 gap-4">
-        {/* Left sidebar for section navigation - 20% */}
-        <div className="col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 sticky top-4">
-            <div className="mb-3 border-b border-gray-100 pb-2">
-              <h2 className="text-sm font-semibold text-gray-800 mb-1 flex items-center">
+      <div className="flex flex-col md:grid md:grid-cols-12 gap-4">
+        {/* Section Navigation - hidden on mobile when a section is active */}
+        <div className="md:col-span-2 mb-4 md:mb-0 order-1">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 md:sticky md:top-4">
+            {/* Section title */}
+            <div className="mb-3 border-b border-gray-100 pb-2 flex justify-between items-center">
+              <h2 className="text-sm font-semibold text-gray-800 flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-3 w-3 mr-1 text-indigo-600"
@@ -1662,7 +1664,48 @@ const Page = () => {
               </h2>
             </div>
 
-            <div className="space-y-1">
+            {/* Horizontal scrollable section buttons for mobile */}
+            <div className="md:hidden flex overflow-x-auto space-x-2 py-2 pb-3 -mx-3 px-3">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSectionChange(item.id)}
+                  className={`
+                    flex-shrink-0 flex items-center p-2 rounded-md text-left transition-all duration-200
+                    whitespace-nowrap
+                    ${
+                      activeSection === item.id
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }
+                  `}
+                >
+                  <div
+                    className={`
+                    flex items-center justify-center w-6 h-6 rounded-full mr-2
+                    ${
+                      activeSection === item.id
+                        ? "bg-indigo-100"
+                        : "bg-gray-100"
+                    }
+                  `}
+                  >
+                    <item.icon
+                      className={
+                        activeSection === item.id
+                          ? "text-indigo-600"
+                          : "text-gray-500"
+                      }
+                      size={13}
+                    />
+                  </div>
+                  <span className="text-xs font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Desktop vertical section buttons */}
+            <div className="hidden md:block space-y-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -1700,21 +1743,23 @@ const Page = () => {
               ))}
             </div>
 
-            {/* Add Manage Sections button */}
+            {/* Extra management buttons */}
             <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
-              <button
-                onClick={() => setActiveSection("SectionManager")}
-                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
-              >
-                <FaCogs className="mr-1.5 text-gray-500" size={10} /> Manage
-              </button>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
+                <button
+                  onClick={() => setActiveSection("SectionManager")}
+                  className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
+                >
+                  <FaCogs className="mr-1.5 text-gray-500" size={10} /> Manage
+                </button>
 
-              <button
-                onClick={() => setActiveSection("CustomSections")}
-                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
-              >
-                <FaPlus className="mr-1.5 text-gray-500" size={10} /> Custom
-              </button>
+                <button
+                  onClick={() => setActiveSection("CustomSections")}
+                  className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
+                >
+                  <FaPlus className="mr-1.5 text-gray-500" size={10} /> Custom
+                </button>
+              </div>
 
               <button
                 onClick={() => setSelectedItem("Template Settings")}
@@ -1734,8 +1779,8 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Middle section with form - 30% */}
-        <div className="col-span-4">
+        {/* Form section */}
+        <div className="md:col-span-4 mb-6 md:mb-0 order-2">
           <div className="bg-white rounded-lg shadow-sm border border-gray-100">
             <div className="border-b border-gray-100">
               <div className="px-4 py-3 flex items-center">
@@ -1796,10 +1841,10 @@ const Page = () => {
           </div>
         </div>
 
-        {/* Right section with preview - 30% */}
-        <div className="col-span-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sticky top-4">
-            <div className="mb-3 pb-3 border-b border-gray-100 flex justify-between items-center">
+        {/* Preview section */}
+        <div className="md:col-span-6 order-3">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 md:sticky md:top-4">
+            <div className="mb-3 pb-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
               <h2 className="text-base font-semibold text-gray-800 flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -1817,7 +1862,9 @@ const Page = () => {
                   onClick={saveResume}
                   className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
                 >
-                  <FaSave className="mr-1.5" size={12} /> Save Resume
+                  <FaSave className="mr-1.5" size={12} />
+                  <span className="hidden sm:inline">Save Resume</span>
+                  <span className="sm:hidden">Save</span>
                 </button>
 
                 <button
@@ -1825,41 +1872,78 @@ const Page = () => {
                   onClick={downloadResume}
                   className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
                 >
-                  <FaDownload className="mr-1.5" size={12} /> Download PDF
+                  <FaDownload className="mr-1.5" size={12} />
+                  <span className="hidden sm:inline">Download PDF</span>
+                  <span className="sm:hidden">PDF</span>
                 </button>
               </div>
             </div>
 
+            {/* Preview container with zoom controls for mobile */}
             <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
-              <div className="py-10 px-4">{renderResumePreview()}</div>
+              <div className="overflow-auto">
+                <div className="py-10 px-4 transform origin-top min-w-[350px] md:min-w-full">
+                  {renderResumePreview()}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile shortcuts */}
+            <div className="md:hidden flex justify-center mt-4 space-x-4">
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md flex items-center"
+              >
+                <svg
+                  className="w-3 h-3 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                  />
+                </svg>
+                Form
+              </button>
+
+              <button
+                onClick={saveResume}
+                className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-md flex items-center"
+              >
+                <FaSave className="w-3 h-3 mr-1" />
+                Save
+              </button>
             </div>
 
             {/* Template info */}
             <div className="mt-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
               <div className="flex items-center">
-                <div className="w-6 h-6 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
-                  <FaThLarge className="text-indigo-600" size={11} />
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-gray-700">
-                    {templates.find((t) => t.id === selectedLayout)?.name ||
-                      "Template"}
-                  </p>
-                  <p className="text-[10px] text-gray-500">
-                    {selectedLayout === "ATSSimpleClean" ||
-                    selectedLayout === "ATSFunctional"
-                      ? "ATS-Optimized"
-                      : selectedLayout.includes("TwoColumn")
-                      ? "Two-Column Layout"
-                      : "Single-Column Layout"}
-                  </p>
-                </div>
+                <span className="text-xs text-gray-600 font-medium mr-2">
+                  Template:
+                </span>
+                <span className="text-xs text-gray-500">
+                  {selectedLayout === "Layout1"
+                    ? "Modern"
+                    : selectedLayout === "Layout2"
+                    ? "Professional"
+                    : selectedLayout === "Layout3"
+                    ? "ATS-Friendly"
+                    : selectedLayout === "ATSOptimized"
+                    ? "Maximum ATS"
+                    : selectedLayout === "MinimalistATS"
+                    ? "Minimalist ATS"
+                    : selectedLayout}
+                </span>
               </div>
               <button
                 onClick={() => setSelectedItem("Resume Templates")}
-                className="text-indigo-600 hover:text-indigo-800 text-[10px] font-medium transition-colors duration-200 py-1 px-2 rounded border border-indigo-100 flex items-center"
+                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
               >
-                <FaThLarge className="mr-1" size={10} /> Change Template
+                Change Template
               </button>
             </div>
           </div>
@@ -2682,7 +2766,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar
         onMenuClick={handleMenuClick}
         userName={formData.personal?.name || "User"}
@@ -2690,7 +2774,62 @@ const Page = () => {
         selectedItem={selectedItem}
       />
       <div className="flex-1 flex flex-col overflow-auto">
-        <div className="p-4 md:p-6 space-y-6">{renderContent()}</div>
+        <div className="py-4 px-4 md:p-6 space-y-6 pb-24 md:pb-16">
+          {/* Mobile page title - show on mobile only */}
+          <div className="md:hidden flex justify-between items-center mb-4 mt-8 px-2">
+            <h1 className="text-xl font-bold text-gray-800">{selectedItem}</h1>
+          </div>
+          {renderContent()}
+        </div>
+
+        {/* Mobile bottom navigation */}
+        <div className="md:hidden mobile-bottom-nav">
+          <button
+            onClick={() => handleMenuClick("Home")}
+            className={`flex flex-col items-center p-1 ${
+              selectedItem === "Home" ? "text-indigo-600" : "text-gray-500"
+            }`}
+          >
+            <FaHome className="text-current" size={18} />
+            <span className="text-xs mt-1">Home</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick("Create Resume")}
+            className={`flex flex-col items-center p-1 ${
+              selectedItem === "Create Resume"
+                ? "text-indigo-600"
+                : "text-gray-500"
+            }`}
+          >
+            <FaFileAlt className="text-current" size={18} />
+            <span className="text-xs mt-1">Create</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick("My Resumes")}
+            className={`flex flex-col items-center p-1 ${
+              selectedItem === "My Resumes"
+                ? "text-indigo-600"
+                : "text-gray-500"
+            }`}
+          >
+            <FaFolder className="text-current" size={18} />
+            <span className="text-xs mt-1">Resumes</span>
+          </button>
+
+          <button
+            onClick={() => handleMenuClick("Resume Templates")}
+            className={`flex flex-col items-center p-1 ${
+              selectedItem === "Resume Templates"
+                ? "text-indigo-600"
+                : "text-gray-500"
+            }`}
+          >
+            <FaThLarge className="text-current" size={18} />
+            <span className="text-xs mt-1">Templates</span>
+          </button>
+        </div>
       </div>
     </div>
   );
