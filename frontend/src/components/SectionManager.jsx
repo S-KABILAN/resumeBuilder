@@ -197,9 +197,7 @@ const SectionManager = ({ activeSections = [], onSectionsChange }) => {
 
   return (
     <div className="w-full p-4 bg-gray-50 rounded-lg shadow-md">
-      <h3 className="mb-2 text-sm text-gray-800">
-        Customize Resume Sections
-      </h3>
+      <h3 className="mb-2 text-sm text-gray-800">Customize Resume Sections</h3>
       <div className="flex items-center mb-3">
         <div className="text-xs text-gray-600 flex-grow">
           Drag to reorder sections or toggle visibility using the checkboxes
@@ -252,7 +250,9 @@ const SectionManager = ({ activeSections = [], onSectionsChange }) => {
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <p className="text-xs">Unchecked sections won't appear in your resume</p>
+        <p className="text-xs">
+          Unchecked sections won't appear in your resume
+        </p>
       </div>
     </div>
   );

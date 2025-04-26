@@ -11,6 +11,7 @@ import {
   FaCheckCircle,
   FaChevronLeft,
   FaChevronRight,
+  FaLock,
 } from "react-icons/fa";
 
 // Import or define image URLs - Use local images if possible
@@ -211,19 +212,91 @@ const Landing = () => {
                 </div>
               </div>
 
+              {/* Features grid with authentication indicators */}
+              <div className="mt-10 grid md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                      <FaRegFileAlt className="text-indigo-600 mr-2" />
+                      Free Features
+                    </h3>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                      No Sign Up Required
+                    </span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
+                      <span>Create professional resumes</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
+                      <span>Choose from multiple templates</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
+                      <span>Format and edit content</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
+                      <span>Customize resume sections</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-green-500 mr-2 flex-shrink-0" />
+                      <span>Preview your resume</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-200 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+                      <FaLock className="text-indigo-600 mr-2" />
+                      Premium Features
+                    </h3>
+                    <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                      Sign Up Required
+                    </span>
+                  </div>
+                  <ul className="mt-4 space-y-2">
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
+                      <span>Save resumes to your account</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
+                      <span>Download resumes as PDF</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
+                      <span>Create multiple resumes</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
+                      <span>Version history tracking</span>
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <FaCheckCircle className="text-indigo-500 mr-2 flex-shrink-0" />
+                      <span>Sync across devices</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <button
-                  onClick={goToLogin}
-                  className="px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                  onClick={() => navigate("/dashboard")}
+                  className="px-6 py-3 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-md hover:shadow-lg"
                 >
-                  Get Started <FaArrowRight className="ml-2" />
+                  <FaRegFileAlt className="mr-2" />
+                  Create Resume Now
                 </button>
                 <button
                   onClick={goToLogin}
-                  className="px-6 sm:px-8 py-2.5 sm:py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:border-indigo-500 hover:text-indigo-600 transition-all"
+                  className="px-6 py-3 rounded-lg font-medium border border-indigo-600 text-indigo-600 hover:bg-indigo-50 transition-colors flex items-center justify-center"
                 >
-                  View Templates
+                  Sign In <FaArrowRight className="ml-2" />
                 </button>
               </div>
             </div>

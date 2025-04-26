@@ -6,7 +6,6 @@ import {
 } from "react-router-dom";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
-import PrivateRoute from "./components/PrivateRoute";
 import Page from "./pages/Page";
 import { useEffect, useState } from "react";
 import { isAuthenticated, getUserId } from "./utils/userUtils";
@@ -15,7 +14,6 @@ import "./App.css";
 import "./styles/resume.css";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("jwtToken"));
   const [authChecked, setAuthChecked] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +29,6 @@ function App() {
     if (fixesApplied) {
       console.log("Auth state fixes applied, rechecking...");
       logAuthState();
-      setToken(localStorage.getItem("jwtToken"));
     }
 
     setAuthChecked(true);
@@ -42,16 +39,6 @@ function App() {
     }, 800);
 
     return () => clearTimeout(timer);
-  }, []);
-
-  // Update token state if it changes in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setToken(localStorage.getItem("jwtToken"));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // If auth check hasn't completed yet, show loading spinner
@@ -87,15 +74,8 @@ function App() {
             }
           />
 
-          {/* Protected Dashboard route */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute token={token}>
-                <Page />
-              </PrivateRoute>
-            }
-          />
+          {/* Dashboard route - accessible to all users, no longer using PrivateRoute */}
+          <Route path="/dashboard" element={<Page />} />
 
           {/* Catch-all route - redirect to landing page */}
           <Route path="*" element={<Navigate to="/" replace />} />

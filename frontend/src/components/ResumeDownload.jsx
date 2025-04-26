@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { ResumeDownloadButton, ResumeViewer } from "./ReactPDFResume";
-import { FaDownload, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaDownload, FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
+import { isAuthenticated } from "../utils/userUtils";
+import { useNavigate } from "react-router-dom";
 
 const ResumeDownload = ({
   formData,
@@ -9,6 +11,12 @@ const ResumeDownload = ({
   sectionConfig = [],
 }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const navigate = useNavigate();
+  const userIsAuthenticated = isAuthenticated();
+
+  const handleLoginRedirect = () => {
+    navigate("/login");
+  };
 
   return (
     <div className="card bg-white p-6">
@@ -35,14 +43,34 @@ const ResumeDownload = ({
           Generate your resume as a high-quality, professionally formatted PDF
           document that's perfect for job applications.
         </p>
-        <div className="flex justify-center">
-          <ResumeDownloadButton
-            formData={formData}
-            templateSettings={templateSettings}
-            selectedLayout={selectedLayout}
-            sectionConfig={sectionConfig}
-          />
-        </div>
+        {userIsAuthenticated ? (
+          <div className="flex justify-center">
+            <ResumeDownloadButton
+              formData={formData}
+              templateSettings={templateSettings}
+              selectedLayout={selectedLayout}
+              sectionConfig={sectionConfig}
+            />
+          </div>
+        ) : (
+          <div className="p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-md">
+            <div className="flex items-center mb-2">
+              <FaLock className="text-indigo-600 mr-2" />
+              <h3 className="text-indigo-700 font-medium">
+                Authentication Required
+              </h3>
+            </div>
+            <p className="text-indigo-600 mb-3">
+              You need to sign in to download your resume.
+            </p>
+            <button
+              onClick={handleLoginRedirect}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Sign In
+            </button>
+          </div>
+        )}
       </div>
 
       {showPreview && (
@@ -59,6 +87,7 @@ const ResumeDownload = ({
                 templateSettings={templateSettings}
                 selectedLayout={selectedLayout}
                 sectionConfig={sectionConfig}
+                isAuthenticated={userIsAuthenticated}
               />
             </div>
           </div>

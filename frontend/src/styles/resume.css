@@ -215,3 +215,10 @@
     margin-bottom: 5mm;
   }
 }
+
+/* Hide PDF toolbar for unauthenticated users */
+.hide-toolbar .react-pdf__Document_container > div:first-child {
+  display: none !important;
+}
+
+/* Adjust other resume styles if needed */

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaUser,
   FaGraduationCap,
@@ -8,9 +9,19 @@ import {
   FaCertificate,
   FaLanguage,
   FaTrophy,
+  FaSignInAlt,
+  FaUserPlus,
+  FaSignOutAlt,
 } from "react-icons/fa";
 
-const TopNav = ({ activeSection, onSectionChange }) => {
+const TopNav = ({
+  activeSection,
+  onSectionChange,
+  isAuthenticated,
+  onLogout,
+}) => {
+  const navigate = useNavigate();
+
   const navItems = [
     { id: "PersonalInfo", label: "Personal Info", icon: FaUser },
     { id: "Education", label: "Education", icon: FaGraduationCap },
@@ -22,37 +33,34 @@ const TopNav = ({ activeSection, onSectionChange }) => {
     { id: "Certifications", label: "Certifications", icon: FaCertificate },
   ];
 
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
   return (
-    <nav className="flex overflow-x-auto py-4 px-3 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 sticky top-0 z-10">
-      <div className="flex space-x-3 px-2 min-w-full">
-        {navItems.map((item) => (
+    <nav className="flex justify-between overflow-x-auto py-4 px-3 bg-white rounded-xl shadow-sm border border-gray-100 mb-4 sticky top-0 z-10">
+      
+
+      <div className="flex shrink-0 ml-3">
+        {isAuthenticated ? (
           <button
-            key={item.id}
-            onClick={() => onSectionChange(item.id)}
-            className={`
-              flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 ease-in-out
-              ${
-                activeSection === item.id
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md transform scale-105"
-                  : "bg-gray-50 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border border-gray-100"
-              }
-            `}
+            onClick={onLogout}
+            className="flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            <item.icon
-              className={`mr-2 ${
-                activeSection === item.id ? "text-white" : "text-indigo-500"
-              }`}
-              size={16}
-            />
-            <span
-              className={`text-sm font-medium whitespace-nowrap ${
-                activeSection === item.id ? "text-white" : ""
-              }`}
-            >
-              {item.label}
-            </span>
+            <FaSignOutAlt className="mr-2 text-gray-600" />
+            <span className="text-sm font-medium">Sign Out</span>
           </button>
-        ))}
+        ) : (
+          <div className="flex space-x-2">
+            <button
+              onClick={handleLogin}
+              className="flex items-center px-4 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors"
+            >
+              <FaSignInAlt className="mr-2" />
+              <span className="text-sm font-medium">Sign In</span>
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

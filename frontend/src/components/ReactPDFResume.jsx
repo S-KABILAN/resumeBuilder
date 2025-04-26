@@ -1304,15 +1304,17 @@ export const ResumeViewer = ({
   templateSettings,
   selectedLayout,
   sectionConfig = [],
+  isAuthenticated = false,
 }) => (
   <PDFViewer
-    className="resume-pdf-viewer"
+    className={`resume-pdf-viewer ${!isAuthenticated ? "hide-toolbar" : ""}`}
     style={{
       width: "100%",
       height: "600px",
       maxHeight: "90vh", // More responsive height
       border: "none", // Remove border for cleaner look
     }}
+    showToolbar={isAuthenticated}
   >
     <ReactPDFResume
       formData={formData}
@@ -1528,6 +1530,7 @@ ResumeViewer.propTypes = {
   templateSettings: PropTypes.object,
   selectedLayout: PropTypes.string,
   sectionConfig: PropTypes.array,
+  isAuthenticated: PropTypes.bool,
 };
 
 ResumeDownloadButton.propTypes = {

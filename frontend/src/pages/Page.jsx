@@ -20,12 +20,11 @@ import {
   FaProjectDiagram,
   FaCertificate,
   FaArrowLeft,
-  FaHome,
+  FaLock,
+  FaTimes,
+  FaSignInAlt,
 } from "react-icons/fa";
-import {
-  ResumeDownloadButton,
-  ResumeViewer,
-} from "../components/ReactPDFResume";
+import { ResumeViewer } from "../components/ReactPDFResume";
 
 import PersonalInfoForm from "../components/forms/PersonalInfoForm";
 import EducationForm from "../components/forms/EducationForm";
@@ -33,14 +32,14 @@ import ExperienceForm from "../components/forms/ExperienceForm";
 import SkillsForm from "../components/forms/SkillsForm";
 import ProjectsForm from "../components/forms/ProjectsForm";
 import CertificationsForm from "../components/forms/CertificationsForm";
-import SectionManager from "../components/SectionManager";
 import CustomSectionForm from "../components/forms/CustomSectionForm";
+import AchievementsForm from "../components/forms/AchievementsForm";
 import LanguagesForm from "../components/forms/LanguagesForm";
 import ResumeTemplates from "../components/ResumeTemplates";
 import VersionHistory from "../components/VersionHistory";
 import TemplateCustomizer from "../components/TemplateCustomizer";
-import AchievementsForm from "../components/forms/AchievementsForm";
 import ResumeDownload from "../components/ResumeDownload";
+import SectionManager from "../components/SectionManager";
 
 import { PersonalInfoSubmit } from "../services/routes/personal";
 import { educationCreate } from "../services/routes/education";
@@ -67,7 +66,7 @@ import ATSFunctionalImg from "../assets/ats_functional.png";
 
 // Import the axiosInstance and getAuthToken at the top of the file after other imports
 import axiosInstance from "../services/api";
-import { getAuthToken } from "../utils/userUtils";
+import { getAuthToken, isAuthenticated } from "../utils/userUtils";
 
 import layout4 from "../assets/minimal-layout4.png";
 import layout5 from "../assets/executive-layout5.png";
@@ -475,6 +474,8 @@ const Page = () => {
   const [editingResumeId, setEditingResumeId] = useState(null);
   const [loadingResumes, setLoadingResumes] = useState(true); // New state for loading resumes
   const [errorLoadingResumes, setErrorLoadingResumes] = useState(null); // State for error handling
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authAction, setAuthAction] = useState(""); // 'save' or 'download'
 
   // Add profile summary section on initial load
   useEffect(() => {
@@ -932,6 +933,11 @@ const Page = () => {
 
   // Save a new resume or update an existing one
   const saveResume = async () => {
+    if (!isAuthenticated()) {
+      handleAuthRequired("save");
+      return;
+    }
+
     try {
       setIsLoading(true);
       setErrors({});
@@ -1566,6 +1572,10 @@ const Page = () => {
 
   // Use ReactPDF for PDF generation
   const downloadResume = () => {
+    if (!isAuthenticated()) {
+      handleAuthRequired("download");
+      return;
+    }
     // Just redirect to PDF Export page for now
     setSelectedItem("PDF Export");
   };
@@ -1573,311 +1583,345 @@ const Page = () => {
   // For the Create Resume section
   const renderCreateResumeSection = () => {
     return (
-      <div className="flex flex-col md:grid md:grid-cols-12 gap-4">
-        {/* Section Navigation - hidden on mobile when a section is active */}
-        <div className="md:col-span-2 mb-4 md:mb-0 order-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 md:sticky md:top-4">
-            {/* Section title */}
-            <div className="mb-3 border-b border-gray-100 pb-2 flex justify-between items-center">
-              <h2 className="text-sm font-semibold text-gray-800 flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-3 w-3 mr-1 text-indigo-600"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path
-                    fillRule="evenodd"
-                    d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Resume Sections
-              </h2>
+      <div className="space-y-6">
+        {/* Floating action buttons */}
+        <div className="fixed bottom-24 md:bottom-8 right-6 z-10 flex flex-col space-y-3">
+          {/* Download Button */}
+          <button
+            onClick={downloadResume}
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <FaDownload size={18} />
+          </button>
+
+          {/* Save Button */}
+          <button
+            onClick={saveResume}
+            className="flex items-center justify-center w-12 h-12 rounded-full bg-green-600 text-white shadow-lg hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <FaSave size={18} />
+          </button>
+
+          {/* Authentication notice for unauthenticated users */}
+          {!isAuthenticated() && (
+            <div className="absolute bottom-28 right-0 bg-white p-2 rounded-lg shadow-md text-xs text-gray-800 w-40 border border-gray-200">
+              Sign in to save or download your resume
+              <div className="absolute right-4 bottom-full w-2 h-2 transform rotate-45 bg-white border-t border-l border-gray-200"></div>
             </div>
-
-            {/* Horizontal scrollable section buttons for mobile */}
-            <div className="md:hidden flex overflow-x-auto space-x-2 py-2 pb-3 -mx-3 px-3">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleSectionChange(item.id)}
-                  className={`
-                    flex-shrink-0 flex items-center p-2 rounded-md text-left transition-all duration-200
-                    whitespace-nowrap
-                    ${
-                      activeSection === item.id
-                        ? "bg-indigo-50 text-indigo-700"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }
-                  `}
-                >
-                  <div
-                    className={`
-                    flex items-center justify-center w-6 h-6 rounded-full mr-2
-                    ${
-                      activeSection === item.id
-                        ? "bg-indigo-100"
-                        : "bg-gray-100"
-                    }
-                  `}
-                  >
-                    <item.icon
-                      className={
-                        activeSection === item.id
-                          ? "text-indigo-600"
-                          : "text-gray-500"
-                      }
-                      size={13}
-                    />
-                  </div>
-                  <span className="text-xs font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Desktop vertical section buttons */}
-            <div className="hidden md:block space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleSectionChange(item.id)}
-                  className={`
-                    w-full flex items-center p-2 rounded-md text-left transition-all duration-200
-                    ${
-                      activeSection === item.id
-                        ? "bg-indigo-50 text-indigo-700"
-                        : "text-gray-700 hover:bg-gray-50"
-                    }
-                  `}
-                >
-                  <div
-                    className={`
-                    flex items-center justify-center w-6 h-6 rounded-full mr-2
-                    ${
-                      activeSection === item.id
-                        ? "bg-indigo-100"
-                        : "bg-gray-100"
-                    }
-                  `}
-                  >
-                    <item.icon
-                      className={
-                        activeSection === item.id
-                          ? "text-indigo-600"
-                          : "text-gray-500"
-                      }
-                      size={13}
-                    />
-                  </div>
-                  <span className="text-xs font-medium">{item.label}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Extra management buttons */}
-            <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
-              <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
-                <button
-                  onClick={() => setActiveSection("SectionManager")}
-                  className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
-                >
-                  <FaCogs className="mr-1.5 text-gray-500" size={10} /> Manage
-                </button>
-
-                <button
-                  onClick={() => setActiveSection("CustomSections")}
-                  className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
-                >
-                  <FaPlus className="mr-1.5 text-gray-500" size={10} /> Custom
-                </button>
-              </div>
-
-              <button
-                onClick={() => setSelectedItem("Template Settings")}
-                className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
-              >
-                <FaThLarge className="mr-1.5 text-gray-500" size={10} />{" "}
-                Customize
-              </button>
-
-              <button
-                onClick={saveResume}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center mt-2 shadow-sm"
-              >
-                <FaSave className="mr-1.5" size={10} /> Save Resume
-              </button>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Form section */}
-        <div className="md:col-span-4 mb-6 md:mb-0 order-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100">
-            <div className="border-b border-gray-100">
-              <div className="px-4 py-3 flex items-center">
-                <div className="flex-1">
-                  <h2 className="text-base font-semibold text-gray-800">
-                    {navItems.find((item) => item.id === activeSection)
-                      ?.label ||
-                      (activeSection === "SectionManager"
-                        ? "Manage Sections"
-                        : activeSection === "CustomSections"
-                        ? "Custom Sections"
-                        : "Resume Details")}
-                  </h2>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {activeSection === "PersonalInfo"
-                      ? "Add your personal and contact information"
-                      : activeSection === "Education"
-                      ? "Add your educational background and qualifications"
-                      : activeSection === "Experience"
-                      ? "Add your work experience and internships"
-                      : activeSection === "Skills"
-                      ? "Add your key skills and competencies"
-                      : activeSection === "Languages"
-                      ? "Add languages you know and proficiency levels"
-                      : activeSection === "Projects"
-                      ? "Add notable projects you've worked on"
-                      : activeSection === "SectionManager"
-                      ? "Configure which sections appear in your resume"
-                      : activeSection === "CustomSections"
-                      ? "Add and edit custom sections"
-                      : "Fill in the details for this section"}
-                  </p>
+        {/* Rest of the create resume section */}
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-4">
+          {/* Section Navigation - hidden on mobile when a section is active */}
+          <div className="md:col-span-2 mb-4 md:mb-0 order-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-3 md:sticky md:top-4">
+              {/* Section title */}
+              <div className="mb-3 border-b border-gray-100 pb-2 flex justify-between items-center">
+                <h2 className="text-sm font-semibold text-gray-800 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-3 w-3 mr-1 text-indigo-600"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path
+                      fillRule="evenodd"
+                      d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Resume Sections
+                </h2>
+              </div>
+
+              {/* Horizontal scrollable section buttons for mobile */}
+              <div className="md:hidden flex overflow-x-auto space-x-2 py-2 pb-3 -mx-3 px-3">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`
+                      flex-shrink-0 flex items-center p-2 rounded-md text-left transition-all duration-200
+                      whitespace-nowrap
+                      ${
+                        activeSection === item.id
+                          ? "bg-indigo-50 text-indigo-700"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    <div
+                      className={`
+                      flex items-center justify-center w-6 h-6 rounded-full mr-2
+                      ${
+                        activeSection === item.id
+                          ? "bg-indigo-100"
+                          : "bg-gray-100"
+                      }
+                    `}
+                    >
+                      <item.icon
+                        className={
+                          activeSection === item.id
+                            ? "text-indigo-600"
+                            : "text-gray-500"
+                        }
+                        size={13}
+                      />
+                    </div>
+                    <span className="text-xs font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Desktop vertical section buttons */}
+              <div className="hidden md:block space-y-1">
+                {navItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSectionChange(item.id)}
+                    className={`
+                      w-full flex items-center p-2 rounded-md text-left transition-all duration-200
+                      ${
+                        activeSection === item.id
+                          ? "bg-indigo-50 text-indigo-700"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    <div
+                      className={`
+                      flex items-center justify-center w-6 h-6 rounded-full mr-2
+                      ${
+                        activeSection === item.id
+                          ? "bg-indigo-100"
+                          : "bg-gray-100"
+                      }
+                    `}
+                    >
+                      <item.icon
+                        className={
+                          activeSection === item.id
+                            ? "text-indigo-600"
+                            : "text-gray-500"
+                        }
+                        size={13}
+                      />
+                    </div>
+                    <span className="text-xs font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Extra management buttons */}
+              <div className="mt-4 pt-3 border-t border-gray-100 space-y-2">
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
+                  <button
+                    onClick={() => setActiveSection("SectionManager")}
+                    className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
+                  >
+                    <FaCogs className="mr-1.5 text-gray-500" size={10} /> Manage
+                  </button>
+
+                  <button
+                    onClick={() => setActiveSection("CustomSections")}
+                    className="bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
+                  >
+                    <FaPlus className="mr-1.5 text-gray-500" size={10} /> Custom
+                  </button>
                 </div>
-                {activeSection === "PersonalInfo" && (
-                  <div className="bg-indigo-50 rounded-full p-1.5 text-indigo-700">
-                    <FaUser size={16} />
-                  </div>
-                )}
-                {activeSection === "Education" && (
-                  <div className="bg-blue-50 rounded-full p-1.5 text-blue-700">
-                    <FaGraduationCap size={16} />
-                  </div>
-                )}
-                {activeSection === "Experience" && (
-                  <div className="bg-purple-50 rounded-full p-1.5 text-purple-700">
-                    <FaBriefcase size={16} />
-                  </div>
-                )}
-                {activeSection === "Skills" && (
-                  <div className="bg-green-50 rounded-full p-1.5 text-green-700">
-                    <FaCogs size={16} />
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className="p-4">{renderResumeSectionForm(activeSection)}</div>
-          </div>
-        </div>
-
-        {/* Preview section */}
-        <div className="md:col-span-6 order-3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 md:sticky md:top-4">
-            <div className="mb-3 pb-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
-              <h2 className="text-base font-semibold text-gray-800 flex items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1.5 text-indigo-600"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                </svg>
-                Preview
-              </h2>
-              <div className="flex space-x-2">
                 <button
-                  type="button"
+                  onClick={() => setSelectedItem("Template Settings")}
+                  className="w-full bg-white border border-gray-200 text-gray-700 py-1.5 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center hover:bg-gray-50"
+                >
+                  <FaThLarge className="mr-1.5 text-gray-500" size={10} />{" "}
+                  Customize
+                </button>
+
+                <button
                   onClick={saveResume}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-3 rounded text-xs transition-colors duration-200 flex items-center justify-center mt-2 shadow-sm"
                 >
-                  <FaSave className="mr-1.5" size={12} />
-                  <span className="hidden sm:inline">Save Resume</span>
-                  <span className="sm:hidden">Save</span>
+                  <FaSave className="mr-1.5" size={10} /> Save Resume
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Form section */}
+          <div className="md:col-span-4 mb-6 md:mb-0 order-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100">
+              <div className="border-b border-gray-100">
+                <div className="px-4 py-3 flex items-center">
+                  <div className="flex-1">
+                    <h2 className="text-base font-semibold text-gray-800">
+                      {navItems.find((item) => item.id === activeSection)
+                        ?.label ||
+                        (activeSection === "SectionManager"
+                          ? "Manage Sections"
+                          : activeSection === "CustomSections"
+                          ? "Custom Sections"
+                          : "Resume Details")}
+                    </h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {activeSection === "PersonalInfo"
+                        ? "Add your personal and contact information"
+                        : activeSection === "Education"
+                        ? "Add your educational background and qualifications"
+                        : activeSection === "Experience"
+                        ? "Add your work experience and internships"
+                        : activeSection === "Skills"
+                        ? "Add your key skills and competencies"
+                        : activeSection === "Languages"
+                        ? "Add languages you know and proficiency levels"
+                        : activeSection === "Projects"
+                        ? "Add notable projects you've worked on"
+                        : activeSection === "SectionManager"
+                        ? "Configure which sections appear in your resume"
+                        : activeSection === "CustomSections"
+                        ? "Add and edit custom sections"
+                        : "Fill in the details for this section"}
+                    </p>
+                  </div>
+                  {activeSection === "PersonalInfo" && (
+                    <div className="bg-indigo-50 rounded-full p-1.5 text-indigo-700">
+                      <FaUser size={16} />
+                    </div>
+                  )}
+                  {activeSection === "Education" && (
+                    <div className="bg-blue-50 rounded-full p-1.5 text-blue-700">
+                      <FaGraduationCap size={16} />
+                    </div>
+                  )}
+                  {activeSection === "Experience" && (
+                    <div className="bg-purple-50 rounded-full p-1.5 text-purple-700">
+                      <FaBriefcase size={16} />
+                    </div>
+                  )}
+                  {activeSection === "Skills" && (
+                    <div className="bg-green-50 rounded-full p-1.5 text-green-700">
+                      <FaCogs size={16} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-4">
+                {renderResumeSectionForm(activeSection)}
+              </div>
+            </div>
+          </div>
+
+          {/* Preview section */}
+          <div className="md:col-span-6 order-3">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 md:sticky md:top-4">
+              <div className="mb-3 pb-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-2">
+                <h2 className="text-base font-semibold text-gray-800 flex items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 mr-1.5 text-indigo-600"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                  </svg>
+                  Preview
+                </h2>
+                <div className="flex space-x-2">
+                  <button
+                    type="button"
+                    onClick={saveResume}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
+                  >
+                    <FaSave className="mr-1.5" size={12} />
+                    <span className="hidden sm:inline">Save Resume</span>
+                    <span className="sm:hidden">Save</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={downloadResume}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
+                  >
+                    <FaDownload className="mr-1.5" size={12} />
+                    <span className="hidden sm:inline">Download PDF</span>
+                    <span className="sm:hidden">PDF</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Preview container with zoom controls for mobile */}
+              <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
+                <div className="overflow-auto">
+                  <div className="py-10 px-4 transform origin-top min-w-[350px] md:min-w-full">
+                    {renderResumePreview()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile shortcuts */}
+              <div className="md:hidden flex justify-center mt-4 space-x-4">
+                <button
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                  className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md flex items-center"
+                >
+                  <svg
+                    className="w-3 h-3 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 10l7-7m0 0l7 7m-7-7v18"
+                    />
+                  </svg>
+                  Form
                 </button>
 
                 <button
-                  type="button"
-                  onClick={downloadResume}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 border border-indigo-600 rounded-md transition-colors duration-200 flex items-center"
+                  onClick={saveResume}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-md flex items-center"
                 >
-                  <FaDownload className="mr-1.5" size={12} />
-                  <span className="hidden sm:inline">Download PDF</span>
-                  <span className="sm:hidden">PDF</span>
+                  <FaSave className="w-3 h-3 mr-1" />
+                  Save
                 </button>
               </div>
-            </div>
 
-            {/* Preview container with zoom controls for mobile */}
-            <div className="border border-gray-200 rounded-md overflow-hidden bg-gray-50">
-              <div className="overflow-auto">
-                <div className="py-10 px-4 transform origin-top min-w-[350px] md:min-w-full">
-                  {renderResumePreview()}
+              {/* Template info */}
+              <div className="mt-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-xs text-gray-600 font-medium mr-2">
+                    Template:
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {selectedLayout === "Layout1"
+                      ? "Modern"
+                      : selectedLayout === "Layout2"
+                      ? "Professional"
+                      : selectedLayout === "Layout3"
+                      ? "ATS-Friendly"
+                      : selectedLayout === "ATSOptimized"
+                      ? "Maximum ATS"
+                      : selectedLayout === "MinimalistATS"
+                      ? "Minimalist ATS"
+                      : selectedLayout}
+                  </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Mobile shortcuts */}
-            <div className="md:hidden flex justify-center mt-4 space-x-4">
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-md flex items-center"
-              >
-                <svg
-                  className="w-3 h-3 mr-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                <button
+                  onClick={() => setSelectedItem("Resume Templates")}
+                  className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 10l7-7m0 0l7 7m-7-7v18"
-                  />
-                </svg>
-                Form
-              </button>
-
-              <button
-                onClick={saveResume}
-                className="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-md flex items-center"
-              >
-                <FaSave className="w-3 h-3 mr-1" />
-                Save
-              </button>
-            </div>
-
-            {/* Template info */}
-            <div className="mt-3 py-2 px-2.5 bg-gray-50 rounded-md flex justify-between items-center">
-              <div className="flex items-center">
-                <span className="text-xs text-gray-600 font-medium mr-2">
-                  Template:
-                </span>
-                <span className="text-xs text-gray-500">
-                  {selectedLayout === "Layout1"
-                    ? "Modern"
-                    : selectedLayout === "Layout2"
-                    ? "Professional"
-                    : selectedLayout === "Layout3"
-                    ? "ATS-Friendly"
-                    : selectedLayout === "ATSOptimized"
-                    ? "Maximum ATS"
-                    : selectedLayout === "MinimalistATS"
-                    ? "Minimalist ATS"
-                    : selectedLayout}
-                </span>
+                  Change Template
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedItem("Resume Templates")}
-                className="text-xs text-indigo-600 hover:text-indigo-800 transition-colors duration-200"
-              >
-                Change Template
-              </button>
             </div>
           </div>
         </div>
@@ -2054,68 +2098,7 @@ const Page = () => {
       case "Create Resume":
         return renderCreateResumeSection();
       case "My Resumes":
-        return (
-          <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-xl font-bold text-gray-800">My Resumes</h1>
-              <button
-                onClick={handleResumeCreate}
-                className="bg-indigo-600 text-sm hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
-              >
-                <FaPlus className="mr-2" size={14} /> Create New
-              </button>
-            </div>
-
-            {savedResumes && savedResumes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {savedResumes.map((resume) => (
-                  <div
-                    key={resume._id}
-                    className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
-                  >
-                    <div className="p-5">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                        {resume.title || resume.name || "Untitled Resume"}
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3">
-                        Last updated:{" "}
-                        {new Date(resume.updatedAt).toLocaleDateString()}
-                      </p>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => loadResumeForEditing(resume._id)}
-                          className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm flex-1 transition-colors duration-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteResume(resume._id)}
-                          className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-xl">
-                <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-2 text-lg text-gray-600">No resumes found</p>
-                <p className="text-gray-500 mb-4">
-                  Create your first resume to get started
-                </p>
-                <button
-                  onClick={handleResumeCreate}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200"
-                >
-                  Create Resume
-                </button>
-              </div>
-            )}
-          </div>
-        );
+        return renderMyResumesSection();
       case "Resume Templates":
         return renderResumeTemplatesSection();
       case "Template Settings":
@@ -2669,12 +2652,21 @@ const Page = () => {
       <div
         className={`resume-container content-spacing-${templateSettings.contentSpacing} font-size-${templateSettings.fontSize}`}
       >
+        {!isAuthenticated() && (
+          <div className="bg-indigo-50 p-2 border-l-4 border-indigo-500 rounded-md mb-3 flex items-center">
+            <FaLock className="text-indigo-600 mr-2" />
+            <p className="text-sm text-indigo-700">
+              Sign in to download or print your resume
+            </p>
+          </div>
+        )}
         <div className="resume-content">
           <ResumeViewer
             formData={formData}
             templateSettings={templateSettings}
             selectedLayout={selectedLayout}
             sectionConfig={sectionConfig}
+            isAuthenticated={isAuthenticated()} // Pass authentication status to control toolbar visibility
           />
         </div>
       </div>
@@ -2698,71 +2690,192 @@ const Page = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar
-        onMenuClick={handleMenuClick}
-        userName={formData.personal?.name || "User"}
-        onLogout={handleLogout}
-        selectedItem={selectedItem}
-      />
-      <div className="flex-1 flex flex-col overflow-auto">
-        <div className="py-4 px-4 md:p-6 space-y-6 pb-24 md:pb-16">
-          {/* Mobile page title - show on mobile only */}
-          <div className="md:hidden flex justify-between items-center mb-4 mt-8 px-2">
-            <h1 className="text-xl font-bold text-gray-800">{selectedItem}</h1>
+  const handleAuthRequired = (action) => {
+    setAuthAction(action);
+    setShowAuthModal(true);
+  };
+
+  const closeAuthModal = () => {
+    setShowAuthModal(false);
+  };
+
+  const navigateToLogin = () => {
+    navigate("/login");
+  };
+
+  const renderAuthModal = () => {
+    if (!showAuthModal) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center">
+              <FaLock className="mr-2 text-indigo-600" />
+              Authentication Required
+            </h2>
+            <button
+              onClick={closeAuthModal}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <FaTimes />
+            </button>
           </div>
+
+          <p className="mb-4 text-gray-600">
+            You need to sign in to{" "}
+            {authAction === "save"
+              ? "save your resume"
+              : "download your resume"}
+            .
+          </p>
+
+          <div className="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4">
+            <p className="text-sm text-indigo-700">
+              While anyone can create and edit resumes, you need an account to
+              save or download them.
+            </p>
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-4">
+            <button
+              onClick={closeAuthModal}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={navigateToLogin}
+              className="px-4 py-2 bg-indigo-600 rounded-md text-white hover:bg-indigo-700"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMyResumesSection = () => {
+    if (!isAuthenticated()) {
+      return (
+        <div className="p-8 rounded-xl bg-white shadow-sm border border-gray-100 text-center space-y-4">
+          <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
+            <FaLock className="text-indigo-600 text-xl" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Authentication Required
+          </h2>
+          <p className="text-gray-600 max-w-md mx-auto">
+            You need to sign in to view and manage your saved resumes.
+          </p>
+          <button
+            onClick={() => navigate("/login")}
+            className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors inline-flex items-center"
+          >
+            <FaSignInAlt className="mr-2" />
+            Sign In
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-xl font-bold text-gray-800">My Resumes</h1>
+          <button
+            onClick={handleResumeCreate}
+            className="bg-indigo-600 text-sm hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
+          >
+            <FaPlus className="mr-2" size={14} /> Create New
+          </button>
+        </div>
+
+        {savedResumes && savedResumes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {savedResumes.map((resume) => (
+              <div
+                key={resume._id}
+                className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    {resume.title || resume.name || "Untitled Resume"}
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-3">
+                    Last updated:{" "}
+                    {new Date(resume.updatedAt).toLocaleDateString()}
+                  </p>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => loadResumeForEditing(resume._id)}
+                      className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 py-2 px-3 rounded-lg text-sm flex-1 transition-colors duration-200"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteResume(resume._id)}
+                      className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded-lg text-sm transition-colors duration-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gray-50 rounded-xl">
+            <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
+            <p className="mt-2 text-lg text-gray-600">No resumes found</p>
+            <p className="text-gray-500 mb-4">
+              Create your first resume to get started
+            </p>
+            <button
+              onClick={handleResumeCreate}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+            >
+              Create Resume
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Sidebar */}
+      <Sidebar
+        selectedItem={selectedItem}
+        onMenuClick={handleMenuClick}
+        onLogout={handleLogout}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        {/* Top Navigation */}
+        <TopNav isAuthenticated={isAuthenticated()} onLogout={handleLogout} />
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto">
           {renderContent()}
-        </div>
+          {renderAuthModal()}
+        </main>
 
-        {/* Mobile bottom navigation */}
-        <div className="md:hidden mobile-bottom-nav">
-          <button
-            onClick={() => handleMenuClick("Home")}
-            className={`flex flex-col items-center p-1 ${
-              selectedItem === "Home" ? "text-indigo-600" : "text-gray-500"
-            }`}
-          >
-            <FaHome className="text-current" size={18} />
-            <span className="text-xs mt-1">Home</span>
-          </button>
-
-          <button
-            onClick={() => handleMenuClick("Create Resume")}
-            className={`flex flex-col items-center p-1 ${
-              selectedItem === "Create Resume"
-                ? "text-indigo-600"
-                : "text-gray-500"
-            }`}
-          >
-            <FaFileAlt className="text-current" size={18} />
-            <span className="text-xs mt-1">Create</span>
-          </button>
-
-          <button
-            onClick={() => handleMenuClick("My Resumes")}
-            className={`flex flex-col items-center p-1 ${
-              selectedItem === "My Resumes"
-                ? "text-indigo-600"
-                : "text-gray-500"
-            }`}
-          >
-            <FaFolder className="text-current" size={18} />
-            <span className="text-xs mt-1">Resumes</span>
-          </button>
-
-          <button
-            onClick={() => handleMenuClick("Resume Templates")}
-            className={`flex flex-col items-center p-1 ${
-              selectedItem === "Resume Templates"
-                ? "text-indigo-600"
-                : "text-gray-500"
-            }`}
-          >
-            <FaThLarge className="text-current" size={18} />
-            <span className="text-xs mt-1">Templates</span>
-          </button>
-        </div>
+        {/* Notification */}
+        {snackbar.open && (
+          <div className="fixed bottom-4 right-4 px-4 py-2 bg-green-600 text-white rounded-md shadow-lg">
+            {snackbar.message}
+            <button
+              onClick={closeSnackbar}
+              className="ml-2 text-white focus:outline-none"
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
