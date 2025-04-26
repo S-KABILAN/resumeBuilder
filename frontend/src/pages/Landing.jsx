@@ -300,7 +300,7 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white">
+      <section className="pb-10 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -378,7 +378,7 @@ const Landing = () => {
             </a>
           </div>
 
-          <p className="text-sm text-gray-500 mt-4 md:mt-0">
+          <p className="text-sm text-gray-500 mt-4 sm:text-center md:mt-0">
             © {new Date().getFullYear()} Resume Builder • Made with ❤️ by
             Kabilan S
           </p>

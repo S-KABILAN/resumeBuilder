@@ -79,9 +79,9 @@ const LoginPage = () => {
     <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white overflow-hidden">
       {/* Header */}
       <header className="py-4 px-6 flex justify-between items-center">
-        <div className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <a href="/" className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           Resume Builder
-        </div>
+        </a>
       </header>
 
       <div className="flex flex-1 items-center justify-center">
