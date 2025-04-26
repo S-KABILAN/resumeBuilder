@@ -76,7 +76,7 @@ const SortableSection = memo(({ section, onToggle }) => {
             onClick={(e) => e.stopPropagation()}
           />
           <span
-            className={`ml-2 font-medium ${
+            className={`ml-2 text-sm   ${
               isVisible ? "text-gray-700" : "text-gray-500"
             }`}
           >
@@ -197,13 +197,13 @@ const SectionManager = ({ activeSections = [], onSectionsChange }) => {
 
   return (
     <div className="w-full p-4 bg-gray-50 rounded-lg shadow-md">
-      <h3 className="mb-4 text-lg font-semibold text-gray-800">
+      <h3 className="mb-2 text-sm text-gray-800">
         Customize Resume Sections
       </h3>
       <div className="flex items-center mb-3">
-        <p className="text-sm text-gray-600 flex-grow">
+        <div className="text-xs text-gray-600 flex-grow">
           Drag to reorder sections or toggle visibility using the checkboxes
-        </p>
+        </div>
         <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
           Changes apply immediately to preview
         </div>
@@ -252,7 +252,7 @@ const SectionManager = ({ activeSections = [], onSectionsChange }) => {
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <p>Unchecked sections won't appear in your resume</p>
+        <p className="text-xs">Unchecked sections won't appear in your resume</p>
       </div>
     </div>
   );

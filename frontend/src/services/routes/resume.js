@@ -35,6 +35,14 @@ export const resumeCreate = async (formData) => {
     });
 
     console.log("Resume create response:", response);
+    console.log("Resume data structure:", {
+      responseData: response.data,
+      hasId: !!response.data?._id,
+      hasNestedId: !!response.data?.data?._id,
+      hasSimpleId: !!response.data?.id,
+      hasNestedSimpleId: !!response.data?.data?.id,
+      dataKeys: Object.keys(response.data || {}),
+    });
     return response;
   } catch (error) {
     console.error("Error creating resume:", error);

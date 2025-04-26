@@ -1081,10 +1081,29 @@ const Page = () => {
           // Create new resume
           response = await resumeCreate(resumeData);
           console.log("Resume create response:", response);
-          if (response && response.data && response.data._id) {
-            setEditingResumeId(response.data._id);
-          } else {
-            throw new Error("No resume ID received from server");
+
+          // Check different possible locations of the ID in the response
+          if (response && response.data) {
+            // Check if the ID is in data._id (MongoDB standard)
+            if (response.data._id) {
+              setEditingResumeId(response.data._id);
+            }
+            // Check if the ID is directly in data (in case server formats it differently)
+            else if (response.data.data && response.data.data._id) {
+              setEditingResumeId(response.data.data._id);
+            }
+            // Check if the ID might be in a simple id field
+            else if (response.data.id) {
+              setEditingResumeId(response.data.id);
+            }
+            // Check if the ID might be in a nested data object with simple id field
+            else if (response.data.data && response.data.data.id) {
+              setEditingResumeId(response.data.data.id);
+            } else {
+              console.error("Resume ID structure unexpected:", response.data);
+              // Don't throw error, just log it and continue
+              // This allows the save to continue even if we can't set the ID correctly
+            }
           }
         }
 
@@ -1794,50 +1813,71 @@ const Page = () => {
   // For the Resume Templates section
   const renderResumeTemplatesSection = () => {
     return (
-      <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-gray-800 mb-2">
+      <div className="p-8 bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="mb-8">
+          <h1 className="text-xl font-bold text-gray-900 mb-2">
             Resume Templates
           </h1>
-          <p className="text-gray-600 text-sm">Choose a template for your resume</p>
+          <p className="text-gray-500 text-sm">
+            Select a professionally designed template to showcase your career
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {templates.map((template) => (
             <div
               key={template.id}
               className={`
-                border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
-                ${
-                  selectedLayout === template.id
-                    ? "ring-2 ring-indigo-500 ring-offset-2"
-                    : "border-gray-200"
-                }
-              `}
+          group relative border rounded-xl overflow-hidden transition-all duration-200 cursor-pointer
+          hover:shadow-lg hover:-translate-y-1
+          ${
+            selectedLayout === template.id
+              ? "ring-4 ring-indigo-500/30 border-indigo-500"
+              : "border-gray-200 hover:border-gray-300"
+          }
+        `}
               onClick={() => handleLayoutSelect(template.id, template.settings)}
             >
-              <div className="relative aspect-[2/2.5] bg-gray-100">
+              <div className="relative aspect-[1/1.414] bg-gray-50">
+                {" "}
+                {/* Standard A4 paper ratio */}
                 <img
                   src={
                     template.image ||
-                    "https://via.placeholder.com/300x400?text=Template"
+                    "https://via.placeholder.com/300x424?text=Template+Preview"
                   }
                   alt={template.name}
-                  className=" object-cover"
+                  className="object-cover w-full h-full"
+                  loading="lazy"
                 />
                 {selectedLayout === template.id && (
-                  <div className="absolute inset-0 bg-indigo-600 bg-opacity-20 flex items-center justify-center">
-                    <div className="bg-white rounded-full p-2 shadow-md">
+                  <div className="absolute inset-0 bg-indigo-600/10 flex items-center justify-center">
+                    <div className="bg-white rounded-full p-2 shadow-lg transform scale-110 transition-all">
                       <FaCheck className="text-indigo-600 w-5 h-5" />
                     </div>
                   </div>
                 )}
               </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                  {template.name}
-                </h3>
-                <p className="text-gray-600 text-sm">{template.description}</p>
+              <div className="p-5 bg-white">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                      {template.name}
+                    </h3>
+                    <p className="text-gray-500 text-xs">
+                      {template.description}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      selectedLayout === template.id
+                        ? "bg-indigo-100 text-indigo-800"
+                        : "bg-gray-100 text-gray-600 group-hover:bg-gray-200"
+                    }`}
+                  >
+                    {selectedLayout === template.id ? "Selected" : "Select"}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -1865,7 +1905,7 @@ const Page = () => {
               onClick={() => setSelectedItem("Create Resume")}
             >
               <FaFileAlt className="w-10 h-10 text-indigo-600 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 Create New Resume
               </h3>
               <p className="text-gray-600 text-sm">
@@ -1878,7 +1918,7 @@ const Page = () => {
               onClick={() => setSelectedItem("My Resumes")}
             >
               <FaFolder className="w-10 h-10 text-purple-600 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 My Resumes
               </h3>
               <p className="text-gray-600 text-sm">
@@ -1891,7 +1931,7 @@ const Page = () => {
               onClick={() => setSelectedItem("Resume Templates")}
             >
               <FaThLarge className="w-10 h-10 text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 Resume Templates
               </h3>
               <p className="text-gray-600 text-sm">
@@ -1901,31 +1941,31 @@ const Page = () => {
           </div>
 
           <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-100">
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
               Tips for a Great Resume
             </h3>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
-                <span className="text-gray-700">
+                <span className="text-gray-700 text-sm">
                   Keep your resume concise and focused on relevant information
                 </span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
-                <span className="text-gray-700">
+                <span className="text-gray-700 text-sm">
                   Tailor your resume for each job application
                 </span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
-                <span className="text-gray-700">
+                <span className="text-gray-700 text-sm">
                   Use action verbs and quantify your achievements
                 </span>
               </li>
               <li className="flex items-start">
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 mr-2"></span>
-                <span className="text-gray-700">
+                <span className="text-gray-700 text-sm">
                   Proofread your resume for errors before submitting
                 </span>
               </li>
@@ -2226,14 +2266,14 @@ const Page = () => {
       case "Settings":
         return (
           <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-            <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-6">Settings</h1>
 
             <div className="space-y-6">
               <div className="p-5 border border-gray-200 rounded-xl">
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">
                   Account Settings
                 </h2>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 mb-4 text-sm">
                   Manage your account preferences
                 </p>
                 <button
@@ -2245,12 +2285,12 @@ const Page = () => {
               </div>
 
               <div className="p-5 border border-gray-200 rounded-xl">
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">
+                <h2 className="text-lg font-semibold text-gray-800 mb-3">
                   Help & Support
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Need help? Contact our support team at
-                  support@resumebuilder.com
+                  kabilanselvakumar313@gmail.com
                 </p>
               </div>
             </div>
