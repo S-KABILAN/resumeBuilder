@@ -2527,7 +2527,7 @@ const Page = () => {
             formData={formData}
             onFormChange={(field, updatedLanguages) => {
               if (field === "languages" && Array.isArray(updatedLanguages)) {
-                // Handle the case where the entire certifications array is updated
+                // Handle the case where the entire languages array is updated
                 setFormData({
                   ...formData,
                   languages: updatedLanguages,
@@ -2537,9 +2537,8 @@ const Page = () => {
                 handleFormChange("languages", field, updatedLanguages);
               }
             }}
-            addLanguage={addLanguage}
-            removeLanguage={removeLanguage}
             onSubmit={handleSubmitLanguages}
+            errors={{}}
           />
         );
       case "CustomSections":

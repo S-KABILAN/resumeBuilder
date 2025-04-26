@@ -1,6 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { FaPlus, FaGlobeAmericas } from "react-icons/fa";
+import { FaPlus, FaGlobeAmericas, FaTimes } from "react-icons/fa";
 import {
   FormContainer,
   FormSection,
@@ -8,7 +8,7 @@ import {
   EntryCard,
   FormField,
 } from "./FormStyles";
-import { Input, Select, Checkbox } from "./FormComponents";
+import { Select, Checkbox } from "./FormComponents";
 
 const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const [newLanguage, setNewLanguage] = useState("");
@@ -43,13 +43,14 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
   const handleAddLanguage = () => {
     if (!newLanguage.trim()) return;
 
+    // Add the new language directly to the formData
     const languageEntry = {
       language: newLanguage,
       proficiency: newProficiency,
       isVisible: isVisible,
     };
 
-    const updatedLanguages = [...formData.languages, languageEntry];
+    const updatedLanguages = [...(formData.languages || []), languageEntry];
     onFormChange("languages", updatedLanguages);
 
     // Reset the form
@@ -58,10 +59,45 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
     setIsVisible(true);
   };
 
+  // Handle input change
+  const handleInputChange = (e) => {
+    const { value } = e.target;
+    console.log("Input changing:", value);
+    setNewLanguage(value);
+  };
+
+  // Handle key press for input field
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (newLanguage.trim()) {
+        handleAddLanguage();
+      }
+    }
+  };
+
   // Remove language
   const handleRemoveLanguage = (index) => {
     const updatedLanguages = formData.languages.filter((_, i) => i !== index);
     onFormChange("languages", updatedLanguages);
+  };
+
+  // Get a color class for proficiency level badges
+  const getProficiencyColorClass = (proficiency) => {
+    switch (proficiency) {
+      case "Native":
+        return "bg-green-100 text-green-800";
+      case "Proficient":
+        return "bg-blue-100 text-blue-800";
+      case "Advanced":
+        return "bg-indigo-100 text-indigo-800";
+      case "Intermediate":
+        return "bg-yellow-100 text-yellow-800";
+      case "Elementary":
+        return "bg-orange-100 text-orange-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
   return (
@@ -72,7 +108,7 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
           title="Your Languages"
           description="Manage your language proficiencies"
         >
-          <div className="space-y-2">
+          <div className="space-y-3">
             {formData.languages.map((item, index) => (
               <div
                 key={index}
@@ -80,24 +116,17 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
               >
                 <div className="flex items-center">
                   <div className="bg-indigo-100 p-2 rounded-full mr-3">
-                    <FaGlobeAmericas className="text-indigo-600" size={12} />
+                    <FaGlobeAmericas className="text-indigo-600" size={14} />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-gray-800">
+                    <div className="font-medium text-sm text-gray-800">
                       {item.language}
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
+                    <div className="text-xs text-gray-500 mt-1">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-xs ${
-                          item.proficiency === "Native" ||
-                          item.proficiency === "Proficient"
-                            ? "bg-green-100 text-green-800"
-                            : item.proficiency === "Advanced"
-                            ? "bg-blue-100 text-blue-800"
-                            : item.proficiency === "Intermediate"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                        className={`inline-block px-2 py-0.5 rounded-full text-xs ${getProficiencyColorClass(
+                          item.proficiency
+                        )}`}
                       >
                         {item.proficiency}
                       </span>
@@ -110,7 +139,7 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
                       type="checkbox"
                       checked={item.isVisible}
                       onChange={() => handleCheckboxChange(index)}
-                      className="h-3 w-3 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                      className="h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
                     />
                     <span className="ml-1 text-xs text-gray-600">Show</span>
                   </label>
@@ -120,18 +149,7 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
                     className="text-red-500 hover:text-red-700 focus:outline-none text-xs font-medium flex items-center"
                     title="Remove language"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-3.5 w-3.5 mr-0.5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <FaTimes className="mr-1" size={12} />
                     Remove
                   </button>
                 </div>
@@ -155,77 +173,73 @@ const LanguagesForm = ({ formData, onFormChange, onSubmit, errors = {} }) => {
       {/* Add new language form */}
       <EntryCard title="Add New Language">
         <FormSection>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              label="Language"
-              error={errors.language?.message}
-              className="col-span-1"
-            >
-              <input
-                type="text"
-                value={newLanguage}
-                onChange={(e) => setNewLanguage(e.target.value)}
-                placeholder="e.g. English, Spanish, etc."
-                className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleAddLanguage();
+            }}
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="col-span-1">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Language
+                </label>
+                <input
+                  type="text"
+                  value={newLanguage}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyPress}
+                  placeholder="e.g. English, Spanish, etc."
+                  className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  autoComplete="off"
+                />
+                {errors.language?.message && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {errors.language.message}
+                  </p>
+                )}
+              </div>
+
+              <FormField label="Proficiency" className="col-span-1">
+                <Select
+                  value={newProficiency}
+                  onChange={(e) => setNewProficiency(e.target.value)}
+                  className="w-full"
+                >
+                  <option value="Native">Native</option>
+                  <option value="Proficient">Proficient</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Elementary">Elementary</option>
+                </Select>
+              </FormField>
+            </div>
+
+            <div className="flex items-center mt-4">
+              <Checkbox
+                id="isVisible"
+                checked={isVisible}
+                onChange={(e) => setIsVisible(e.target.checked)}
               />
-            </FormField>
-
-            <FormField label="Proficiency" className="col-span-1">
-              <Select
-                value={newProficiency}
-                onChange={(e) => setNewProficiency(e.target.value)}
-                className="w-full"
+              <label
+                htmlFor="isVisible"
+                className="ml-2 text-sm font-medium text-gray-700"
               >
-                <option value="Native" className="text-green-700 font-medium">
-                  Native
-                </option>
-                <option
-                  value="Proficient"
-                  className="text-blue-700 font-medium"
-                >
-                  Proficient
-                </option>
-                <option
-                  value="Advanced"
-                  className="text-purple-700 font-medium"
-                >
-                  Advanced
-                </option>
-                <option
-                  value="Intermediate"
-                  className="text-orange-700 font-medium"
-                >
-                  Intermediate
-                </option>
-              </Select>
-            </FormField>
-          </div>
+                Show on resume
+              </label>
+            </div>
 
-          <div className="flex items-center mt-4">
-            <Checkbox
-              id="isVisible"
-              checked={isVisible}
-              onChange={(e) => setIsVisible(e.target.checked)}
-            />
-            <label
-              htmlFor="isVisible"
-              className="ml-2 text-sm font-medium text-gray-700"
-            >
-              Show on resume
-            </label>
-          </div>
-
-          <div className="mt-3 flex justify-end">
-            <button
-              type="button"
-              onClick={handleAddLanguage}
-              className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!newLanguage.trim()}
-            >
-              <FaPlus className="mr-2" size={12} />
-              Add Language
-            </button>
-          </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="submit"
+                className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!newLanguage.trim()}
+              >
+                <FaPlus className="mr-2" size={12} />
+                Add Language
+              </button>
+            </div>
+          </form>
         </FormSection>
       </EntryCard>
 
