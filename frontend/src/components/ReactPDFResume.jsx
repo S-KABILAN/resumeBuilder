@@ -876,6 +876,49 @@ const ReactPDFResume = ({
                     </View>
                   </View>
                 )}
+                {/* Achievements section */}
+                {achievements && achievements.length > 0 && (
+                  <View style={{ marginBottom: 15 }}>
+                    <Text
+                      style={{
+                        ...styles.sectionTitle,
+                        color: styles.colors?.primary,
+                        fontWeight: "bold",
+                        borderBottomWidth: 1,
+                        borderBottomColor: styles.colors?.primary,
+                      }}
+                    >
+                      ACHIEVEMENTS
+                    </Text>
+                    <View style={{ marginTop: 5 }}>
+                      {achievements
+                        .filter(
+                          (achievement) => achievement.isVisible !== false
+                        )
+                        .map((achievement, index) => (
+                          <View
+                            key={index}
+                            style={{
+                              flexDirection: "row",
+                              marginBottom: 3,
+                            }}
+                          >
+                            <Text style={{ fontSize: 9, marginRight: 5 }}>
+                              •
+                            </Text>
+                            <Text style={{ fontSize: 9, flex: 1 }}>
+                              <Text style={{ fontWeight: "bold" }}>
+                                {achievement.title}
+                              </Text>
+                              {achievement.description
+                                ? `: ${achievement.description}`
+                                : ""}
+                            </Text>
+                          </View>
+                        ))}
+                    </View>
+                  </View>
+                )}
               </View>
 
               {/* Right column for main content */}
@@ -1563,7 +1606,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1586,7 +1628,6 @@ const ReactPDFResume = ({
                             key={index}
                             style={{
                               fontSize: 8,
-                              backgroundColor: styles.colors?.primary + "05",
                               padding: 2,
                               margin: 2,
                               borderRadius: 2,
@@ -1606,7 +1647,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1644,7 +1684,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1675,7 +1714,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1704,7 +1742,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1751,7 +1788,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1772,7 +1808,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -1833,7 +1868,6 @@ const ReactPDFResume = ({
                       style={{
                         fontSize: 10,
                         fontWeight: "bold",
-                        backgroundColor: styles.colors?.primary + "10",
                         color: styles.colors?.primary,
                         padding: 2,
                         marginBottom: 3,
@@ -2304,8 +2338,6 @@ const ReactPDFResume = ({
                       flexDirection: "row",
                       flexWrap: "wrap",
                       marginTop: 3,
-                      borderTop: `1px solid ${styles.colors?.primary}20`,
-                      borderBottom: `1px solid ${styles.colors?.primary}20`,
                       padding: 4,
                     }}
                   >
@@ -2316,7 +2348,6 @@ const ReactPDFResume = ({
                           key={index}
                           style={{
                             fontSize: 9,
-                            backgroundColor: `${styles.colors?.primary}10`,
                             borderRadius: 2,
                             padding: 3,
                             margin: 2,

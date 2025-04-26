@@ -69,6 +69,16 @@ import ATSFunctionalImg from "../assets/ats_functional.png";
 import axiosInstance from "../services/api";
 import { getAuthToken } from "../utils/userUtils";
 
+import layout4 from "../assets/minimal-layout4.png"
+import layout5 from "../assets/executive-layout5.png"
+import layout6 from "../assets/acadamic-layout6.png"
+import ATSFunctional from "../assets/ATSFunctional.png"
+import ModernTwoColumn from "../assets/ModernTwoColumn.png"
+import ProfessionalTwoColumn from "../assets/ProfessionalTwoColumn.png"
+import professional from "../assets/Professional.png"
+import ATSsimpleClean from "../assets/ATSSimpleClean.png"
+import CompactTwoColumn from "../assets/CompactTwoColumn.png"
+
 // Default resume data for demonstration
 const defaultResumeData = {
   personal: {
@@ -246,28 +256,14 @@ const Page = () => {
       id: "Layout1",
       name: "Professional",
       description: "Clean and professional layout, perfect for most industries",
-      image: "https://via.placeholder.com/300x400?text=Professional",
-      settings: templateSettings,
-    },
-    {
-      id: "Layout2",
-      name: "Modern",
-      description: "Contemporary design with a fresh look",
-      image: "https://via.placeholder.com/300x400?text=Modern",
-      settings: templateSettings,
-    },
-    {
-      id: "Layout3",
-      name: "Creative",
-      description: "Showcase your creativity with this unique layout",
-      image: "https://via.placeholder.com/300x400?text=Creative",
+      image: professional,
       settings: templateSettings,
     },
     {
       id: "Layout4",
       name: "Minimal",
       description: "Clean and simple design focused on content",
-      image: "https://via.placeholder.com/300x400?text=Minimal",
+      image: layout4,
       settings: {
         ...templateSettings,
         colors: {
@@ -281,7 +277,7 @@ const Page = () => {
       id: "Layout5",
       name: "Executive",
       description: "Elegant and professional for senior positions",
-      image: "https://via.placeholder.com/300x400?text=Executive",
+      image: layout5,
       settings: {
         ...templateSettings,
         colors: {
@@ -295,7 +291,7 @@ const Page = () => {
       id: "Layout6",
       name: "Academic",
       description: "Perfect for academic and research positions",
-      image: "https://via.placeholder.com/300x400?text=Academic",
+      image: layout6,
       settings: {
         ...templateSettings,
         colors: {
@@ -310,7 +306,7 @@ const Page = () => {
       name: "Modern Two-Column",
       description:
         "A stylish two-column layout with a colored sidebar for personal info and skills",
-      image: ModernTwoColumnImg,
+      image: ModernTwoColumn,
       settings: {
         ...templateSettings,
         colors: {
@@ -325,7 +321,7 @@ const Page = () => {
       name: "Professional Two-Column",
       description:
         "A balanced professional layout with a centered header and two-column body",
-      image: ProfessionalTwoColumnImg,
+      image: ProfessionalTwoColumn,
       settings: {
         ...templateSettings,
         colors: {
@@ -335,72 +331,13 @@ const Page = () => {
         },
       },
     },
-    {
-      id: "ElegantTwoColumn",
-      name: "Elegant Two-Column",
-      description:
-        "Clean design with a colored left sidebar for contact info and skills",
-      image: "https://via.placeholder.com/300x400?text=ElegantTwoColumn",
-      settings: {
-        ...templateSettings,
-        colors: {
-          ...templateSettings.colors,
-          primary: "#6366f1",
-          secondary: "#4f46e5",
-        },
-      },
-    },
-    {
-      id: "ModernSplit",
-      name: "Modern Split",
-      description:
-        "Horizontal header with thin left sidebar for skills and education",
-      image: "https://via.placeholder.com/300x400?text=ModernSplit",
-      settings: {
-        ...templateSettings,
-        colors: {
-          ...templateSettings.colors,
-          primary: "#3b82f6",
-          secondary: "#2563eb",
-        },
-      },
-    },
-    {
-      id: "CreativeTwoColumn",
-      name: "Creative Two-Column",
-      description:
-        "Vibrant design with photo placeholder and visual skill indicators",
-      image: "https://via.placeholder.com/300x400?text=CreativeTwoColumn",
-      settings: {
-        ...templateSettings,
-        colors: {
-          ...templateSettings.colors,
-          primary: "#ec4899",
-          secondary: "#db2777",
-        },
-      },
-    },
-    {
-      id: "ExecutiveTwoColumn",
-      name: "Executive Two-Column",
-      description:
-        "Sophisticated layout for executives with competencies section",
-      image: "https://via.placeholder.com/300x400?text=ExecutiveTwoColumn",
-      settings: {
-        ...templateSettings,
-        colors: {
-          ...templateSettings.colors,
-          primary: "#0f766e",
-          secondary: "#0d9488",
-        },
-      },
-    },
+
     {
       id: "CompactTwoColumn",
       name: "Compact Two-Column",
       description:
         "Space-efficient design with thin header and comprehensive sidebar",
-      image: "https://via.placeholder.com/300x400?text=CompactTwoColumn",
+      image: CompactTwoColumn,
       settings: {
         ...templateSettings,
         colors: {
@@ -416,9 +353,7 @@ const Page = () => {
       name: "ATS Simple Clean",
       description:
         "ATS-optimized single-column layout with clean formatting for maximum readability by both humans and resume screening software",
-      image:
-        ATSSimpleCleanImg ||
-        "https://via.placeholder.com/300x400?text=ATSSimpleClean",
+      image: ATSsimpleClean,
       settings: {
         ...templateSettings,
         colors: {
@@ -433,9 +368,7 @@ const Page = () => {
       name: "ATS Functional",
       description:
         "Skills-focused single-column layout that highlights your competencies while maintaining ATS compatibility",
-      image:
-        ATSFunctionalImg ||
-        "https://via.placeholder.com/300x400?text=ATSFunctional",
+      image: ATSFunctional,
       settings: {
         ...templateSettings,
         colors: {
